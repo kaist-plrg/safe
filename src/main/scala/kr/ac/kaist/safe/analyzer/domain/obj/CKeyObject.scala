@@ -616,6 +616,18 @@ object CKeyObject extends ObjDomain {
     }
     val empty = HashMap.empty[AbsStr, (Tag, AbsDataProp)]
     val bottom: T = FAnd(empty, empty)
+
+    def fromJson[K, V](k: JsValue => K, v: JsValue => V)(value: JsValue): ConsMap.T = throw AbsObjParseError(value)
+//      value match {
+//      case JsObject(m) => (
+//        m.get("map").map(json2map(_, k, AbsOpt.fromJson(v))),
+//        m.get("default").map(AbsOpt.fromJson(v))
+//      ) match {
+//        case (Some(m), Some(d)) => AbsMap(m, d)
+//        case _ => throw AbsMapParseError(value)
+//      }
+//      case _ => throw AbsMapParseError(value)
+//    }
   }
 
   lazy private[this] val ObjMapBot: ConsMap.T = ConsMap.bottom
@@ -638,16 +650,16 @@ object CKeyObject extends ObjDomain {
 
   // from json value to abstract object
   def fromJson(v: JsValue): Elem = throw new InternalError("TODO")
-  //    v match {
-  //    case JsObject(m) => (
-  //      m.get("map").map(AbsMap.fromJson(json2str, AbsDataProp.fromJson)),
-  //      m.get("imap").map(AbsMap.fromJson(IName.fromJson, AbsIValue.fromJson))
-  //    ) match {
-  //        case (Some(n), Some(i)) => Elem(n, i)
-  //        case _ => throw AbsObjParseError(v)
-  //      }
-  //    case _ => throw AbsObjParseError(v)
-  //  }
+//      v match {
+//      case JsObject(m) => (
+//        m.get("map").map(ConsMap.fromJson(json2str, AbsDataProp.fromJson)),
+//        m.get("imap").map(AbsMap.fromJson(IName.fromJson, AbsIValue.fromJson))
+//      ) match {
+//          case (Some(n), Some(i)) => Elem(n, i)
+//          case _ => throw AbsObjParseError(v)
+//        }
+//      case _ => throw AbsObjParseError(v)
+//    }
 
   // abstract object element
   case class Elem(
