@@ -12,32 +12,30 @@
 package kr.ac.kaist.safe.analyzer
 
 import kr.ac.kaist.safe.nodes.cfg._
-import scala.collection.immutable.HashMap
+
+import scala.collection.immutable.{ HashMap, HashSet, LongMap }
 
 case class Worklist(cfg: CFG) {
   def init(entryCP: ControlPoint): Unit = {
-    worklist = Nil
+    worklist = empty
     add(entryCP)
   }
 
-  // work
-  case class Work(order: Int, cp: ControlPoint) {
-    def <(that: Work): Boolean = this.order < that.order
-    override def toString: String = cp.toString
-  }
-
+  private lazy val emptySet = HashSet.empty[ControlPoint]
+  private lazy val empty: LongMap[HashSet[ControlPoint]] = LongMap.empty[HashSet[ControlPoint]]
   // work list
-  private var worklist: List[Work] = Nil
+  private var worklist: LongMap[HashSet[ControlPoint]] = empty
 
-  def getWorklist: List[Work] = worklist
+  def getWorklist: HashSet[ControlPoint] =
+    (HashSet.empty[ControlPoint] /: worklist)((set_i, kv) => set_i ++ kv._2)
 
   // order map for blocks
-  private val orderMap: Map[CFGBlock, Int] = {
+  private val orderMap: Map[CFGBlock, Long] = {
     val cfgBlockList: List[CFGBlock] = cfg.getAllBlocks.sortWith((b1, b2) => {
       if (b1.func.id == b2.func.id) compareBlockType(b1, b2)
       else b1.func.id < b2.func.id
     })
-    val (orderMap, _) = cfgBlockList.foldLeft((HashMap[CFGBlock, Int](), 0)) {
+    val (orderMap, _) = cfgBlockList.foldLeft((HashMap[CFGBlock, Long](), 0L)) {
       case ((tmpMap, tmpOrder), block) =>
         (tmpMap + (block -> tmpOrder), tmpOrder + 1)
     }
@@ -45,7 +43,7 @@ case class Worklist(cfg: CFG) {
   }
 
   // get order of block
-  private def getOrder(block: CFGBlock): Int = orderMap.getOrElse(block, 0)
+  private def getOrder(block: CFGBlock): Long = orderMap.getOrElse(block, 0L)
 
   // compare types of blocks
   def compareBlockType(b1: CFGBlock, b2: CFGBlock): Boolean =
@@ -60,30 +58,25 @@ case class Worklist(cfg: CFG) {
   // add control point to work list
   def add(cp: ControlPoint): Unit = {
     val order = getOrder(cp.block)
-    val newWork = Work(order, cp)
-    if (!(worklist contains newWork))
-      worklist = (newWork :: worklist).sortWith((w1, w2) => w1 < w2)
+    val ocp = worklist.getOrElse(order, emptySet)
+    worklist = worklist + (order -> (ocp + cp))
   }
 
-  def isEmpty: Boolean = {
-    worklist.isEmpty
-  }
+  def isEmpty: Boolean = worklist.isEmpty
 
-  def pop: ControlPoint = {
-    val removedHead = worklist.head.cp
+  def pop: Set[ControlPoint] = {
+    val head = worklist.head
     worklist = worklist.tail
-    removedHead
+    head._2
   }
 
-  def head: ControlPoint = worklist.head.cp
+  def head: Set[ControlPoint] = worklist.head._2
 
-  def getOrderMap: Map[CFGBlock, Int] = orderMap
+  def getOrderMap: Map[CFGBlock, Long] = orderMap
 
   override def toString: String = {
     worklist.map(work => work.toString).mkString(", ")
   }
 
-  def has(block: CFGBlock): Boolean = worklist.exists {
-    case Work(_, cp) => cp.block == block
-  }
+  def has(block: CFGBlock): Boolean = worklist.values.exists(_.exists(_.block == block))
 }

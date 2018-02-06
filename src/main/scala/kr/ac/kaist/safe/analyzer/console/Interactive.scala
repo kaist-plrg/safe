@@ -41,7 +41,8 @@ trait Interactive {
   def runFixpoint: Unit
   def prepareToRunFixpoint: Boolean = {
     iter += 1
-    cur = worklist.head
+    // TODO worklist head is a set of control points. Currently, we take the first control point.
+    cur = worklist.head.head
     home = cur
     val block = cur.block
     (target match {

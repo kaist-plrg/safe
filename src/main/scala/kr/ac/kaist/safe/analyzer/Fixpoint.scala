@@ -15,6 +15,8 @@ import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.console.Interactive
 import kr.ac.kaist.safe.nodes.cfg.{ CFGEdgeExc, CFGEdgeNormal }
 
+import scala.collection.immutable.HashMap
+
 class Fixpoint(
     semantics: Semantics,
     val consoleOpt: Option[Interactive]
@@ -33,69 +35,58 @@ class Fixpoint(
 
   def computeOneStep(): Unit = {
     consoleOpt.foreach(_.runFixpoint)
-    val cp = worklist.pop
-    val st = semantics.getState(cp)
-    val (nextSt, nextExcSt) = semantics.C(cp, st)
-    propagateNormal(cp, nextSt)
-    propagateException(cp, nextExcSt)
-    propagateInterProc(cp, nextSt)
+
+    // set of control points.
+    val cps = worklist.pop
+
+    cps.foreach(cp => {
+      val st = semantics.getState(cp)
+      val (nextSts, nextExcSts, nextInters) = semantics.C(cp, st)
+
+      nextSts.foreach(propagateNormal(cp, _))
+      nextExcSts.foreach(propagateException(cp, _))
+      nextInters.foreach(propagateInterProc(cp, _))
+    })
   }
 
-  def propagateNormal(cp: ControlPoint, nextSt: AbsState): Unit = {
+  def propagateNormal(cp: ControlPoint, ns: (ControlPoint, AbsState)): Unit = {
     // Propagate normal output state (outS) along normal edges.
-    cp.block.getSucc(CFGEdgeNormal) match {
-      case Nil => ()
-      case lst => lst.foreach(block => {
-        val succCP = cp.next(block, CFGEdgeNormal)
-        val oldSt = semantics.getState(succCP)
-        if (!(nextSt ⊑ oldSt)) {
-          val newSt = oldSt ⊔ nextSt
-          semantics.setState(succCP, newSt)
-          worklist.add(succCP)
-        }
-      })
+    val (succCP, nextSt) = ns
+    val oldSt = semantics.getState(succCP)
+    if (!(nextSt ⊑ oldSt)) {
+      val newSt = oldSt ⊔ nextSt
+      semantics.setState(succCP, newSt)
+      worklist.add(succCP)
     }
   }
 
-  def propagateException(cp: ControlPoint, nextExcSt: AbsState): Unit = {
+  def propagateException(cp: ControlPoint, ns: (ControlPoint, AbsState)): Unit = {
     // Propagate exception output state (outES) along exception edges.
     // 1) If successor is catch, current exception value is assigned to catch variable and
     //    previous exception values are restored.
     // 2) If successor is finally, current exception value is propagated further along
     //    finally block's "normal" edges.
-    cp.block.getSucc(CFGEdgeExc) match {
-      case Nil => ()
-      case lst => lst.foreach(block => {
-        val excSuccCP = cp.next(block, CFGEdgeExc)
-        val oldExcSt = semantics.getState(excSuccCP)
-        if (!(nextExcSt ⊑ oldExcSt)) {
-          val newExcSet = oldExcSt ⊔ nextExcSt
-          semantics.setState(excSuccCP, newExcSet)
-          worklist.add(excSuccCP)
-        }
-      })
+    val (excSuccCP, nextExcSt) = ns
+    val oldExcSt = semantics.getState(excSuccCP)
+    if (!(nextExcSt ⊑ oldExcSt)) {
+      val newExcSet = oldExcSt ⊔ nextExcSt
+      semantics.setState(excSuccCP, newExcSet)
+      worklist.add(excSuccCP)
     }
   }
 
-  def propagateInterProc(cp: ControlPoint, nextSt: AbsState): Unit = {
+  def propagateInterProc(cp: ControlPoint, ns: (ControlPoint, (EdgeData, AbsState))): Unit = {
     // Propagate along inter-procedural edges
     // This step must be performed after evaluating abstract transfer function
     // because 'call' instruction can add inter-procedural edges.
-    semantics.getInterProcSucc(cp) match {
-      case None => ()
-      case Some(succMap) => {
-        succMap.foreach {
-          case (succCP, data) => {
-            val oldSt = semantics.getState(succCP)
-            val nextSt2 = semantics.E(cp, succCP, data, nextSt)
-            if (!(nextSt2 ⊑ oldSt)) {
-              val newSt = oldSt ⊔ nextSt2
-              semantics.setState(succCP, newSt)
-              worklist.add(succCP)
-            }
-          }
-        }
-      }
+    val (succCP, (data, nextSt)) = ns
+
+    val oldSt = semantics.getState(succCP)
+    val nextSt2 = semantics.E(cp, succCP, data, nextSt)
+    if (!(nextSt2 ⊑ oldSt)) {
+      val newSt = oldSt ⊔ nextSt2
+      semantics.setState(succCP, newSt)
+      worklist.add(succCP)
     }
   }
 }

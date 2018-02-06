@@ -11,8 +11,11 @@
 
 package kr.ac.kaist.safe.analyzer
 
-import scala.collection.immutable.HashSet
+import kr.ac.kaist.safe.analyzer.domain.DefaultNumber.{ NegInf, PosInf }
+
+import scala.collection.immutable.{ HashMap, HashSet }
 import kr.ac.kaist.safe.analyzer.domain._
+import kr.ac.kaist.safe.nodes.cfg.CFGId
 import kr.ac.kaist.safe.util._
 
 ////////////////////////////////////////////////////////////////
@@ -553,5 +556,27 @@ object Helper {
       })
     })
     v1
+  }
+
+  def propLoads(objV: AbsValue, absStrSet: Set[AbsStr], h: AbsHeap): (HashMap[AbsStr, AbsValue], HashMap[AbsStr, AbsValue]) = {
+    val empty = HashMap.empty[AbsStr, AbsValue]
+    val objLocSet = objV.locset
+    def mergeMaps(m1: HashMap[AbsStr, AbsValue], m2: HashMap[AbsStr, AbsValue]): HashMap[AbsStr, AbsValue] = {
+      (m1 /: m2.keySet)((m_i, k) => m_i + (k -> (m_i.getOrElse(k, AbsValue.Bot) ⊔ m2(k))))
+    }
+
+    objLocSet.foldLeft(empty, empty)((m_ne, l) => {
+      val tmpObj = h.get(l)
+      (m_ne /: absStrSet) {
+        case ((m_ni, m_ei), absStr) =>
+          val (m_n, m_e) = tmpObj.Get_case(absStr, h)
+          (mergeMaps(m_ni, m_n), mergeMaps(m_ei, m_e))
+      }
+    })
+  }
+
+  def propPrune(st: AbsState, id: CFGId, v: AbsPValue): AbsState = {
+
+    throw new InternalError("TODO")
   }
 }

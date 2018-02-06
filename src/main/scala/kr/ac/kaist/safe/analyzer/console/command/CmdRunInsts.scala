@@ -65,8 +65,13 @@ case object CmdRunInsts extends Command("run_insts", "Run instruction by instruc
               case "q" => (oldSt, oldExcSt, false)
               case _ =>
                 val (st, excSt) = inst match {
-                  case i: CFGNormalInst => c.sem.I(i, oldSt, oldExcSt)
-                  case i: CFGCallInst => c.sem.CI(cp, i, oldSt, oldExcSt)
+                  case (i: CFGNormalInst) => c.sem.I(i, oldSt, oldExcSt)
+                  case (i: CFGCallInst) =>
+                    // TODO It only considers the first state of the elements, and 'inter' is ignored.
+                    val (normal, exc, inter) = c.sem.CI(cp, i, oldSt, oldExcSt)
+                    (normal.headOption.getOrElse((cp, AbsState.Bot))._2, exc.headOption.getOrElse((cp, AbsState.Bot))._2)
+                  //                  case i: CFGNormalInst => c.sem.I(i, oldSt, oldExcSt)
+                  //                  case i: CFGCallInst => c.sem.CI(cp, i, oldSt, oldExcSt)
                 }
                 (st, excSt, true)
             }

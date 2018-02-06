@@ -89,6 +89,39 @@ object DefaultState extends StateDomain {
     ////////////////////////////////////////////////////////////////
     // Lookup
     ////////////////////////////////////////////////////////////////
+    def lookup_rev(id: CFGId, v: AbsPValue, absent: Boolean): Elem = {
+      val x = id.text
+      val localEnv = context.pureLocal
+      id.kind match {
+        case PureLocalVar =>
+          // we can designate an exact entry by 'id'.
+          val (ov, _) = localEnv.record.decEnvRec.GetBindingValue(x)
+          val npv = ov.pvalue ⊓ v
+          if (!npv.isBottom) {
+            val nv: AbsValue = ov.copy(npv)
+            val abs =
+              if (absent) AbsAbsent.Top
+              else AbsAbsent.Bot
+            val decl = localEnv.record.decEnvRec.GetBindingValueRev(x, nv, abs)
+            copy(context = context.subsPureLocal(localEnv.copy(localEnv.record.copy(decl))))
+          } else {
+            // Impossible case. Drop the case.
+            Bot
+          }
+        case CapturedVar =>
+          // give up.
+          this
+        case CapturedCatchVar =>
+          // give up.
+          this
+        case GlobalVar =>
+          // give up.
+          this
+        //
+        //          AbsGlobalEnvRec.Top.GetBindingValue(x, true)(heap)
+      }
+    }
+
     def lookup(id: CFGId): (AbsValue, Set[Exception]) = {
       val x = id.text
       val localEnv = context.pureLocal

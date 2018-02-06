@@ -90,8 +90,8 @@ case object JsonLoad extends PhaseObj[Unit, JsonLoadConfig, (CFG, Semantics, Tra
                 })
 
                 val sens =
-                  CallSiteSensitivity(heapConfig.callsiteSensitivity) *
-                    LoopSensitivity(heapConfig.loopSensitivity)
+                  CallSiteSensitivity(heapConfig.callsiteSensitivity) * CAPartition
+                //                    LoopSensitivity(heapConfig.loopSensitivity)
                 Success((cfg, sem, sens.initTP, heapConfig, iter.toInt))
               }
               case _ => {

@@ -66,9 +66,12 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
 
     // dump exit state
     if (config.exitDump) {
-      val exitCP = ControlPoint(cfg.globalFunc.exit, initTP)
-      val state = sem.getState(exitCP)
-      println(state.toString)
+      val map = sem.getStates(cfg.globalFunc.exit)
+      map.foreach {
+        case (tp, state) =>
+          println(s"- Index: $tp")
+          println(state.toString)
+      }
     }
 
     Success((cfg, iters, initTP, sem))

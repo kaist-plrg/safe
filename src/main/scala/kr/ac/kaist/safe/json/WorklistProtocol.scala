@@ -149,17 +149,13 @@ object WorklistProtocol extends DefaultJsonProtocol {
   implicit object WorklistJsonFormat extends RootJsonFormat[Worklist] {
 
     def write(worklist: Worklist): JsValue =
-      JsArray(worklist.getWorklist.reverse.map(_ match {
-        case worklist.Work(order, cp) => cp.toJson
-      }).to[Vector])
+      JsArray(worklist.getWorklist.map(_.toJson).to[Vector])
 
     def read(value: JsValue): Worklist = value match {
-      case JsArray(works) => {
+      case JsArray(works) =>
         val worklist = Worklist(cfg)
-        for (work <- works)
-          worklist.add(work.convertTo[ControlPoint])
+        works.foreach(c => worklist.add(c.convertTo[ControlPoint]))
         worklist
-      }
       case _ => throw WorklistParseError(value)
     }
   }

@@ -17,7 +17,7 @@ import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.LINE_SEP
 
 object DotWriter {
-  private type OrderMap = Map[CFGBlock, Int]
+  private type OrderMap = Map[CFGBlock, Long]
   val CurBlockShape: String = "shape=record, style=bold, fontsize=11"
   val NormalBlockShape: String = "shape=record, fontsize=11"
   val NormalEdgeStyle: String = "style=solid"

@@ -1010,6 +1010,38 @@ object CKeyObject extends ObjDomain {
       visit(this)
     }
 
+    val emptyMap = HashMap.empty[AbsStr, AbsValue]
+    def Get_case(astr: AbsStr, h: AbsHeap): (HashMap[AbsStr, AbsValue], HashMap[AbsStr, AbsValue]) = {
+      var set_n = emptyMap
+      var set_a = emptyMap
+
+      var visited = HashSet[Loc]()
+      def visit(currentObj: Elem): Unit = {
+        val test = currentObj contains astr
+        if (AbsBool.True ⊑ test) {
+          val set = currentObj.map.lookup_kv(astr)
+          set.foreach {
+            case (k, v) => set_n += k -> v.value
+          }
+        }
+
+        if (AbsBool.False ⊑ test) {
+          val protoV = currentObj(IPrototype).value
+          protoV.pvalue.nullval.foldUnit(_ => set_a += astr -> AbsUndef.Top)
+
+          protoV.locset.foreach(protoLoc => {
+            if (!(visited contains protoLoc)) {
+              visited += protoLoc
+              visit(h.get(protoLoc))
+            }
+          })
+        }
+      }
+      visit(this)
+
+      (set_n, set_a)
+    }
+
     // Section 8.12.2 [[GetProperty]](P)
     def GetProperty(P: AbsStr, h: AbsHeap): (AbsDesc, AbsUndef) = {
       var visited = HashSet[Loc]()

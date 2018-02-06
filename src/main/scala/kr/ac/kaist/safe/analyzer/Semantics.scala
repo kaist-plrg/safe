@@ -41,6 +41,26 @@ case class Semantics(
   private val AT = AbsBool.True
   private val AB = AbsBool.Bot
 
+  private val empty = HashMap.empty[ControlPoint, AbsState]
+  private val empty_inter = HashSet.empty[(ControlPoint, (EdgeData, AbsState))]
+
+  private def propagate(cp: ControlPoint, edge: CFGEdgeType, st: AbsState): HashMap[ControlPoint, AbsState] = {
+    val cpn = cp.block.getSucc(edge)
+    (empty /: cpn) {
+      case (map_i, blk) =>
+        val cp_to = cp.next(blk, edge)
+        map_i + (cp_to -> st)
+    }
+  }
+
+  private def propagate_inter(cp: ControlPoint, newSt: AbsState): HashSet[(ControlPoint, (EdgeData, AbsState))] = {
+    // TODO getInterProcSucc(cp)
+    (empty_inter /: ipSuccMap.getOrElse(cp, Map.empty)) {
+      case (m_i, (k, v)) =>
+        m_i + (k -> (v, newSt))
+    }
+  }
+
   // control point maps to state
   protected val cpToState: MMap[CFGBlock, MMap[TracePartition, AbsState]] = MHashMap()
   def getAllState: Map[CFGBlock, Map[TracePartition, AbsState]] =
@@ -55,6 +75,9 @@ case class Semantics(
     val block = cp.block
     val tp = cp.tracePartition
     getState(block).getOrElse(tp, AbsState.Bot)
+  }
+  def getStates(block: CFGBlock): Map[TracePartition, AbsState] = {
+    cpToState.getOrElse(block, MMap.empty).toMap
   }
   def setState(cp: ControlPoint, state: AbsState): Unit = {
     val block = cp.block
@@ -71,9 +94,23 @@ case class Semantics(
   type IPSucc = Map[ControlPoint, EdgeData]
   type IPSuccMap = Map[ControlPoint, IPSucc]
   private var ipSuccMap: IPSuccMap = HashMap()
+  // TODO: Need to be considered in fromJson.
+  // Inter-procedural edges: Call -> (AfterCall, AfterCallCatch)
+  private var ipNSuccMap: Map[ControlPoint, (IPSucc, IPSucc)] = HashMap()
+
   def getAllIPSucc: IPSuccMap = ipSuccMap
   def setAllIPSucc(newMap: IPSuccMap): Unit = { ipSuccMap = newMap }
   def getInterProcSucc(cp: ControlPoint): Option[IPSucc] = ipSuccMap.get(cp)
+
+  def addIPEdges(cp_call: ControlPoint, entry: CFGBlock, exit: CFGBlock, cp_ac: ControlPoint, exitExc: CFGBlock, cp_acc: ControlPoint, data_ce: EdgeData, data_xa: EdgeData, data_ec: EdgeData): Unit = {
+    val entryCP = cp_call.next(entry, CFGEdgeCall)
+    val newTP = entryCP.tracePartition
+    val exitCP = ControlPoint(exit, newTP)
+    val exitExcCP = ControlPoint(exitExc, newTP)
+    addIPEdge(cp_call, entryCP, data_ce)
+    addIPEdge(exitCP, cp_ac, data_xa)
+    addIPEdge(exitExcCP, cp_acc, data_ec)
+  }
 
   // Adds inter-procedural call edge from call-block cp1 to entry-block cp2.
   // Edge label ctx records callee context, which is joined if the edge existed already.
@@ -160,12 +197,10 @@ case class Semantics(
     }
   }
 
-  def C(cp: ControlPoint, st: AbsState): (AbsState, AbsState) = {
-    if (st.isBottom) (AbsState.Bot, AbsState.Bot)
+  def C(cp: ControlPoint, st: AbsState): (HashMap[ControlPoint, AbsState], HashMap[ControlPoint, AbsState], HashSet[(ControlPoint, (EdgeData, AbsState))]) = {
+    if (st.isBottom) (empty, empty, empty_inter)
     else {
-      val h = st.heap
       val ctx = st.context
-      val old = ctx.old
       cp.block match {
         case Entry(_) => {
           val fun = cp.block.func
@@ -184,17 +219,108 @@ case class Semantics(
             val undefV = AbsValue(Undef)
             jSt.createMutableBinding(x, undefV)
           })
-          (newSt, AbsState.Bot)
+
+          val next_normal = propagate(cp, CFGEdgeNormal, newSt)
+          (next_normal, empty, empty_inter)
         }
         case call: Call => CI(cp, call.callInst, st, AbsState.Bot)
         case block: NormalBlock =>
-          block.getInsts.foldRight((st, AbsState.Bot))((inst, states) => {
-            val (oldSt, oldExcSt) = states
-            I(inst, oldSt, oldExcSt)
-          })
-        case ModelBlock(_, sem) => sem(st)
-        case _ => (st, AbsState.Bot)
+          val tp = cp.tracePartition
+
+          val empty_n = HashMap.empty[TracePartition, AbsState]
+          val empty_e = HashSet.empty[(TracePartition, AbsState)]
+          val begin_n = empty_n + (tp -> st)
+          val begin_e = empty_e
+
+          val (m_new, s_new) =
+            block.getInsts.foldRight((begin_n, begin_e)) {
+              case (inst, (n_i, e_i)) =>
+                ((empty_n, e_i) /: n_i) {
+                  case ((m_i, s_i), (n_tp, n_abs)) =>
+                    val (m_i2, s_i2) = Is(n_tp, inst, n_abs)
+                    // It depends on the concretization of partitioning abstractions.
+                    val m_new = (m_i /: m_i2) { case (m_ii, (k, v)) => m_ii + (k -> (m_ii.getOrElse(k, AbsState.Bot) ⊔ v)) }
+                    val s_new =
+                      if (!s_i2._2.isBottom) s_i + s_i2
+                      else s_i
+                    (m_new, s_new)
+                }
+            }
+
+          val next_normals =
+            (HashMap.empty[ControlPoint, AbsState] /: m_new) {
+              case (m_i, (k, v)) =>
+                val cp_n = cp.copy(tracePartition = k)
+                // Note: This is general version.
+                // (m_i /: propagate(cp_n, CFGEdgeNormal, v)) { case (m_ii, (kk, vv)) => m_ii + (kk -> (m_ii.getOrElse(kk, AbsState.Bot) ⊔ vv)) }
+                // Note: This is optimized version which may not be correct for some 'other' partitioning abstraction.
+                (m_i /: propagate(cp_n, CFGEdgeNormal, v)) { case (m_ii, (kk, vv)) => m_ii + (kk -> vv) }
+            }
+          val next_excs =
+            (HashMap.empty[ControlPoint, AbsState] /: s_new) {
+              case (m_i, (k, v)) =>
+                val cp_n = cp.copy(tracePartition = k)
+                (m_i /: propagate(cp_n, CFGEdgeExc, v)) { case (m_ii, (kk, vv)) => m_ii + (kk -> (m_ii.getOrElse(kk, AbsState.Bot) ⊔ vv)) }
+            }
+
+          (next_normals, next_excs, empty_inter)
+
+        case ModelBlock(_, sem) =>
+          val (newSt, newExc) = sem(st)
+          val next_normal = propagate(cp, CFGEdgeNormal, newSt)
+          val next_exc = propagate(cp, CFGEdgeExc, newExc)
+          (next_normal, next_exc, empty_inter)
+
+        case Exit(_) | ExitExc(_) =>
+          val next_inter = propagate_inter(cp, st)
+          (empty, empty, next_inter)
+
+        case _ =>
+          val next_normal = propagate(cp, CFGEdgeNormal, st)
+          //          val next_inter = propagate_inter(cp, st)
+
+          (next_normal, empty, empty_inter)
       }
+    }
+  }
+
+  lazy val emptyTP = HashMap.empty[TracePartition, AbsState]
+  // TODO makes the following variable optional.
+  val bPartitioned = false
+
+  def Is(tp: TracePartition, i: CFGNormalInst, st: AbsState): (HashMap[TracePartition, AbsState], (TracePartition, AbsState)) = {
+    i match {
+      case CFGExprStmt(_, _, x, e @ CFGLoad(_, _, CFGVarRef(_, _))) if bPartitioned =>
+        val (lhs, ss, es) = Vs(e, st)
+        val ntps =
+          lhs match {
+            case Some(lhs_id) =>
+              (emptyTP /: ss) {
+                case (m_i, (str, nst, v, b)) =>
+                  System.out.println(s"- case: $lhs_id = $str with $v for $b")
+                  val tp_n = tp.next_case(lhs_id, str, b)
+                  // v is always not bottom.
+                  val st1 = nst.varStore(x, v)
+                  m_i + (tp_n -> st1)
+              }
+            case None =>
+              throw new InternalError("TODO")
+          }
+
+        val newExcSt = st.raiseException(es)
+        (ntps, (tp, newExcSt))
+
+      case CFGExprStmt(_, _, x, e) =>
+        val (v, excSet) = V(e, st)
+        val st1 =
+          if (!v.isBottom) st.varStore(x, v)
+          else AbsState.Bot
+        val newExcSt = st.raiseException(excSet)
+        (emptyTP + (tp -> st1), (tp, newExcSt))
+
+      case _ =>
+        val (newSt, newExcSt) = I(i, st, AbsState.Bot)
+        (emptyTP + (tp -> newSt), (tp, newExcSt))
     }
   }
 
@@ -1214,7 +1340,7 @@ case class Semantics(
       (AbsState.Bot, AbsState.Bot)
   }
 
-  def CI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsState, AbsState) = {
+  def CI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (HashMap[ControlPoint, AbsState], HashMap[ControlPoint, AbsState], HashSet[(ControlPoint, (EdgeData, AbsState))]) = {
     // cons, thisArg and arguments must not be bottom
     val loc = Loc(i.asite)
     val st1 = st.oldify(loc)
@@ -1228,84 +1354,131 @@ case class Semantics(
     val (argVal, _) = V(i.arguments, st1)
 
     // XXX: stop if thisArg or arguments is LocSetBot(ValueBot)
-    if (thisVal.isBottom || argVal.isBottom) {
-      (st, excSt)
-    } else {
-      val oldLocalEnv = st1.context.pureLocal
-      val tp = cp.tracePartition
-      val nCall = i.block
-      val cpAfterCall = ControlPoint(nCall.afterCall, tp)
-      val cpAfterCatch = ControlPoint(nCall.afterCatch, tp)
 
-      // Draw call/return edges
-      funLocSet.foreach((fLoc) => {
-        val funObj = st1.heap.get(fLoc)
-        val fidSet = i match {
-          case _: CFGConstruct =>
-            funObj(IConstruct).fidset
-          case _: CFGCall =>
-            funObj(ICall).fidset
-        }
-        fidSet.foreach((fid) => {
-          cfg.getFunc(fid) match {
-            case Some(funCFG) => {
-              val scopeValue = funObj(IScope).value
-              val newEnv = AbsLexEnv.newPureLocal(AbsLoc(loc))
-              val (newRec, _) = newEnv.record.decEnvRec
-                .CreateMutableBinding(funCFG.argumentsName)
-                .SetMutableBinding(funCFG.argumentsName, argVal)
-              val (newRec2, _) = newRec
-                .CreateMutableBinding("@scope")
-                .SetMutableBinding("@scope", scopeValue)
-              val entryCP = cp.next(funCFG.entry, CFGEdgeCall)
-              val newTP = entryCP.tracePartition
-              val exitCP = ControlPoint(funCFG.exit, newTP)
-              val exitExcCP = ControlPoint(funCFG.exitExc, newTP)
-              addIPEdge(cp, entryCP, EdgeData(
-                OldASiteSet.Empty,
-                newEnv.copy(record = newRec2),
-                thisVal
-              ))
-              addIPEdge(exitCP, cpAfterCall, EdgeData(
-                st1.context.old,
-                oldLocalEnv,
-                st1.context.thisBinding
-              ))
-              addIPEdge(exitExcCP, cpAfterCatch, EdgeData(
-                st1.context.old,
-                oldLocalEnv,
-                st1.context.thisBinding
-              ))
-            }
-            case None => excLog.signal(UndefinedFunctionCallError(i.ir))
+    val (newSt, newExcSt) =
+      if (thisVal.isBottom || argVal.isBottom) {
+        (st, excSt)
+      } else {
+        val oldLocalEnv = st1.context.pureLocal
+        val tp = cp.tracePartition
+        val nCall = i.block
+        val cpAfterCall = ControlPoint(nCall.afterCall, tp)
+        val cpAfterCatch = ControlPoint(nCall.afterCatch, tp)
+
+        // Draw call/return edges
+        funLocSet.foreach((fLoc) => {
+          val funObj = st1.heap.get(fLoc)
+          val fidSet = i match {
+            case _: CFGConstruct =>
+              funObj(IConstruct).fidset
+            case _: CFGCall =>
+              funObj(ICall).fidset
           }
+          fidSet.foreach((fid) => {
+            cfg.getFunc(fid) match {
+              case Some(funCFG) => {
+                val scopeValue = funObj(IScope).value
+                val newEnv = AbsLexEnv.newPureLocal(AbsLoc(loc))
+                val (newRec, _) = newEnv.record.decEnvRec
+                  .CreateMutableBinding(funCFG.argumentsName)
+                  .SetMutableBinding(funCFG.argumentsName, argVal)
+                val (newRec2, _) = newRec
+                  .CreateMutableBinding("@scope")
+                  .SetMutableBinding("@scope", scopeValue)
+                val entryCP = cp.next(funCFG.entry, CFGEdgeCall)
+                val newTP = entryCP.tracePartition
+                val exitCP = ControlPoint(funCFG.exit, newTP)
+                val exitExcCP = ControlPoint(funCFG.exitExc, newTP)
+                val ed_1 = EdgeData(
+                  OldASiteSet.Empty,
+                  newEnv.copy(record = newRec2),
+                  thisVal
+                )
+                val ed_2 = EdgeData(
+                  st1.context.old,
+                  oldLocalEnv,
+                  st1.context.thisBinding
+                )
+                val ed_3 = EdgeData(
+                  st1.context.old,
+                  oldLocalEnv,
+                  st1.context.thisBinding
+                )
+                addIPEdges(cp, funCFG.entry, funCFG.exit, cpAfterCall, funCFG.exitExc, cpAfterCatch, ed_1, ed_2, ed_3)
+              }
+              case None => excLog.signal(UndefinedFunctionCallError(i.ir))
+            }
+          })
         })
-      })
 
-      val h2 = argVal.locset.foldLeft[AbsHeap](AbsHeap.Bot)((tmpHeap, l) => {
-        val argObj = st1.heap.get(l)
-        tmpHeap ⊔ st1.heap.update(l, argObj.update("callee", AbsDataProp(funLocSet, AT, AF, AT)))
-      })
+        val h2 = argVal.locset.foldLeft[AbsHeap](AbsHeap.Bot)((tmpHeap, l) => {
+          val argObj = st1.heap.get(l)
+          tmpHeap ⊔ st1.heap.update(l, argObj.update("callee", AbsDataProp(funLocSet, AT, AF, AT)))
+        })
 
-      // exception handling
-      val typeExcSet1 = i match {
-        case _: CFGConstruct if funVal.locset.exists(l => AF ⊑ st1.heap.hasConstruct(l)) => HashSet(TypeError)
-        case _: CFGCall if funVal.locset.exists(l => AF ⊑ TypeConversionHelper.IsCallable(l, st1.heap)) => HashSet(TypeError)
-        case _ => ExcSetEmpty
+        // exception handling
+        val typeExcSet1 = i match {
+          case _: CFGConstruct if funVal.locset.exists(l => AF ⊑ st1.heap.hasConstruct(l)) => HashSet(TypeError)
+          case _: CFGCall if funVal.locset.exists(l => AF ⊑ TypeConversionHelper.IsCallable(l, st1.heap)) => HashSet(TypeError)
+          case _ => ExcSetEmpty
+        }
+        val typeExcSet2 =
+          if (!funVal.pvalue.isBottom) HashSet(TypeError)
+          else ExcSetEmpty
+
+        val totalExcSet = funExcSet ++ typeExcSet1 ++ typeExcSet2
+        val newExcSt = st1.raiseException(totalExcSet)
+
+        val h3 =
+          if (!funLocSet.isBottom) h2
+          else AbsHeap.Bot
+
+        val newSt = AbsState(h3, st1.context)
+
+        (newSt, newExcSt)
       }
-      val typeExcSet2 =
-        if (!funVal.pvalue.isBottom) HashSet(TypeError)
-        else ExcSetEmpty
 
-      val totalExcSet = funExcSet ++ typeExcSet1 ++ typeExcSet2
-      val newExcSt = st1.raiseException(totalExcSet)
+    val next_normal = propagate(cp, CFGEdgeNormal, newSt)
+    val next_exc = propagate(cp, CFGEdgeExc, excSt ⊔ newExcSt)
+    val next_inter = propagate_inter(cp, newSt)
+    (next_normal, next_exc, next_inter)
+  }
 
-      val h3 =
-        if (!funLocSet.isBottom) h2
-        else AbsHeap.Bot
+  def Vs(expr: CFGExpr, st: AbsState, idx: List[CFGId] = List.empty[CFGId]): (Option[CFGId], Set[(AbsStr, AbsState, AbsValue, Boolean)], Set[Exception]) = {
+    expr match {
+      case CFGLoad(ir, obj, index @ CFGVarRef(_, id)) => //if idx contains id =>
+        val (objV, _) = V(obj, st)
+        val (idxV, idxExcSet) = V(index, st)
+        val absStrSet =
+          if (!idxV.isBottom) TypeConversionHelper.ToPrimitive(idxV, st.heap).toStringSet
+          else HashSet[AbsStr]()
 
-      val newSt = AbsState(h3, st1.context)
-      (newSt, excSt ⊔ newExcSt)
+        System.out.println(s"* Prop Loads for $absStrSet")
+        val (m_n, m_e) = Helper.propLoads(objV, absStrSet, st.heap)
+        System.out.println("- in : ")
+        m_n.foreach { case (s, v) => System.out.println(s"$s => $v") }
+        System.out.println("- not in : ")
+        m_e.foreach { case (s, v) => System.out.println(s"$s => $v") }
+        val r1 = m_n.map {
+          case (str, value) =>
+            val rev = TypeConversionHelper.ToStringRev(str)
+            val newSt = st.lookup_rev(id, rev, absent = false)
+            (str, newSt, value, true)
+        }
+        val r2 = m_e.map {
+          case (str, value) =>
+            val rev = TypeConversionHelper.ToStringRev(str)
+            val newSt = st.lookup_rev(id, rev, absent = true)
+            (str, newSt, value, false)
+        }
+        // filters the droped cases out.
+        val rr = (r1 ++ r2).filter(!_._2.isBottom).toSet
+
+        (Some(id), rr, idxExcSet)
+
+      case _ =>
+        val (av, es) = V(expr, st)
+        (None, Set.empty[(AbsStr, AbsState, AbsValue, Boolean)] + ((AbsStr.Bot, st, av, true)), es)
     }
   }
 

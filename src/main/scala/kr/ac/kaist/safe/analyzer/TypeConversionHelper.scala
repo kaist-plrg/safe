@@ -14,7 +14,7 @@ package kr.ac.kaist.safe.analyzer
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.util._
 
-import scala.collection.immutable.HashSet
+import scala.collection.immutable.{ HashMap, HashSet }
 
 ////////////////////////////////////////////////////////////////
 // Abstract helper functions of
@@ -180,6 +180,47 @@ object TypeConversionHelper {
   def ToString(num: AbsNum): AbsStr = num.ToString
 
   def ToString(str: AbsStr): AbsStr = str
+
+  val simple_rev_map = HashMap[String, AbsPValue](
+    "undefined" -> AbsPValue(Undef),
+    "null" -> AbsPValue(Null),
+    "true" -> AbsPValue(true),
+    "false" -> AbsPValue(false),
+    "Infinity" -> AbsPValue(Double.PositiveInfinity),
+    "-Infinity" -> AbsPValue(Double.NegativeInfinity),
+    "NaN" -> AbsPValue(Double.NaN)
+  )
+  def ToStringRev(s: AbsStr): AbsPValue = {
+    // simple cases
+    val m_simple = (AbsPValue.Bot /: simple_rev_map) {
+      case (pv_i, (s2, pv)) if s.isRelated(s2) => pv_i ⊔ pv
+      case (pv_i, _) => pv_i
+    }
+    // number format cases
+    val s_set = s.gamma match {
+      case ConInf => Set.empty[Str]
+      case ConFin(ss) => ss
+    }
+    val m_num = (AbsPValue.Bot /: s_set) {
+      case (pv_i, ss) =>
+        val d = try { Some(ss.str.toDouble) } catch { case _: NumberFormatException => None }
+        val pv_n =
+          d match {
+            case Some(dv) => AbsPValue(dv)
+            case None => AbsPValue.Bot
+          }
+        pv_i ⊔ pv_n
+    }
+    // unknown number format strings.
+    val m_anum =
+      if (s.isRelated(AbsStr.Number)) AbsPValue(strval = AbsStr.Number)
+      else AbsPValue.Bot
+
+    // original strings.
+    val m_original = AbsPValue(strval = s)
+
+    m_simple ⊔ m_num ⊔ m_anum ⊔ m_original
+  }
 
   ////////////////////////////////////////////////////////////////
   // 9.9 ToObject, Table 14

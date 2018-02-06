@@ -11,9 +11,9 @@
 
 package kr.ac.kaist.safe.analyzer.console.command
 
-import scala.util.{ Success, Failure }
+import scala.util.{ Failure, Success }
 import kr.ac.kaist.safe.analyzer.console._
-import kr.ac.kaist.safe.analyzer.domain.Loc
+import kr.ac.kaist.safe.analyzer.domain.{ AbsState, Loc }
 
 // result
 case object CmdPrintResult extends Command("result", "Print out various information.") {
@@ -29,7 +29,8 @@ case object CmdPrintResult extends Command("result", "Print out various informat
     val sem = c.sem
     val cp = c.getCurCP
     val st = sem.getState(cp)
-    val (resSt, resExcSt) = sem.C(cp, st)
+    val (normal, exc, inter) = sem.C(cp, st)
+    val (resSt, resExcSt) = (normal.headOption.getOrElse((cp, AbsState.Bot))._2, exc.headOption.getOrElse((cp, AbsState.Bot))._2)
     val stPattern = "(exc-|)state(-all|)".r
     val locPattern = "(exc-|)loc".r
     args match {

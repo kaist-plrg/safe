@@ -129,8 +129,14 @@ class CmdActor() extends Actor {
     breakable {
       for (inst <- insts) {
         val (s, e) = inst match {
-          case i: CFGNormalInst => c.sem.I(i, st, excSt)
-          case i: CFGCallInst => c.sem.CI(cp, i, st, excSt)
+          case (i: CFGNormalInst) =>
+            c.sem.I(i, st, excSt)
+          case (i: CFGCallInst) =>
+            // TODO It only considers the first state of the elements, and 'inter' is ignored.
+            val (normal, exc, inter) = c.sem.CI(cp, i, st, excSt)
+            (normal.headOption.getOrElse((cp, AbsState.Bot))._2, exc.headOption.getOrElse((cp, AbsState.Bot))._2)
+          //          case i: CFGNormalInst => c.sem.I(i, st, excSt)
+          //          case i: CFGCallInst => c.sem.CI(cp, i, st, excSt)
         }
         st = s; excSt = e
         if (inst.id == instId.toInt) break

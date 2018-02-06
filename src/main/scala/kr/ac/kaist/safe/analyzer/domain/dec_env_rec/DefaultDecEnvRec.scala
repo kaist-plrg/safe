@@ -260,6 +260,17 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
       }
     }
 
+    def GetBindingValueRev(
+      name: String,
+      rev: AbsValue,
+      abs: AbsAbsent
+    ): Elem = get(name) match {
+      case (bind, _) if bind.isBottom => Bot
+      case (bind, _) if !bind.isBottom =>
+        // TODO Need to check.
+        update(name, (bind.copy(rev), abs))
+    }
+
     // 10.2.1.1.5 DeleteBinding(N)
     def DeleteBinding(
       name: String

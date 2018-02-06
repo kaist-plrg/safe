@@ -44,12 +44,14 @@ case object HeapBuild extends PhaseObj[CFG, HeapBuildConfig, (CFG, Semantics, Tr
     var initSt = Initialize(cfg, config.jsModel)
 
     // handling snapshot mode
-    config.snapshot.map(str =>
+    config.snapshot.foreach(str =>
       initSt = Initialize.addSnapshot(initSt, str))
 
     val sens =
-      CallSiteSensitivity(config.callsiteSensitivity) *
-        LoopSensitivity(config.loopSensitivity)
+      CallSiteSensitivity(config.callsiteSensitivity) * CAPartition
+    //    val sens =
+    //      CallSiteSensitivity(config.callsiteSensitivity) *
+    //        LoopSensitivity(config.loopSensitivity)
     val initTP = sens.initTP
     val entryCP = ControlPoint(cfg.globalFunc.entry, initTP)
 
