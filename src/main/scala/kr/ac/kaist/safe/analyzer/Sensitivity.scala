@@ -28,7 +28,6 @@ sealed abstract class Sensitivity {
 abstract class TracePartition {
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition
   def next_case(id: CFGId, s: AbsStr, absent: Boolean): TracePartition
-  def merge(): TracePartition
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +43,6 @@ case object EmptyTP extends TracePartition {
     edgeType: CFGEdgeType
   ): EmptyTP.type = EmptyTP
   def next_case(id: CFGId, s: AbsStr, absent: Boolean): EmptyTP.type = EmptyTP
-  def merge(): EmptyTP.type = EmptyTP
 
   override def toString: String = s"Empty"
 }
@@ -59,7 +57,6 @@ case class ProductTP(
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): ProductTP =
     ProductTP(ltp.next(from, to, edgeType), rtp.next(from, to, edgeType))
   def next_case(id: CFGId, s: AbsStr, absent: Boolean): ProductTP = ProductTP(ltp.next_case(id, s, absent), rtp.next_case(id, s, absent))
-  def merge(): ProductTP = ProductTP(ltp.merge(), rtp.merge())
   override def toString: String = s"$ltp x $rtp"
 }
 
@@ -84,7 +81,6 @@ case class CallSiteContext(callsiteList: List[Call], depth: Int) extends TracePa
     case _ => this
   }
   def next_case(id: CFGId, s: AbsStr, absent: Boolean): CallSiteContext = this
-  def merge(): CallSiteContext = this
   override def toString: String = callsiteList
     .map(call => s"${call.func.id}:${call.id}")
     .mkString("Call[", ", ", "]")
@@ -104,20 +100,39 @@ trait Case
 case object CaseIn extends Case
 case object CaseNotIn extends Case
 
-trait LookupPartition extends TracePartition {
-  def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): LookupPartition = this
+object LookupPartition {
+  val empty = LookupPartition(List.empty[LocalCase])
+}
+case class LookupPartition(list: List[LocalCase]) extends TracePartition {
+  def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition = this
+
+  private def find_replace(c: LocalCase, list: List[LocalCase]): List[LocalCase] = {
+    list match {
+      case cp :: tail if cp.id == c.id => c :: tail
+      case cp :: tail => cp :: find_replace(c, tail)
+      case _ => throw new InternalError("TODO")
+    }
+  }
+
+  def update_local(c: LocalCase): LookupPartition = {
+    val nlist =
+      try {
+        find_replace(c, this.list)
+      } catch {
+        case _: InternalError => c :: this.list
+      }
+    LookupPartition(nlist)
+  }
+
   def next_case(id: CFGId, s: AbsStr, in: Boolean): LookupPartition = {
     val c = if (in) CaseIn else CaseNotIn
-    LookupCase(id, s, c)
+    update_local(LocalCase(id, s, c))
   }
-  def merge(): LookupPartition = LookupBot
 }
-
-case class LookupCase(id: CFGId, s: AbsStr, c: Case) extends LookupPartition
-case object LookupBot extends LookupPartition
+case class LocalCase(id: CFGId, s: AbsStr, c: Case)
 
 object CAPartition extends Sensitivity {
-  override val initTP: TracePartition = LookupBot
+  override val initTP: TracePartition = LookupPartition.empty
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +188,6 @@ case class LoopContext(
     case _ => this
   }
   def next_case(id: CFGId, s: AbsStr, absent: Boolean): LoopContext = this
-  def merge(): LoopContext = this
 
   override def toString: String = infoOpt match {
     case Some(LoopInfo(loopHead, k, outer)) =>

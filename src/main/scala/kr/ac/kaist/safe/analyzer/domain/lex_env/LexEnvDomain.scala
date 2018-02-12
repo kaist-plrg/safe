@@ -11,6 +11,7 @@
 
 package kr.ac.kaist.safe.analyzer.domain
 
+import kr.ac.kaist.safe.analyzer.TracePartition
 import kr.ac.kaist.safe.util._
 
 // lexical environment abstract domain
@@ -18,7 +19,8 @@ trait LexEnvDomain extends AbsDomain[LexEnv] {
   def apply(
     record: AbsEnvRec,
     outer: AbsLoc = AbsLoc.Bot,
-    nullOuter: AbsAbsent = AbsAbsent.Top
+    nullOuter: AbsAbsent = AbsAbsent.Top,
+    froms: Set[TracePartition]
   ): Elem
 
   // 10.2.2.1 GetIdentifierReference(lex, name, strict)
@@ -63,12 +65,7 @@ trait LexEnvDomain extends AbsDomain[LexEnv] {
     val record: AbsEnvRec
     val outer: AbsLoc
     val nullOuter: AbsAbsent
-
-    def copy(
-      record: AbsEnvRec = this.record,
-      outer: AbsLoc = this.outer,
-      nullOuter: AbsAbsent = this.nullOuter
-    ): Elem
+    val froms: Set[TracePartition]
 
     // substitute locR by locO
     def subsLoc(locR: Recency, locO: Recency): Elem

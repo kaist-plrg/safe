@@ -91,6 +91,7 @@ case class Semantics(
     else map(tp) = state
   }
 
+  type IPSuccN = Map[(TracePartition, CFGBlock), EdgeData]
   type IPSucc = Map[ControlPoint, EdgeData]
   type IPSuccMap = Map[ControlPoint, IPSucc]
   private var ipSuccMap: IPSuccMap = HashMap()
@@ -102,7 +103,17 @@ case class Semantics(
   def setAllIPSucc(newMap: IPSuccMap): Unit = { ipSuccMap = newMap }
   def getInterProcSucc(cp: ControlPoint): Option[IPSucc] = ipSuccMap.get(cp)
 
-  def addIPEdges(cp_call: ControlPoint, entry: CFGBlock, exit: CFGBlock, cp_ac: ControlPoint, exitExc: CFGBlock, cp_acc: ControlPoint, data_ce: EdgeData, data_xa: EdgeData, data_ec: EdgeData): Unit = {
+  private def joinEdge[A](m: Map[A, EdgeData], cp: A, e: EdgeData): Map[A, EdgeData] = {
+    m.get(cp) match {
+      case None => m + (cp -> e)
+      case Some(o) => m + (cp -> (e + o))
+    }
+  }
+
+  def addIPEdges(cp_call: ControlPoint, entry: CFGBlock, exit: CFGBlock, blk_ac: CFGBlock, exitExc: CFGBlock, blk_acc: CFGBlock, data_ce: EdgeData, data_xa: EdgeData, data_ec: EdgeData): Unit = {
+    val cp_ac = ControlPoint(blk_ac, cp_call.tracePartition)
+    val cp_acc = ControlPoint(blk_acc, cp_call.tracePartition)
+
     val entryCP = cp_call.next(entry, CFGEdgeCall)
     val newTP = entryCP.tracePartition
     val exitCP = ControlPoint(exit, newTP)
@@ -116,13 +127,8 @@ case class Semantics(
   // Edge label ctx records callee context, which is joined if the edge existed already.
   def addIPEdge(cp1: ControlPoint, cp2: ControlPoint, data: EdgeData): Unit = {
     val updatedSuccMap = ipSuccMap.get(cp1) match {
-      case None => HashMap(cp2 -> data)
-      case Some(map2) => map2.get(cp2) match {
-        case None =>
-          map2 + (cp2 -> data)
-        case Some(oldData) =>
-          map2 + (cp2 -> (data + oldData))
-      }
+      case None => HashMap.empty[ControlPoint, EdgeData] + (cp2 -> data)
+      case Some(map2) => joinEdge(map2, cp2, data)
     }
     ipSuccMap += (cp1 -> updatedSuccMap)
   }
@@ -202,7 +208,7 @@ case class Semantics(
     else {
       val ctx = st.context
       cp.block match {
-        case Entry(_) => {
+        case Entry(_) =>
           val fun = cp.block.func
           val xArgVars = fun.argVars
           val xLocalVars = fun.localVars
@@ -220,9 +226,9 @@ case class Semantics(
             jSt.createMutableBinding(x, undefV)
           })
 
-          val next_normal = propagate(cp, CFGEdgeNormal, newSt)
+          val next_normal = propagate(cp, CFGEdgeNormal, newSt.keepPartitioningIndex(cp.tracePartition))
           (next_normal, empty, empty_inter)
-        }
+
         case call: Call => CI(cp, call.callInst, st, AbsState.Bot)
         case block: NormalBlock =>
           val tp = cp.tracePartition
@@ -272,7 +278,10 @@ case class Semantics(
           (next_normal, next_exc, empty_inter)
 
         case Exit(_) | ExitExc(_) =>
-          val next_inter = propagate_inter(cp, st)
+          val next_inter =
+            (empty_inter /: st.partitioningIndex)((s_i, tp) => {
+              s_i ++ propagate_inter(cp.copy(tracePartition = tp), st)
+            })
           (empty, empty, next_inter)
 
         case _ =>
@@ -286,7 +295,7 @@ case class Semantics(
 
   lazy val emptyTP = HashMap.empty[TracePartition, AbsState]
   // TODO makes the following variable optional.
-  val bPartitioned = false
+  val bPartitioned = true
 
   def Is(tp: TracePartition, i: CFGNormalInst, st: AbsState): (HashMap[TracePartition, AbsState], (TracePartition, AbsState)) = {
     i match {
@@ -1362,8 +1371,6 @@ case class Semantics(
         val oldLocalEnv = st1.context.pureLocal
         val tp = cp.tracePartition
         val nCall = i.block
-        val cpAfterCall = ControlPoint(nCall.afterCall, tp)
-        val cpAfterCatch = ControlPoint(nCall.afterCatch, tp)
 
         // Draw call/return edges
         funLocSet.foreach((fLoc) => {
@@ -1404,7 +1411,7 @@ case class Semantics(
                   oldLocalEnv,
                   st1.context.thisBinding
                 )
-                addIPEdges(cp, funCFG.entry, funCFG.exit, cpAfterCall, funCFG.exitExc, cpAfterCatch, ed_1, ed_2, ed_3)
+                addIPEdges(cp, funCFG.entry, funCFG.exit, nCall.afterCall, funCFG.exitExc, nCall.afterCatch, ed_1, ed_2, ed_3)
               }
               case None => excLog.signal(UndefinedFunctionCallError(i.ir))
             }

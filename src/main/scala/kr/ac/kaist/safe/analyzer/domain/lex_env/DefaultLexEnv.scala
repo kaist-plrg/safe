@@ -15,41 +15,46 @@ import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
 import kr.ac.kaist.safe.errors.error.AbsLexEnvParseError
 import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.LINE_SEP
-import scala.collection.immutable.{ HashSet, HashMap }
+import kr.ac.kaist.safe.analyzer.TracePartition
+
+import scala.collection.immutable.{ HashMap, HashSet }
 import spray.json._
 
 // default lexical environment abstract domain
 object DefaultLexEnv extends LexEnvDomain {
-  lazy val Bot = Elem(AbsEnvRec.Bot, AbsLoc.Bot, AbsAbsent.Bot)
-  lazy val Top = Elem(AbsEnvRec.Top, AbsLoc.Top, AbsAbsent.Top)
+  lazy val Bot = Elem(AbsEnvRec.Bot, AbsLoc.Bot, AbsAbsent.Bot, Set.empty[TracePartition])
+  lazy val Top = throw new InternalError("TODO") // Elem(AbsEnvRec.Top, AbsLoc.Top, AbsAbsent.Top, Set.empty[TracePartition])
 
   def alpha(env: LexEnv): Elem = env.outer match {
-    case None => Elem(AbsEnvRec(env.record), AbsLoc.Bot, AbsAbsent.Top)
-    case Some(loc) => Elem(AbsEnvRec(env.record), AbsLoc(loc), AbsAbsent.Bot)
+    case None => Elem(AbsEnvRec(env.record), AbsLoc.Bot, AbsAbsent.Top, Set.empty[TracePartition])
+    case Some(loc) => Elem(AbsEnvRec(env.record), AbsLoc(loc), AbsAbsent.Bot, Set.empty[TracePartition])
   }
 
   def apply(
     record: AbsEnvRec,
     outer: AbsLoc,
-    nullOuter: AbsAbsent
-  ): Elem = Elem(record, outer, nullOuter)
+    nullOuter: AbsAbsent,
+    froms: Set[TracePartition] = Set.empty[TracePartition]
+  ): Elem = Elem(record, outer, nullOuter, froms)
 
-  def fromJson(v: JsValue): Elem = v match {
-    case JsObject(m) => (
-      m.get("record").map(AbsEnvRec.fromJson _),
-      m.get("outer").map(AbsLoc.fromJson _),
-      m.get("nullOuter").map(AbsAbsent.fromJson _)
-    ) match {
-        case (Some(r), Some(o), Some(n)) => Elem(r, o, n)
-        case _ => throw AbsLexEnvParseError(v)
-      }
-    case _ => throw AbsLexEnvParseError(v)
-  }
+  def fromJson(v: JsValue): Elem = throw new InternalError("TODO")
+  //  v match {
+  //    case JsObject(m) => (
+  //      m.get("record").map(AbsEnvRec.fromJson _),
+  //      m.get("outer").map(AbsLoc.fromJson _),
+  //      m.get("nullOuter").map(AbsAbsent.fromJson _)
+  //    ) match {
+  //        case (Some(r), Some(o), Some(n)) => Elem(r, o, n)
+  //        case _ => throw AbsLexEnvParseError(v)
+  //      }
+  //    case _ => throw AbsLexEnvParseError(v)
+  //  }
 
   case class Elem(
       record: AbsEnvRec,
       outer: AbsLoc,
-      nullOuter: AbsAbsent
+      nullOuter: AbsAbsent,
+      froms: Set[TracePartition]
   ) extends ElemTrait {
     def gamma: ConSet[LexEnv] = ConInf // TODO more precise
 
@@ -59,7 +64,8 @@ object DefaultLexEnv extends LexEnvDomain {
       val right = that
       this.record ⊑ right.record &&
         this.outer ⊑ right.outer &&
-        this.nullOuter ⊑ right.nullOuter
+        this.nullOuter ⊑ right.nullOuter &&
+        this.froms.subsetOf(right.froms)
     }
 
     def ⊔(that: Elem): Elem = {
@@ -67,7 +73,8 @@ object DefaultLexEnv extends LexEnvDomain {
       Elem(
         this.record ⊔ right.record,
         this.outer ⊔ right.outer,
-        this.nullOuter ⊔ right.nullOuter
+        this.nullOuter ⊔ right.nullOuter,
+        this.froms ++ right.froms
       )
     }
 
@@ -76,7 +83,8 @@ object DefaultLexEnv extends LexEnvDomain {
       Elem(
         this.record ⊓ right.record,
         this.outer ⊓ right.outer,
-        this.nullOuter ⊓ right.nullOuter
+        this.nullOuter ⊓ right.nullOuter,
+        this.froms & right.froms
       )
     }
 
@@ -90,17 +98,11 @@ object DefaultLexEnv extends LexEnvDomain {
       s.toString
     }
 
-    def copy(
-      record: AbsEnvRec = this.record,
-      outer: AbsLoc = this.outer,
-      nullOuter: AbsAbsent = this.nullOuter
-    ): Elem = Elem(record, outer, nullOuter)
-
     def subsLoc(locR: Recency, locO: Recency): Elem =
-      Elem(record.subsLoc(locR, locO), outer.subsLoc(locR, locO), nullOuter)
+      copy(record = record.subsLoc(locR, locO), outer = outer.subsLoc(locR, locO))
 
     def weakSubsLoc(locR: Recency, locO: Recency): Elem =
-      Elem(record.weakSubsLoc(locR, locO), outer.subsLoc(locR, locO), nullOuter)
+      copy(record = record.weakSubsLoc(locR, locO), outer = outer.subsLoc(locR, locO))
 
     def toJson: JsValue = JsObject(
       ("record", record.toJson),
@@ -240,7 +242,7 @@ object DefaultLexEnv extends LexEnvDomain {
   }
 
   def NewDeclarativeEnvironment(outer: AbsLoc): Elem =
-    Elem(AbsDecEnvRec.Empty, outer, AbsAbsent.Bot)
+    Elem(AbsDecEnvRec.Empty, outer, AbsAbsent.Bot, Set.empty[TracePartition])
 
   def newPureLocal(outer: AbsLoc): Elem = {
     val envRec = AbsDecEnvRec(HashMap(
@@ -248,6 +250,6 @@ object DefaultLexEnv extends LexEnvDomain {
       "@exception_all" -> (AbsBinding(AbsUndef.Top), AbsAbsent.Top),
       "@return" -> (AbsBinding(AbsUndef.Top), AbsAbsent.Bot)
     ))
-    Elem(envRec, outer, AbsAbsent.Bot)
+    Elem(envRec, outer, AbsAbsent.Bot, Set.empty[TracePartition])
   }
 }

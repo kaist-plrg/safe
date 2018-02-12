@@ -14,9 +14,11 @@ package kr.ac.kaist.safe.analyzer.domain
 import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
 import kr.ac.kaist.safe.errors.error.AbsStateParseError
 import kr.ac.kaist.safe.LINE_SEP
+import kr.ac.kaist.safe.analyzer.TracePartition
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.util._
-import scala.collection.immutable.{ HashMap }
+
+import scala.collection.immutable.HashMap
 import spray.json._
 
 // default state abstract domain
@@ -167,7 +169,7 @@ object DefaultState extends StateDomain {
           newSt
         case CapturedCatchVar =>
           val env = context.getOrElse(PredAllocSite.COLLAPSED, AbsLexEnv.Bot).record.decEnvRec
-          val (newEnv, _) = env
+          val (newEnv, _): (AbsDecEnvRec, Set[Exception]) = env
             .CreateMutableBinding(x).fold(env)((e: AbsDecEnvRec) => e)
             .SetMutableBinding(x, value)
           Elem(heap, context.update(PredAllocSite.COLLAPSED, AbsLexEnv(newEnv)))
@@ -229,6 +231,14 @@ object DefaultState extends StateDomain {
       val (newCtx, b2) = context.delete(loc, str)
       (Elem(newHeap, newCtx), b1 ⊔ b2)
     }
+
+    def keepPartitioningIndex(tp: TracePartition): Elem = {
+      val env = context.pureLocal
+      val env_new = env.copy(froms = env.froms + tp)
+      Elem(heap, context.subsPureLocal(env_new))
+    }
+
+    lazy val partitioningIndex: Set[TracePartition] = context.pureLocal.froms
 
     override def toString: String = toString(false)
 
