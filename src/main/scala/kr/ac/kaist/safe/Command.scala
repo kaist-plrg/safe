@@ -106,8 +106,8 @@ case object CmdJsonLoad extends CommandObj("jsonLoad", CmdBase >> JsonLoad) {
 case object CmdAnalyze extends CommandObj("analyze", CmdHeapBuild >> Analyze, HashMap(
   "fromJson" -> (CmdJsonLoad >> Analyze)
 )) {
-  override def display(result: (CFG, Int, TracePartition, Semantics)): Unit = {
-    val (cfg, iters, _, sem) = result
+  override def display(result: (CFG, Int, Semantics)): Unit = {
+    val (cfg, iters, sem) = result
 
     println(s"- # of iteration: $iters")
     // function info.

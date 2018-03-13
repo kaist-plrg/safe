@@ -22,7 +22,7 @@ import kr.ac.kaist.safe.web.WebServer
 import scala.util.{ Success, Try }
 
 // Analyze phase
-case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildConfig, Int), AnalyzeConfig, (CFG, Int, TracePartition, Semantics)] {
+case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildConfig, Int), AnalyzeConfig, (CFG, Int, Semantics)] {
   val name: String = "analyzer"
   val help: String = "Analyze JavaScript source files."
 
@@ -30,7 +30,7 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
     in: (CFG, Semantics, TracePartition, HeapBuildConfig, Int),
     safeConfig: SafeConfig,
     config: AnalyzeConfig
-  ): Try[(CFG, Int, TracePartition, Semantics)] = {
+  ): Try[(CFG, Int, Semantics)] = {
     val (cfg, sem, initTP, heapConfig, iter) = in
     NodeProtocol.test = safeConfig.testMode
 
@@ -74,7 +74,7 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
       }
     }
 
-    Success((cfg, iters, initTP, sem))
+    Success((cfg, iters, sem))
   }
 
   def defaultConfig: AnalyzeConfig = AnalyzeConfig()

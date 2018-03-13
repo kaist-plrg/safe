@@ -132,56 +132,60 @@ class CoreTest extends FlatSpec with BeforeAndAfterAll {
   case object ParseError extends AnalysisResult
   case object Benchmark extends AnalysisResult
   case object Fail extends AnalysisResult
-  def analyzeTest(analysis: Try[(CFG, Int, TracePartition, Semantics)], tag: Tag): (AnalysisResult, Int) = {
+  def analyzeTest(analysis: Try[(CFG, Int, Semantics)], tag: Tag): (AnalysisResult, Int) = {
     analysis match {
       case Failure(e) => throw e
-      case Success((cfg, iter, globalTP, sem)) if tag == BenchTest =>
-        val normalSt = sem.getState(ControlPoint(cfg.globalFunc.exit, globalTP))
-        assert(!normalSt.heap.isBottom)
+      case Success((cfg, iter, sem)) if tag == BenchTest =>
+        assert(sem.getState(cfg.globalFunc.exit).exists {
+          case (_, st) => !st.heap.isBottom
+        })
         (Benchmark, iter)
-      case Success((cfg, iter, globalTP, sem)) =>
-        val normalSt = sem.getState(ControlPoint(cfg.globalFunc.exit, globalTP))
-        val excSt = sem.getState(ControlPoint(cfg.globalFunc.exitExc, globalTP))
-        assert(!normalSt.heap.isBottom)
-        val ar = normalSt.heap.get(BuiltinGlobal.loc) match {
-          case globalObj if globalObj.isBottom =>
-            assert(false)
-            Fail
-          case globalObj => {
-            def prefixCheck(prefix: String): (AbsStr, AbsDataProp) => Boolean = {
-              (str, dp) =>
-                str.getSingle match {
-                  case ConOne(Str(str)) => str.startsWith(prefix)
-                  case _ => false
-                }
+      case Success((cfg, iter, sem)) =>
+        def check(normalSt: AbsState): Option[AnalysisResult] = {
+          if (normalSt.heap.isBottom) None
+          else normalSt.heap.get(BuiltinGlobal.loc) match {
+            case globalObj if globalObj.isBottom => None
+            case globalObj => {
+              def prefixCheck(prefix: String): (AbsStr, AbsDataProp) => Boolean = {
+                (str, dp) =>
+                  str.getSingle match {
+                    case ConOne(Str(str)) => str.startsWith(prefix)
+                    case _ => false
+                  }
+              }
+              val resultKeySet: Set[String] = globalObj.abstractKeySet(prefixCheck(resultPrefix)) match {
+                case ConInf => return None
+                case ConFin(set) => set.map(_.getSingle match {
+                  case ConOne(Str(str)) => str
+                  case _ => return None
+                })
+              }
+              val expectKeySet: Set[String] = globalObj.abstractKeySet(prefixCheck(expectPrefix)) match {
+                case ConInf => return None
+                case ConFin(set) => set.map(_.getSingle match {
+                  case ConOne(Str(str)) => str
+                  case _ => return None
+                })
+              }
+              if (resultKeySet.foldLeft(true)((b, resultKey) => {
+                val num = resultKey.substring(resultPrefix.length)
+                val expectKey = expectPrefix + num
+                if (!(expectKeySet contains expectKey)) return None
+                if (!(globalObj(expectKey) ⊑ globalObj(resultKey))) return None
+                b && (globalObj(resultKey) ⊑ globalObj(expectKey))
+              })) Some(Precise)
+              else Some(Imprecise)
             }
-            val resultKeySet: Set[String] = globalObj.abstractKeySet(prefixCheck(resultPrefix)) match {
-              case ConInf =>
-                assert(false); HashSet()
-              case ConFin(set) => set.map(_.getSingle match {
-                case ConOne(Str(str)) => str
-                case _ => assert(false); ""
-              })
-            }
-            val expectKeySet: Set[String] = globalObj.abstractKeySet(prefixCheck(expectPrefix)) match {
-              case ConInf =>
-                assert(false); HashSet()
-              case ConFin(set) => set.map(_.getSingle match {
-                case ConOne(Str(str)) => str
-                case _ => assert(false); ""
-              })
-            }
-            if (resultKeySet.foldLeft(true)((b, resultKey) => {
-              val num = resultKey.substring(resultPrefix.length)
-              val expectKey = expectPrefix + num
-              assert(expectKeySet contains expectKey)
-              assert(globalObj(expectKey) ⊑ globalObj(resultKey))
-              b && (globalObj(resultKey) ⊑ globalObj(expectKey))
-            })) Precise
-            else Imprecise
           }
         }
-        (ar, iter)
+        sem.getState(cfg.globalFunc.exit).foldLeft[Option[AnalysisResult]](None) {
+          case (s @ Some(_), _) => s
+          case (None, (_, st)) => check(st)
+        } match {
+          case None =>
+            assert(false); (Fail, iter)
+          case Some(ar) => (ar, iter)
+        }
     }
   }
 

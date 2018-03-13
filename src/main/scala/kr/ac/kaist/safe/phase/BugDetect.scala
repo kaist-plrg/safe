@@ -20,7 +20,7 @@ import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.util._
 
 // BugDetect phase
-case object BugDetect extends PhaseObj[(CFG, Int, TracePartition, Semantics), BugDetectConfig, CFG] {
+case object BugDetect extends PhaseObj[(CFG, Int, Semantics), BugDetectConfig, CFG] {
   val name: String = "bugDetector"
   val help: String = "Detect possible bugs in JavaScript source files."
 
@@ -107,11 +107,11 @@ case object BugDetect extends PhaseObj[(CFG, Int, TracePartition, Semantics), Bu
     } else List[String]()
 
   def apply(
-    in: (CFG, Int, TracePartition, Semantics),
+    in: (CFG, Int, Semantics),
     safeConfig: SafeConfig,
     config: BugDetectConfig
   ): Try[CFG] = {
-    val (cfg, _, _, semantics) = in
+    val (cfg, _, semantics) = in
     // Bug detection
     val result = cfg.getUserBlocks.foldRight(List[String]())((b, r) => checkBlock(b, semantics) ++ r)
     result.foreach(println)
