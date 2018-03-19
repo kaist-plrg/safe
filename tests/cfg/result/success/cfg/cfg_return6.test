@@ -41,6 +41,7 @@ function[1] f {
 
   Block[4] -> [6], ExitExc
     [0] assert(! true)
+    [1] merge(2)
 
   LCont[5] -> [2]
 

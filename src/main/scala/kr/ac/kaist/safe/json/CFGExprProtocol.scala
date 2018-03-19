@@ -78,7 +78,7 @@ object CFGExprProtocol extends DefaultJsonProtocol {
   implicit object CFGIdJsonFormat extends RootJsonFormat[CFGId] {
 
     def write(id: CFGId): JsValue = id match {
-      case CFGUserId(text, kind, name, from) =>
+      case CFGUserId(text, kind, name, from, _, _) =>
         JsArray(JsString(text), kind.toJson, JsString(name), JsBoolean(from))
       case CFGTempId(text, kind) => JsArray(JsString(text), kind.toJson)
     }

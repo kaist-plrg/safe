@@ -121,6 +121,7 @@ function[1] buildKernel {
 
   Block[19] -> [32], ExitExc
     [0] assert(! <>i<>3 < 7)
+    [1] merge(17)
 
   Call[20] -> ExitExc
     [0] call(<>fun<>16, <>this<>, <>arguments<>15) @ #20
@@ -134,6 +135,7 @@ function[1] buildKernel {
 
   Block[24] -> [32], ExitExc
     [0] assert(<>g<>5 < 0.001)
+    [1] merge(17)
 
   Block[25] -> [26], ExitExc
     [0] assert(! <>g<>5 < 0.001)
@@ -180,6 +182,7 @@ function[1] buildKernel {
 
   Block[35] -> [53], ExitExc
     [0] assert(! <>j<>4 < kernelSize)
+    [1] merge(33)
 
   Call[36] -> ExitExc
     [0] call(<>fun<>28, <>this<>, <>arguments<>27) @ #30
@@ -205,6 +208,7 @@ function[1] buildKernel {
 
   Block[42] -> [51], ExitExc
     [0] assert(! <>i<>3 < kernelSize)
+    [1] merge(40)
 
   Call[43] -> ExitExc
     [0] call(<>fun<>32, <>this<>, <>arguments<>31) @ #34
@@ -258,6 +262,7 @@ function[1] buildKernel {
 
   Block[56] -> [71], ExitExc
     [0] assert(! <>j<>4 < kernelSize)
+    [1] merge(54)
 
   LoopHead[57] -> [59], [58]
 
@@ -274,6 +279,7 @@ function[1] buildKernel {
 
   Block[59] -> [69], ExitExc
     [0] assert(! <>i<>3 < kernelSize)
+    [1] merge(57)
 
   Call[60] -> ExitExc
     [0] call(<>fun<>48, <>this<>, <>arguments<>47) @ #44
@@ -337,6 +343,7 @@ function[2] gaussianBlur {
 
   Block[3] -> [68], ExitExc
     [0] assert(! <>y<>60 < height)
+    [1] merge(1)
 
   LoopHead[4] -> [6], [5]
 
@@ -350,6 +357,7 @@ function[2] gaussianBlur {
 
   Block[6] -> [66], ExitExc
     [0] assert(! <>x<>61 < width)
+    [1] merge(4)
 
   LoopHead[7] -> [9], [8]
 
@@ -358,6 +366,7 @@ function[2] gaussianBlur {
 
   Block[9] -> [64], ExitExc
     [0] assert(! <>j<>66 < kernelSize)
+    [1] merge(7)
 
   Block[10] -> [16], ExitExc
     [0] assert(<>y<>60 + <>j<>66 < 0)
@@ -387,6 +396,7 @@ function[2] gaussianBlur {
 
   Block[20] -> [62], ExitExc
     [0] assert(! <>i<>67 < kernelSize)
+    [1] merge(18)
 
   Block[21] -> [27], ExitExc
     [0] assert(<>x<>61 + <>i<>67 < 0)

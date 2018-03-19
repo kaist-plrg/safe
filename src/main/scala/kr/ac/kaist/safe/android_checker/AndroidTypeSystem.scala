@@ -457,7 +457,7 @@ class AndroidTypeSystem(
       }
       t3
 
-    case IRBreak(ast, label) => Top
+    case IRBreak(ast, label, _) => Top
 
     case IRReturn(ast, expr) => if (expr.isDefined) walk(expr.get) else Top
 
@@ -479,7 +479,7 @@ class AndroidTypeSystem(
       if (falseB.isDefined) walk(falseB.get)
       Top
 
-    case IRWhile(ast, cond, body, _, _) =>
+    case IRWhile(ast, cond, body, _, _, _) =>
       walk(cond)
       unsafe = true
       walk(body)
@@ -580,7 +580,7 @@ class AndroidTypeSystem(
       case IRSeq(_, stmts) => join(stmts.map(walk))
       case IRIf(_, _, trueB, falseB) =>
         walk(trueB) || (if (falseB.isDefined) walk(falseB.get) else false)
-      case IRWhile(_, _, body, _, _) => walk(body)
+      case IRWhile(_, _, body, _, _, _) => walk(body)
       case IRTry(_, body, _, catchB, finallyB) =>
         walk(body) ||
           (if (catchB.isDefined) walk(catchB.get) else false) ||

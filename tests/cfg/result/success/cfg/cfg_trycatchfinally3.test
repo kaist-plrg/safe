@@ -84,9 +84,11 @@ function[0] top-level {
 
   Block[18] -> [23], ExitExc
     [0] assert(! true)
+    [1] merge(16)
 
   Block[19] -> [23], ExitExc
     [0] assert(<>new<>17 == 0)
+    [1] merge(16)
 
   Block[20] -> [21], ExitExc
     [0] assert(<>new<>17 != 0)
@@ -118,9 +120,11 @@ function[0] top-level {
 
   Block[30] -> [35], ExitExc
     [0] assert(! true)
+    [1] merge(28)
 
   Block[31] -> [35], ExitExc
     [0] assert(<>new<>17 == 0)
+    [1] merge(28)
 
   Block[32] -> [33], ExitExc
     [0] assert(<>new<>17 != 0)
@@ -151,9 +155,11 @@ function[0] top-level {
 
   Block[42] -> [47], ExitExc
     [0] assert(! true)
+    [1] merge(40)
 
   Block[43] -> [47], ExitExc
     [0] assert(<>new<>17 == 0)
+    [1] merge(40)
 
   Block[44] -> [45], ExitExc
     [0] assert(<>new<>17 != 0)

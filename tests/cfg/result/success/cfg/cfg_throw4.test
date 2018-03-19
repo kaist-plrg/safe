@@ -14,6 +14,7 @@ function[0] top-level {
 
   Block[3] -> [8], ExitExc
     [0] assert(! true)
+    [1] merge(1)
 
   Block[4] -> ExitExc
     [0] assert(x == "B")

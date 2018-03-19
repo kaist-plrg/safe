@@ -18,6 +18,7 @@ function[0] top-level {
 
   Block[3] -> [5], ExitExc
     [0] assert(x == y)
+    [1] merge(1)
 
   LCont[4] -> [1], ExitExc
     [0] <>old<>3 := x

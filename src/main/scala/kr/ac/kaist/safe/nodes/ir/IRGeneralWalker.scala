@@ -64,7 +64,7 @@ trait IRGeneralWalker[Result] {
       join(walk(ast), walk(obj), walk(index), walk(rhs))
     case fd: IRFunDecl =>
       walk(fd)
-    case IRBreak(ast, label) =>
+    case IRBreak(ast, label, _) =>
       join(walk(ast), walk(label))
     case IRReturn(ast, expr) =>
       join(walk(ast) :: walkOpt(expr): _*)
@@ -80,7 +80,7 @@ trait IRGeneralWalker[Result] {
       join(walk(ast) :: stmts.map(walk): _*)
     case IRIf(ast, expr, trueB, falseB) =>
       join(walk(ast) :: walk(expr) :: walk(trueB) :: walkOpt(falseB): _*)
-    case IRWhile(ast, cond, body, br, cont) =>
+    case IRWhile(ast, cond, body, br, cont, _) =>
       join(walk(ast), walk(cond), walk(body), walk(br), walk(cont))
     case IRTry(ast, body, name, catchB, finallyB) =>
       join(walk(ast) :: walk(body) :: walkOpt(name) ++ walkOpt(catchB) ++ walkOpt(finallyB): _*)

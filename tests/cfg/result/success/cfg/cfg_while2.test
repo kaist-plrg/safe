@@ -13,6 +13,7 @@ function[0] top-level {
 
   Block[3] -> [13], ExitExc
     [0] assert(! true)
+    [1] merge(1)
 
   LoopHead[4] -> [6], [5]
 
@@ -21,9 +22,11 @@ function[0] top-level {
 
   Block[6] -> [11], ExitExc
     [0] assert(! x)
+    [1] merge(4)
 
   Block[7] -> [11], ExitExc
     [0] assert(x)
+    [1] merge(4)
 
   Block[8] -> [9], ExitExc
     [0] assert(! x)

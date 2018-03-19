@@ -27,7 +27,8 @@ sealed abstract class Sensitivity {
 // trace partition
 abstract class TracePartition {
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition
-  def next_case(id: CFGId, s: AbsStr, absent: Boolean): TracePartition
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): TracePartition
+  def merge(hids: Set[BlockId]): TracePartition
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,8 @@ case object EmptyTP extends TracePartition {
     to: CFGBlock,
     edgeType: CFGEdgeType
   ): EmptyTP.type = EmptyTP
-  def next_case(id: CFGId, s: AbsStr, absent: Boolean): EmptyTP.type = EmptyTP
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): EmptyTP.type = EmptyTP
+  def merge(hids: Set[BlockId]): EmptyTP.type = EmptyTP
 
   override def toString: String = s"Empty"
 }
@@ -56,7 +58,8 @@ case class ProductTP(
 ) extends TracePartition {
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): ProductTP =
     ProductTP(ltp.next(from, to, edgeType), rtp.next(from, to, edgeType))
-  def next_case(id: CFGId, s: AbsStr, absent: Boolean): ProductTP = ProductTP(ltp.next_case(id, s, absent), rtp.next_case(id, s, absent))
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): ProductTP = ProductTP(ltp.next_case(hid, id, s, absent), rtp.next_case(hid, id, s, absent))
+  def merge(hids: Set[BlockId]): ProductTP = ProductTP(ltp.merge(hids), rtp.merge(hids))
   override def toString: String = s"$ltp x $rtp"
 }
 
@@ -80,7 +83,8 @@ case class CallSiteContext(callsiteList: List[Call], depth: Int) extends TracePa
       CallSiteContext((call :: callsiteList).take(depth), depth)
     case _ => this
   }
-  def next_case(id: CFGId, s: AbsStr, absent: Boolean): CallSiteContext = this
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): CallSiteContext = this
+  def merge(hids: Set[BlockId]): CallSiteContext = this
   override def toString: String = callsiteList
     .map(call => s"${call.func.id}:${call.id}")
     .mkString("Call[", ", ", "]")
@@ -124,12 +128,16 @@ case class LookupPartition(list: List[LocalCase]) extends TracePartition {
     LookupPartition(nlist)
   }
 
-  def next_case(id: CFGId, s: AbsStr, in: Boolean): LookupPartition = {
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): LookupPartition = {
     val c = if (in) CaseIn else CaseNotIn
-    update_local(LocalCase(id, s, c))
+    update_local(LocalCase(hid, id, s, c))
+  }
+  def merge(hids: Set[BlockId]): LookupPartition = {
+    val nlist = this.list.filterNot(p => hids.contains(p.headID))
+    LookupPartition(nlist)
   }
 }
-case class LocalCase(id: CFGId, s: AbsStr, c: Case)
+case class LocalCase(headID: BlockId, id: CFGId, s: AbsStr, c: Case)
 
 object CAPartition extends Sensitivity {
   override val initTP: TracePartition = LookupPartition.empty
@@ -187,7 +195,8 @@ case class LoopContext(
     case (_, ExitExc(_) | Exit(_), _) => LoopContext(None, None, depth)
     case _ => this
   }
-  def next_case(id: CFGId, s: AbsStr, absent: Boolean): LoopContext = this
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): LoopContext = this
+  override def merge(hid: Set[BlockId]): LoopContext = this
 
   override def toString: String = infoOpt match {
     case Some(LoopInfo(loopHead, k, outer)) =>
@@ -204,6 +213,7 @@ case class LoopContext(
       }
     case _ => false
   }
+
 }
 
 class LoopSensitivity(depth: Int) extends Sensitivity {

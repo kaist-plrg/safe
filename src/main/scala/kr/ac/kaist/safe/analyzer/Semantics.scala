@@ -16,7 +16,7 @@ import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.models.builtin._
 import kr.ac.kaist.safe.nodes.ir._
-import kr.ac.kaist.safe.nodes.cfg._
+import kr.ac.kaist.safe.nodes.cfg.{ CFGId, _ }
 import kr.ac.kaist.safe.util._
 
 import scala.collection.immutable.{ HashMap, HashSet }
@@ -295,11 +295,11 @@ case class Semantics(
 
   lazy val emptyTP = HashMap.empty[TracePartition, AbsState]
   // TODO makes the following variable optional.
-  val bPartitioned = true
+  val bPartitioned = false
 
   def Is(tp: TracePartition, i: CFGNormalInst, st: AbsState): (HashMap[TracePartition, AbsState], (TracePartition, AbsState)) = {
     i match {
-      case CFGExprStmt(_, _, x, e @ CFGLoad(_, _, CFGVarRef(_, _))) if bPartitioned =>
+      case CFGExprStmt(_, blk, x, e @ CFGLoad(_, _, CFGVarRef(_, id))) if bPartitioned && id.keyVar =>
         val (lhs, ss, es) = Vs(e, st)
         val ntps =
           lhs match {
@@ -307,7 +307,8 @@ case class Semantics(
               (emptyTP /: ss) {
                 case (m_i, (str, nst, v, b)) =>
                   System.out.println(s"- case: $lhs_id = $str with $v for $b")
-                  val tp_n = tp.next_case(lhs_id, str, b)
+
+                  val tp_n = tp.next_case(id.headID.get, lhs_id, str, b)
                   // v is always not bottom.
                   val st1 = nst.varStore(x, v)
                   m_i + (tp_n -> st1)
@@ -319,13 +320,13 @@ case class Semantics(
         val newExcSt = st.raiseException(es)
         (ntps, (tp, newExcSt))
 
-      case CFGExprStmt(_, _, x, e) =>
-        val (v, excSet) = V(e, st)
-        val st1 =
-          if (!v.isBottom) st.varStore(x, v)
-          else AbsState.Bot
-        val newExcSt = st.raiseException(excSet)
-        (emptyTP + (tp -> st1), (tp, newExcSt))
+      //      case CFGInternalCall(_, _, lhs, NodeUtil.INTERNAL_MERGE, List(CFGVarRef(_, id)), loc) =>
+      //        val ntp = tp.merge(List(id))
+      //        (emptyTP + (ntp -> st), (ntp, AbsState.Bot))
+      //
+      case CFGMerge(_, lIDs) =>
+        // TODO merge tp by lIDs
+        (emptyTP + (tp.merge(lIDs) -> st), (tp, AbsState.Bot))
 
       case _ =>
         val (newSt, newExcSt) = I(i, st, AbsState.Bot)
@@ -1451,9 +1452,9 @@ case class Semantics(
     (next_normal, next_exc, next_inter)
   }
 
-  def Vs(expr: CFGExpr, st: AbsState, idx: List[CFGId] = List.empty[CFGId]): (Option[CFGId], Set[(AbsStr, AbsState, AbsValue, Boolean)], Set[Exception]) = {
+  def Vs(expr: CFGExpr, st: AbsState): (Option[CFGId], Set[(AbsStr, AbsState, AbsValue, Boolean)], Set[Exception]) = {
     expr match {
-      case CFGLoad(ir, obj, index @ CFGVarRef(_, id)) => //if idx contains id =>
+      case CFGLoad(ir, obj, index @ CFGVarRef(_, id)) =>
         val (objV, _) = V(obj, st)
         val (idxV, idxExcSet) = V(index, st)
         val absStrSet =

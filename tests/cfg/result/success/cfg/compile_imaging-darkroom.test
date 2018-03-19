@@ -40,6 +40,7 @@ function[0] top-level {
 
   Block[7] -> [13], ExitExc
     [0] assert(! <>y<>122 < <>obj<>123["length"])
+    [1] merge(5)
 
   Call[8] -> ExitExc
     [0] call(<>obj<>124, <>this<>, <>arguments<>130) @ #79
@@ -318,6 +319,7 @@ function[5] ProcessImageData {
 
   Block[9] -> [22], ExitExc
     [0] assert(! <>j<>62 < <>sz<>61)
+    [1] merge(7)
 
   Call[10] -> ExitExc
     [0] call(<>obj<>88, <>this<>, <>arguments<>90) @ #44

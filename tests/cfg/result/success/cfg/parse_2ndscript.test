@@ -3644,6 +3644,7 @@ function[11] _mlToken {
 
   Catch[2] -> [128]
     [0] catch(<>Y<>337)
+    [1] merge(63)
 
   Block[3] -> [6], [5], [2]
     [0] assert(1 > <>Aa<>157)
@@ -3929,6 +3930,7 @@ function[11] _mlToken {
 
   Block[65] -> [90], [2]
     [0] assert(! <>cond1<>418)
+    [1] merge(63)
 
   Call[66] -> [2]
     [0] call(<>fun<>423, <>this<>, <>arguments<>422) @ #151
@@ -4803,6 +4805,7 @@ function[20] Jb {
 
   Block[5] -> [7], ExitExc
     [0] assert(! <>y<>648 < <>obj<>649["length"])
+    [1] merge(3)
 
   LCont[6] -> [3], ExitExc
     [0] <>old<>652 := <>f<>644
@@ -5172,6 +5175,7 @@ function[20] Jb {
 
   Block[91] -> [122], ExitExc
     [0] assert(! <>cond1<>750)
+    [1] merge(89)
 
   Block[92] -> [94], ExitExc
     [0] assert(<>y<>752 != <>obj<>753["length"])
@@ -5676,6 +5680,7 @@ function[23] a {
 
   Block[12] -> [23], ExitExc
     [0] assert(! <>new2<>843)
+    [1] merge(10)
 
   LCont[13] -> [15], [14], ExitExc
     [0] <>obj<>835 := @ToObject(<>f<>829) @ #425
@@ -6433,6 +6438,7 @@ function[39] G<>funexpr@5:3-145<> {
 
   Block[9] -> [17], ExitExc
     [0] assert(! <>new2<>1130)
+    [1] merge(7)
 
   LCont[10] -> [12], [11], ExitExc
     [0] <>old<>1131 := <>b<>1125
@@ -6720,6 +6726,7 @@ function[42] E<>funexpr@5:198-283<> {
 
   Block[7] -> [9], ExitExc
     [0] assert(! <>cond1<>1186)
+    [1] merge(5)
 
   LCont[8] -> [5]
     [0] <>cond1<>1186 := @iteratorHasNext(<>obj<>1184, <>iterator<>1185)
@@ -6908,6 +6915,7 @@ function[45] xa<>funexpr@5:592-659<> {
 
   Block[17] -> [29], ExitExc
     [0] assert(! <>new2<>1322)
+    [1] merge(15)
 
   LCont[18] -> [19], ExitExc
     [0] <>obj<>1317 := @ToObject(<>a<>1310) @ #771
@@ -7014,6 +7022,7 @@ function[47] b {
 
   Block[7] -> [9], ExitExc
     [0] assert(! <>obj<>1335[<>d<>1328])
+    [1] merge(5)
 
   LCont[8] -> [5], ExitExc
     [0] <>old<>1337 := <>d<>1328
@@ -7041,6 +7050,7 @@ function[47] b {
 
   Block[12] -> [45], ExitExc
     [0] assert(! <>obj<>1339[<>b<>1327])
+    [1] merge(10)
 
   Block[13] -> [16], [15], ExitExc
     [0] assert(<>obj<>1342["libs"])
@@ -7488,6 +7498,7 @@ function[55] Na<>funexpr@9:8-101<> {
 
   Block[3] -> [19], ExitExc
     [0] assert(! <>obj<>1532[<>b<>1529])
+    [1] merge(1)
 
   Call[4] -> ExitExc
     [0] call(<>fun<>1536, <>this<>, <>arguments<>1535) @ #922
@@ -8320,16 +8331,17 @@ function[65] Za<>funexpr@11:49-12:454<> {
 
   Catch[4] -> [159], ExitExc
     [0] catch(<>xb<>1742)
-    [1] <>obj<>1866 := @ToObject(<>t<>122) @ #1159
-    [2] <>temp<>1867 := <>xb<>1742
-    [3] <>temp<>1868 := "sb"
-    [4] <>temp<>1869 := "al"
-    [5] <>arguments<>1870 := allocArg(3) @ #1160
-    [6] <>arguments<>1870["0"] := <>temp<>1867
-    [7] <>arguments<>1870["1"] := <>temp<>1868
-    [8] <>arguments<>1870["2"] := <>temp<>1869
-    [9] <>fun<>1871 := @GetBase(<>t<>122)
-    [10] <>this<> := enterCode(<>fun<>1871)
+    [1] merge(24, 27, 40)
+    [2] <>obj<>1866 := @ToObject(<>t<>122) @ #1159
+    [3] <>temp<>1867 := <>xb<>1742
+    [4] <>temp<>1868 := "sb"
+    [5] <>temp<>1869 := "al"
+    [6] <>arguments<>1870 := allocArg(3) @ #1160
+    [7] <>arguments<>1870["0"] := <>temp<>1867
+    [8] <>arguments<>1870["1"] := <>temp<>1868
+    [9] <>arguments<>1870["2"] := <>temp<>1869
+    [10] <>fun<>1871 := @GetBase(<>t<>122)
+    [11] <>this<> := enterCode(<>fun<>1871)
 
   Call[5] -> [4]
     [0] call(<>fun<>1746, <>this<>, <>arguments<>1745) @ #1065
@@ -8452,6 +8464,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
 
   Block[26] -> [125], [4]
     [0] assert(! <>obj<>1776[<>s<>1733])
+    [1] merge(24)
 
   LoopHead[27] -> [29], [28]
 
@@ -8460,6 +8473,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
 
   Block[29] -> [66], [4]
     [0] assert(! <>obj<>1777[<>Y<>1735])
+    [1] merge(27)
 
   Block[30] -> [32], [4]
     [0] assert(<>d<>1727 < <>l<>1731)
@@ -8510,6 +8524,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
 
   Block[42] -> [54], [4]
     [0] assert(! <>new2<>1786)
+    [1] merge(40)
 
   LCont[43] -> [45], [44]
 
@@ -8587,6 +8602,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
 
   Block[63] -> [66], [4]
     [0] <>g<>1728 := <>e<>112
+    [1] merge(27)
 
   Block[64] -> [65]
 
@@ -8688,6 +8704,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
   Block[88] -> [85]
 
   Block[89] -> [125]
+    [0] merge(24)
 
   Block[90] -> [92], [4]
     [0] assert(0 <= <>d<>1727 - 1)
@@ -8984,6 +9001,7 @@ function[66] Ya<>funexpr@12:458-13:25<> {
 
   Block[3] -> [11], ExitExc
     [0] assert(! <>d<>1876 < <>c<>1875)
+    [1] merge(1)
 
   Call[4] -> ExitExc
     [0] call(<>obj<>1879, <>this<>, <>arguments<>1883) @ #1168
@@ -9874,6 +9892,7 @@ function[84] jb<>funexpr@14:345-15:47<> {
 
   Block[19] -> [28], ExitExc
     [0] assert(! <>obj<>2116[<>c<>2102])
+    [1] merge(17)
 
   Call[20] -> ExitExc
     [0] call(<>fun<>2120, <>this<>, <>arguments<>2119) @ #1320
@@ -10025,6 +10044,7 @@ function[86] Sa<>funexpr@15:119-192<> {
 
   Block[3] -> [11], ExitExc
     [0] assert(! <>obj<>2155[<>b<>2151])
+    [1] merge(1)
 
   Call[4] -> ExitExc
     [0] call(<>obj<>2156, <>this<>, <>arguments<>2159) @ #1345
@@ -10444,6 +10464,7 @@ function[96] Bb<>funexpr@16:1352-17:46<> {
 
   Block[7] -> [12], ExitExc
     [0] assert(! <>f<>2511 < <>m<>2512)
+    [1] merge(5)
 
   Block[8] -> [10], ExitExc
     [0] assert(<>obj<>2545[<>obj<>2546[<>f<>2511]])
@@ -10520,6 +10541,7 @@ function[98] <>funexpr@16:1420-1497<> {
 
   Block[3] -> [5], ExitExc
     [0] assert(! <>d<>2522 < <>f<>2523)
+    [1] merge(1)
 
   LCont[4] -> [1], ExitExc
     [0] <>old<>2528 := <>d<>2522
@@ -10984,6 +11006,7 @@ function[112] Xb<>funexpr@22:32-223<> {
 
   Block[26] -> [37], ExitExc
     [0] assert(! <>y<>2807 < <>obj<>2808["length"])
+    [1] merge(24)
 
   Block[27] -> [29], ExitExc
     [0] assert(<>c<>2784 in <>a<>2782)
@@ -11301,6 +11324,7 @@ function[116] $b<>funexpr@22:406-503<> {
 
   Block[10] -> [12], ExitExc
     [0] assert(! <>y<>2888 < <>obj<>2889["length"])
+    [1] merge(8)
 
   LCont[11] -> [8], ExitExc
     [0] <>old<>2892 := <>d<>2879
@@ -11404,6 +11428,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
 
   Block[12] -> [24], ExitExc
     [0] assert(! <>cond1<>2917)
+    [1] merge(10)
 
   Block[13] -> [15], ExitExc
     [0] assert(<>obj<>2920[<>d<>2906])
@@ -11473,6 +11498,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
 
   Block[28] -> [30], ExitExc
     [0] assert(! <>y<>2928 < <>obj<>2929["length"])
+    [1] merge(26)
 
   LCont[29] -> [26], ExitExc
     [0] <>old<>2932 := <>d<>2906
@@ -11514,16 +11540,17 @@ function[118] bc<>funexpr@23:139-288<> {
 
   Catch[2] -> [29], ExitExc
     [0] catch(<>g<>2947)
-    [1] <>obj<>2973 := @ToObject(<>t<>122) @ #1880
-    [2] <>temp<>2974 := <>g<>2947
-    [3] <>temp<>2975 := "up"
-    [4] <>temp<>2976 := "mtp"
-    [5] <>arguments<>2977 := allocArg(3) @ #1881
-    [6] <>arguments<>2977["0"] := <>temp<>2974
-    [7] <>arguments<>2977["1"] := <>temp<>2975
-    [8] <>arguments<>2977["2"] := <>temp<>2976
-    [9] <>fun<>2978 := @GetBase(<>t<>122)
-    [10] <>this<> := enterCode(<>fun<>2978)
+    [1] merge(5, 8)
+    [2] <>obj<>2973 := @ToObject(<>t<>122) @ #1880
+    [3] <>temp<>2974 := <>g<>2947
+    [4] <>temp<>2975 := "up"
+    [5] <>temp<>2976 := "mtp"
+    [6] <>arguments<>2977 := allocArg(3) @ #1881
+    [7] <>arguments<>2977["0"] := <>temp<>2974
+    [8] <>arguments<>2977["1"] := <>temp<>2975
+    [9] <>arguments<>2977["2"] := <>temp<>2976
+    [10] <>fun<>2978 := @GetBase(<>t<>122)
+    [11] <>this<> := enterCode(<>fun<>2978)
 
   Block[3] -> [5], [2]
     [0] assert(! <>Wb<>234)
@@ -11549,6 +11576,7 @@ function[118] bc<>funexpr@23:139-288<> {
 
   Block[7] -> [27], [2]
     [0] assert(! <>cond1<>2951)
+    [1] merge(5)
 
   LoopHead[8] -> [10], [9]
 
@@ -11557,6 +11585,7 @@ function[118] bc<>funexpr@23:139-288<> {
 
   Block[10] -> [25], [2]
     [0] assert(! <>y<>2954 < <>obj<>2955["length"])
+    [1] merge(8)
 
   Try[11] -> [13], [12]
     [0] <>obj<>2957 := @ToObject(<>b<>2944) @ #1869
@@ -12322,6 +12351,7 @@ function[126] ic<>funexpr@25:292-380<> {
 
   Block[3] -> [14], ExitExc
     [0] assert(! <>obj<>3138[<>b<>3134])
+    [1] merge(1)
 
   Block[4] -> [6], ExitExc
     [0] assert(<>c<>3135 in <>d<>3136)
@@ -14343,14 +14373,15 @@ function[136] W<>funexpr@35:207-36:284<> {
 
   Catch[2] -> [95], ExitExc
     [0] catch(<>r<>3704)
-    [1] <>obj<>3783 := @ToObject(<>u<>3244) @ #2483
-    [2] <>temp<>3784 := <>r<>3704
-    [3] <>temp<>3785 := "stem"
-    [4] <>arguments<>3786 := allocArg(2) @ #2484
-    [5] <>arguments<>3786["0"] := <>temp<>3784
-    [6] <>arguments<>3786["1"] := <>temp<>3785
-    [7] <>fun<>3787 := @GetBase(<>u<>3244)
-    [8] <>this<> := enterCode(<>fun<>3787)
+    [1] merge(79)
+    [2] <>obj<>3783 := @ToObject(<>u<>3244) @ #2483
+    [3] <>temp<>3784 := <>r<>3704
+    [4] <>temp<>3785 := "stem"
+    [5] <>arguments<>3786 := allocArg(2) @ #2484
+    [6] <>arguments<>3786["0"] := <>temp<>3784
+    [7] <>arguments<>3786["1"] := <>temp<>3785
+    [8] <>fun<>3787 := @GetBase(<>u<>3244)
+    [9] <>this<> := enterCode(<>fun<>3787)
 
   Call[3] -> [2]
     [0] call(<>fun<>3707, <>this<>, <>arguments<>3706) @ #2424
@@ -14634,6 +14665,7 @@ function[136] W<>funexpr@35:207-36:284<> {
 
   Block[81] -> [90], [2]
     [0] assert(! <>b<>3698 < <>f<>3700)
+    [1] merge(79)
 
   Call[82] -> [2]
     [0] call(<>obj<>3763, <>this<>, <>arguments<>3766) @ #2471
@@ -14961,14 +14993,15 @@ function[139] gb<>funexpr@37:244-316<> {
 
   Catch[4] -> [13], ExitExc
     [0] catch(<>f<>3875)
-    [1] <>obj<>3883 := @ToObject(<>u<>3244) @ #2545
-    [2] <>temp<>3884 := <>f<>3875
-    [3] <>temp<>3885 := "eoec"
-    [4] <>arguments<>3886 := allocArg(2) @ #2546
-    [5] <>arguments<>3886["0"] := <>temp<>3884
-    [6] <>arguments<>3886["1"] := <>temp<>3885
-    [7] <>fun<>3887 := @GetBase(<>u<>3244)
-    [8] <>this<> := enterCode(<>fun<>3887)
+    [1] merge(5)
+    [2] <>obj<>3883 := @ToObject(<>u<>3244) @ #2545
+    [3] <>temp<>3884 := <>f<>3875
+    [4] <>temp<>3885 := "eoec"
+    [5] <>arguments<>3886 := allocArg(2) @ #2546
+    [6] <>arguments<>3886["0"] := <>temp<>3884
+    [7] <>arguments<>3886["1"] := <>temp<>3885
+    [8] <>fun<>3887 := @GetBase(<>u<>3244)
+    [9] <>this<> := enterCode(<>fun<>3887)
 
   LoopHead[5] -> [7], [6]
 
@@ -14983,6 +15016,7 @@ function[139] gb<>funexpr@37:244-316<> {
 
   Block[7] -> [12], [4]
     [0] assert(! <>obj<>3876[<>b<>3872])
+    [1] merge(5)
 
   Call[8] -> [4]
     [0] call(<>obj<>3877, <>this<>, <>arguments<>3879) @ #2543
@@ -17194,14 +17228,15 @@ function[146] nb<>funexpr@42:325-43:164<> {
 
   Catch[2] -> [76], ExitExc
     [0] catch(<>c<>4275)
-    [1] <>obj<>4319 := @ToObject(<>u<>3244) @ #2832
-    [2] <>temp<>4320 := <>c<>4275
-    [3] <>temp<>4321 := "sem"
-    [4] <>arguments<>4322 := allocArg(2) @ #2833
-    [5] <>arguments<>4322["0"] := <>temp<>4320
-    [6] <>arguments<>4322["1"] := <>temp<>4321
-    [7] <>fun<>4323 := @GetBase(<>u<>3244)
-    [8] <>this<> := enterCode(<>fun<>4323)
+    [1] merge(70)
+    [2] <>obj<>4319 := @ToObject(<>u<>3244) @ #2832
+    [3] <>temp<>4320 := <>c<>4275
+    [4] <>temp<>4321 := "sem"
+    [5] <>arguments<>4322 := allocArg(2) @ #2833
+    [6] <>arguments<>4322["0"] := <>temp<>4320
+    [7] <>arguments<>4322["1"] := <>temp<>4321
+    [8] <>fun<>4323 := @GetBase(<>u<>3244)
+    [9] <>this<> := enterCode(<>fun<>4323)
 
   Block[3] -> [5], [2]
     [0] assert(! 0 == <>U<>3306)
@@ -17430,6 +17465,7 @@ function[146] nb<>funexpr@42:325-43:164<> {
 
   Block[72] -> [74], [2]
     [0] assert(! 1 > <>b<>4271)
+    [1] merge(70)
 
   LCont[73] -> [70], [2]
     [0] <>old<>4315 := <>b<>4271
@@ -17546,8 +17582,9 @@ function[147] V<>funexpr@43:167-44:330<> {
     [5] <>fun<>4348 := @GetBase(<>v<>3245)
     [6] <>this<> := enterCode(<>fun<>4348)
 
-  Block[21] -> [139], ExitExc
+  Block[21] -> [145], ExitExc
     [0] assert(! <>obj<>4344[<>f<>4327])
+    [1] merge(19)
 
   Call[22] -> ExitExc
     [0] call(<>obj<>4345, <>this<>, <>arguments<>4347) @ #2851
@@ -17563,7 +17600,7 @@ function[147] V<>funexpr@43:167-44:330<> {
     [0] assert(<>new<>4349)
     [1] <>val<>4350 := <>b<>4325
 
-  Block[27] -> [137], ExitExc
+  Block[27] -> [143], ExitExc
     [0] assert(! <>new<>4349)
 
   Block[28] -> [49], ExitExc
@@ -17572,9 +17609,9 @@ function[147] V<>funexpr@43:167-44:330<> {
   Block[29] -> [32], [31], ExitExc
     [0] assert(<>val<>4350 !== "gbexxl")
 
-  Block[30] -> [133]
+  Block[30] -> [139]
 
-  Block[31] -> [61], ExitExc
+  Block[31] -> [62], ExitExc
     [0] assert(<>val<>4350 === "gbexl")
 
   Block[32] -> [35], [34], ExitExc
@@ -17582,7 +17619,7 @@ function[147] V<>funexpr@43:167-44:330<> {
 
   Block[33] -> [30]
 
-  Block[34] -> [73], ExitExc
+  Block[34] -> [75], ExitExc
     [0] assert(<>val<>4350 === "")
 
   Block[35] -> [38], [37], ExitExc
@@ -17590,7 +17627,7 @@ function[147] V<>funexpr@43:167-44:330<> {
 
   Block[36] -> [33]
 
-  Block[37] -> [85], ExitExc
+  Block[37] -> [88], ExitExc
     [0] assert(<>val<>4350 === "gbem")
 
   Block[38] -> [41], [40], ExitExc
@@ -17598,7 +17635,7 @@ function[147] V<>funexpr@43:167-44:330<> {
 
   Block[39] -> [36]
 
-  Block[40] -> [97], ExitExc
+  Block[40] -> [101], ExitExc
     [0] assert(<>val<>4350 === "gbes")
 
   Block[41] -> [44], [43], ExitExc
@@ -17606,7 +17643,7 @@ function[147] V<>funexpr@43:167-44:330<> {
 
   Block[42] -> [39]
 
-  Block[43] -> [109], ExitExc
+  Block[43] -> [114], ExitExc
     [0] assert(<>val<>4350 === "gbet")
 
   Block[44] -> [47], [46], ExitExc
@@ -17614,7 +17651,7 @@ function[147] V<>funexpr@43:167-44:330<> {
 
   Block[45] -> [42]
 
-  Block[46] -> [121], ExitExc
+  Block[46] -> [127], ExitExc
     [0] assert(<>val<>4350 === "gbeu")
 
   Block[47] -> [48], ExitExc
@@ -17666,11 +17703,14 @@ function[147] V<>funexpr@43:167-44:330<> {
   Call[58] -> ExitExc
     [0] call(<>fun<>4364, <>this<>, <>arguments<>4363) @ #2862
 
-  AfterCall[59] -> [133]
+  AfterCall[59] -> [139], [61]
 
   AfterCatch[60] -> ExitExc
 
-  Case[61] -> [62], ExitExc
+  Block[61]
+    [0] merge(19)
+
+  Case[62] -> [63], ExitExc
     [0] <>obj<>4365 := @ToObject(<>Z<>3326) @ #2863
     [1] <>temp<>4366 := <>c<>4328
     [2] <>obj<>4367 := @ToObject("gbexxl  gbem gbes gbet gbeu") @ #2864
@@ -17680,28 +17720,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4370 := @ToObject(<>obj<>4367["split"]) @ #2866
     [7] <>this<> := enterCode(<>obj<>4367)
 
-  Call[62] -> ExitExc
+  Call[63] -> ExitExc
     [0] call(<>fun<>4370, <>this<>, <>arguments<>4369) @ #2867
 
-  AfterCall[63] -> [65]
+  AfterCall[64] -> [66]
 
-  AfterCatch[64] -> ExitExc
+  AfterCatch[65] -> ExitExc
 
-  Block[65] -> [66], ExitExc
+  Block[66] -> [67], ExitExc
     [0] <>arguments<>4372 := allocArg(2) @ #2868
     [1] <>arguments<>4372["0"] := <>temp<>4366
     [2] <>arguments<>4372["1"] := <>temp<>4371
     [3] <>fun<>4373 := @GetBase(<>Z<>3326)
     [4] <>this<> := enterCode(<>fun<>4373)
 
-  Call[66] -> ExitExc
+  Call[67] -> ExitExc
     [0] call(<>obj<>4365, <>this<>, <>arguments<>4372) @ #2869
 
-  AfterCall[67] -> [69]
+  AfterCall[68] -> [70]
 
-  AfterCatch[68] -> ExitExc
+  AfterCatch[69] -> ExitExc
 
-  Block[69] -> [70], ExitExc
+  Block[70] -> [71], ExitExc
     [0] <>obj<>4374 := @ToObject(<>a<>3240) @ #2870
     [1] <>temp<>4375 := <>c<>4328
     [2] <>temp<>4376 := <>b<>4325
@@ -17711,14 +17751,17 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4378 := @ToObject(<>obj<>4374["ca"]) @ #2872
     [7] <>this<> := enterCode(<>obj<>4374)
 
-  Call[70] -> ExitExc
+  Call[71] -> ExitExc
     [0] call(<>fun<>4378, <>this<>, <>arguments<>4377) @ #2873
 
-  AfterCall[71] -> [133]
+  AfterCall[72] -> [139], [74]
 
-  AfterCatch[72] -> ExitExc
+  AfterCatch[73] -> ExitExc
 
-  Case[73] -> [74], ExitExc
+  Block[74]
+    [0] merge(19)
+
+  Case[75] -> [76], ExitExc
     [0] <>obj<>4379 := @ToObject(<>Z<>3326) @ #2874
     [1] <>temp<>4380 := <>c<>4328
     [2] <>obj<>4381 := @ToObject("gbexxl gbexl gbem gbes gbet gbeu") @ #2875
@@ -17728,28 +17771,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4384 := @ToObject(<>obj<>4381["split"]) @ #2877
     [7] <>this<> := enterCode(<>obj<>4381)
 
-  Call[74] -> ExitExc
+  Call[76] -> ExitExc
     [0] call(<>fun<>4384, <>this<>, <>arguments<>4383) @ #2878
 
-  AfterCall[75] -> [77]
+  AfterCall[77] -> [79]
 
-  AfterCatch[76] -> ExitExc
+  AfterCatch[78] -> ExitExc
 
-  Block[77] -> [78], ExitExc
+  Block[79] -> [80], ExitExc
     [0] <>arguments<>4386 := allocArg(2) @ #2879
     [1] <>arguments<>4386["0"] := <>temp<>4380
     [2] <>arguments<>4386["1"] := <>temp<>4385
     [3] <>fun<>4387 := @GetBase(<>Z<>3326)
     [4] <>this<> := enterCode(<>fun<>4387)
 
-  Call[78] -> ExitExc
+  Call[80] -> ExitExc
     [0] call(<>obj<>4379, <>this<>, <>arguments<>4386) @ #2880
 
-  AfterCall[79] -> [81]
+  AfterCall[81] -> [83]
 
-  AfterCatch[80] -> ExitExc
+  AfterCatch[82] -> ExitExc
 
-  Block[81] -> [82], ExitExc
+  Block[83] -> [84], ExitExc
     [0] <>obj<>4388 := @ToObject(<>a<>3240) @ #2881
     [1] <>temp<>4389 := <>c<>4328
     [2] <>temp<>4390 := <>b<>4325
@@ -17759,14 +17802,17 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4392 := @ToObject(<>obj<>4388["ca"]) @ #2883
     [7] <>this<> := enterCode(<>obj<>4388)
 
-  Call[82] -> ExitExc
+  Call[84] -> ExitExc
     [0] call(<>fun<>4392, <>this<>, <>arguments<>4391) @ #2884
 
-  AfterCall[83] -> [133]
+  AfterCall[85] -> [139], [87]
 
-  AfterCatch[84] -> ExitExc
+  AfterCatch[86] -> ExitExc
 
-  Case[85] -> [86], ExitExc
+  Block[87]
+    [0] merge(19)
+
+  Case[88] -> [89], ExitExc
     [0] <>obj<>4393 := @ToObject(<>Z<>3326) @ #2885
     [1] <>temp<>4394 := <>c<>4328
     [2] <>obj<>4395 := @ToObject("gbexxl gbexl  gbes gbet gbeu") @ #2886
@@ -17776,28 +17822,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4398 := @ToObject(<>obj<>4395["split"]) @ #2888
     [7] <>this<> := enterCode(<>obj<>4395)
 
-  Call[86] -> ExitExc
+  Call[89] -> ExitExc
     [0] call(<>fun<>4398, <>this<>, <>arguments<>4397) @ #2889
 
-  AfterCall[87] -> [89]
+  AfterCall[90] -> [92]
 
-  AfterCatch[88] -> ExitExc
+  AfterCatch[91] -> ExitExc
 
-  Block[89] -> [90], ExitExc
+  Block[92] -> [93], ExitExc
     [0] <>arguments<>4400 := allocArg(2) @ #2890
     [1] <>arguments<>4400["0"] := <>temp<>4394
     [2] <>arguments<>4400["1"] := <>temp<>4399
     [3] <>fun<>4401 := @GetBase(<>Z<>3326)
     [4] <>this<> := enterCode(<>fun<>4401)
 
-  Call[90] -> ExitExc
+  Call[93] -> ExitExc
     [0] call(<>obj<>4393, <>this<>, <>arguments<>4400) @ #2891
 
-  AfterCall[91] -> [93]
+  AfterCall[94] -> [96]
 
-  AfterCatch[92] -> ExitExc
+  AfterCatch[95] -> ExitExc
 
-  Block[93] -> [94], ExitExc
+  Block[96] -> [97], ExitExc
     [0] <>obj<>4402 := @ToObject(<>a<>3240) @ #2892
     [1] <>temp<>4403 := <>c<>4328
     [2] <>temp<>4404 := <>b<>4325
@@ -17807,14 +17853,17 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4406 := @ToObject(<>obj<>4402["ca"]) @ #2894
     [7] <>this<> := enterCode(<>obj<>4402)
 
-  Call[94] -> ExitExc
+  Call[97] -> ExitExc
     [0] call(<>fun<>4406, <>this<>, <>arguments<>4405) @ #2895
 
-  AfterCall[95] -> [133]
+  AfterCall[98] -> [139], [100]
 
-  AfterCatch[96] -> ExitExc
+  AfterCatch[99] -> ExitExc
 
-  Case[97] -> [98], ExitExc
+  Block[100]
+    [0] merge(19)
+
+  Case[101] -> [102], ExitExc
     [0] <>obj<>4407 := @ToObject(<>Z<>3326) @ #2896
     [1] <>temp<>4408 := <>c<>4328
     [2] <>obj<>4409 := @ToObject("gbexxl gbexl  gbem gbet gbeu") @ #2897
@@ -17824,28 +17873,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4412 := @ToObject(<>obj<>4409["split"]) @ #2899
     [7] <>this<> := enterCode(<>obj<>4409)
 
-  Call[98] -> ExitExc
-    [0] call(<>fun<>4412, <>this<>, <>arguments<>4411) @ #2900
-
-  AfterCall[99] -> [101]
-
-  AfterCatch[100] -> ExitExc
-
-  Block[101] -> [102], ExitExc
-    [0] <>arguments<>4414 := allocArg(2) @ #2901
-    [1] <>arguments<>4414["0"] := <>temp<>4408
-    [2] <>arguments<>4414["1"] := <>temp<>4413
-    [3] <>fun<>4415 := @GetBase(<>Z<>3326)
-    [4] <>this<> := enterCode(<>fun<>4415)
-
   Call[102] -> ExitExc
-    [0] call(<>obj<>4407, <>this<>, <>arguments<>4414) @ #2902
+    [0] call(<>fun<>4412, <>this<>, <>arguments<>4411) @ #2900
 
   AfterCall[103] -> [105]
 
   AfterCatch[104] -> ExitExc
 
   Block[105] -> [106], ExitExc
+    [0] <>arguments<>4414 := allocArg(2) @ #2901
+    [1] <>arguments<>4414["0"] := <>temp<>4408
+    [2] <>arguments<>4414["1"] := <>temp<>4413
+    [3] <>fun<>4415 := @GetBase(<>Z<>3326)
+    [4] <>this<> := enterCode(<>fun<>4415)
+
+  Call[106] -> ExitExc
+    [0] call(<>obj<>4407, <>this<>, <>arguments<>4414) @ #2902
+
+  AfterCall[107] -> [109]
+
+  AfterCatch[108] -> ExitExc
+
+  Block[109] -> [110], ExitExc
     [0] <>obj<>4416 := @ToObject(<>a<>3240) @ #2903
     [1] <>temp<>4417 := <>c<>4328
     [2] <>temp<>4418 := <>b<>4325
@@ -17855,14 +17904,17 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4420 := @ToObject(<>obj<>4416["ca"]) @ #2905
     [7] <>this<> := enterCode(<>obj<>4416)
 
-  Call[106] -> ExitExc
+  Call[110] -> ExitExc
     [0] call(<>fun<>4420, <>this<>, <>arguments<>4419) @ #2906
 
-  AfterCall[107] -> [133]
+  AfterCall[111] -> [139], [113]
 
-  AfterCatch[108] -> ExitExc
+  AfterCatch[112] -> ExitExc
 
-  Case[109] -> [110], ExitExc
+  Block[113]
+    [0] merge(19)
+
+  Case[114] -> [115], ExitExc
     [0] <>obj<>4421 := @ToObject(<>Z<>3326) @ #2907
     [1] <>temp<>4422 := <>c<>4328
     [2] <>obj<>4423 := @ToObject("gbexxl gbexl  gbem gbes gbeu") @ #2908
@@ -17872,28 +17924,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4426 := @ToObject(<>obj<>4423["split"]) @ #2910
     [7] <>this<> := enterCode(<>obj<>4423)
 
-  Call[110] -> ExitExc
+  Call[115] -> ExitExc
     [0] call(<>fun<>4426, <>this<>, <>arguments<>4425) @ #2911
 
-  AfterCall[111] -> [113]
+  AfterCall[116] -> [118]
 
-  AfterCatch[112] -> ExitExc
+  AfterCatch[117] -> ExitExc
 
-  Block[113] -> [114], ExitExc
+  Block[118] -> [119], ExitExc
     [0] <>arguments<>4428 := allocArg(2) @ #2912
     [1] <>arguments<>4428["0"] := <>temp<>4422
     [2] <>arguments<>4428["1"] := <>temp<>4427
     [3] <>fun<>4429 := @GetBase(<>Z<>3326)
     [4] <>this<> := enterCode(<>fun<>4429)
 
-  Call[114] -> ExitExc
+  Call[119] -> ExitExc
     [0] call(<>obj<>4421, <>this<>, <>arguments<>4428) @ #2913
 
-  AfterCall[115] -> [117]
+  AfterCall[120] -> [122]
 
-  AfterCatch[116] -> ExitExc
+  AfterCatch[121] -> ExitExc
 
-  Block[117] -> [118], ExitExc
+  Block[122] -> [123], ExitExc
     [0] <>obj<>4430 := @ToObject(<>a<>3240) @ #2914
     [1] <>temp<>4431 := <>c<>4328
     [2] <>temp<>4432 := <>b<>4325
@@ -17903,14 +17955,17 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4434 := @ToObject(<>obj<>4430["ca"]) @ #2916
     [7] <>this<> := enterCode(<>obj<>4430)
 
-  Call[118] -> ExitExc
+  Call[123] -> ExitExc
     [0] call(<>fun<>4434, <>this<>, <>arguments<>4433) @ #2917
 
-  AfterCall[119] -> [133]
+  AfterCall[124] -> [139], [126]
 
-  AfterCatch[120] -> ExitExc
+  AfterCatch[125] -> ExitExc
 
-  Case[121] -> [122], ExitExc
+  Block[126]
+    [0] merge(19)
+
+  Case[127] -> [128], ExitExc
     [0] <>obj<>4435 := @ToObject(<>Z<>3326) @ #2918
     [1] <>temp<>4436 := <>c<>4328
     [2] <>obj<>4437 := @ToObject("gbexxl gbexl  gbem gbes gbet") @ #2919
@@ -17920,28 +17975,28 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4440 := @ToObject(<>obj<>4437["split"]) @ #2921
     [7] <>this<> := enterCode(<>obj<>4437)
 
-  Call[122] -> ExitExc
+  Call[128] -> ExitExc
     [0] call(<>fun<>4440, <>this<>, <>arguments<>4439) @ #2922
 
-  AfterCall[123] -> [125]
+  AfterCall[129] -> [131]
 
-  AfterCatch[124] -> ExitExc
+  AfterCatch[130] -> ExitExc
 
-  Block[125] -> [126], ExitExc
+  Block[131] -> [132], ExitExc
     [0] <>arguments<>4442 := allocArg(2) @ #2923
     [1] <>arguments<>4442["0"] := <>temp<>4436
     [2] <>arguments<>4442["1"] := <>temp<>4441
     [3] <>fun<>4443 := @GetBase(<>Z<>3326)
     [4] <>this<> := enterCode(<>fun<>4443)
 
-  Call[126] -> ExitExc
+  Call[132] -> ExitExc
     [0] call(<>obj<>4435, <>this<>, <>arguments<>4442) @ #2924
 
-  AfterCall[127] -> [129]
+  AfterCall[133] -> [135]
 
-  AfterCatch[128] -> ExitExc
+  AfterCatch[134] -> ExitExc
 
-  Block[129] -> [130], ExitExc
+  Block[135] -> [136], ExitExc
     [0] <>obj<>4445 := @ToObject(<>a<>3240) @ #2925
     [1] <>temp<>4446 := <>c<>4328
     [2] <>temp<>4447 := <>b<>4325
@@ -17951,14 +18006,14 @@ function[147] V<>funexpr@43:167-44:330<> {
     [6] <>fun<>4449 := @ToObject(<>obj<>4445["ca"]) @ #2927
     [7] <>this<> := enterCode(<>obj<>4445)
 
-  Call[130] -> ExitExc
+  Call[136] -> ExitExc
     [0] call(<>fun<>4449, <>this<>, <>arguments<>4448) @ #2928
 
-  AfterCall[131] -> [133]
+  AfterCall[137] -> [139]
 
-  AfterCatch[132] -> ExitExc
+  AfterCatch[138] -> ExitExc
 
-  Switch[133] -> [134], ExitExc
+  Switch[139] -> [140], ExitExc
     [0] <>obj<>4450 := @ToObject(<>d<>4326) @ #2929
     [1] <>temp<>4451 := <>c<>4328
     [2] <>arguments<>4452 := allocArg(1) @ #2930
@@ -17966,16 +18021,16 @@ function[147] V<>funexpr@43:167-44:330<> {
     [4] <>fun<>4453 := @ToObject(<>obj<>4450["push"]) @ #2931
     [5] <>this<> := enterCode(<>obj<>4450)
 
-  Call[134] -> ExitExc
+  Call[140] -> ExitExc
     [0] call(<>fun<>4453, <>this<>, <>arguments<>4452) @ #2932
 
-  AfterCall[135] -> [137]
+  AfterCall[141] -> [143]
 
-  AfterCatch[136] -> ExitExc
+  AfterCatch[142] -> ExitExc
 
-  Block[137] -> [138]
+  Block[143] -> [144]
 
-  LCont[138] -> [19], ExitExc
+  LCont[144] -> [19], ExitExc
     [0] <>old<>4454 := <>f<>4327
     [1] <>new<>4455 := @ToNumber(<>old<>4454)
     [2] <>f<>4327 := <>new<>4455 + 1
@@ -17983,7 +18038,7 @@ function[147] V<>funexpr@43:167-44:330<> {
     [4] <>obj<>4344 := @ToObject(<>Wa<>3301) @ #2933
     [5] <>c<>4328 := <>obj<>4344[<>f<>4327]
 
-  LBreak[139] -> Exit, ExitExc
+  LBreak[145] -> Exit, ExitExc
     [0] return(<>d<>4326)
 
   Exit[-2]
@@ -18008,6 +18063,7 @@ function[148] Z<>funexpr@44:333-397<> {
 
   Block[3] -> [15], ExitExc
     [0] assert(! <>f<>4459 < <>c<>4460)
+    [1] merge(1)
 
   Block[4] -> [6], ExitExc
     [0] assert(<>obj<>4463[<>f<>4459])
@@ -19109,16 +19165,17 @@ function[163] k<>funexpr@48:273-415<> {
 
   Catch[2] -> [35], ExitExc
     [0] catch(<>g<>4789)
-    [1] <>obj<>4812 := @ToObject(<>c<>4750) @ #3202
-    [2] <>temp<>4813 := <>g<>4789
-    [3] <>temp<>4814 := "gas"
-    [4] <>temp<>4815 := "ahcc"
-    [5] <>arguments<>4816 := allocArg(3) @ #3203
-    [6] <>arguments<>4816["0"] := <>temp<>4813
-    [7] <>arguments<>4816["1"] := <>temp<>4814
-    [8] <>arguments<>4816["2"] := <>temp<>4815
-    [9] <>fun<>4817 := @GetBase(<>c<>4750)
-    [10] <>this<> := enterCode(<>fun<>4817)
+    [1] merge(3)
+    [2] <>obj<>4812 := @ToObject(<>c<>4750) @ #3202
+    [3] <>temp<>4813 := <>g<>4789
+    [4] <>temp<>4814 := "gas"
+    [5] <>temp<>4815 := "ahcc"
+    [6] <>arguments<>4816 := allocArg(3) @ #3203
+    [7] <>arguments<>4816["0"] := <>temp<>4813
+    [8] <>arguments<>4816["1"] := <>temp<>4814
+    [9] <>arguments<>4816["2"] := <>temp<>4815
+    [10] <>fun<>4817 := @GetBase(<>c<>4750)
+    [11] <>this<> := enterCode(<>fun<>4817)
 
   LoopHead[3] -> [5], [4]
 
@@ -19133,6 +19190,7 @@ function[163] k<>funexpr@48:273-415<> {
 
   Block[5] -> [21], [2]
     [0] assert(! <>obj<>4790[<>b<>4785])
+    [1] merge(3)
 
   Call[6] -> [2]
     [0] call(<>fun<>4794, <>this<>, <>arguments<>4793) @ #3188
@@ -19263,16 +19321,17 @@ function[164] l<>funexpr@48:418-560<> {
 
   Catch[2] -> [35], ExitExc
     [0] catch(<>g<>4823)
-    [1] <>obj<>4846 := @ToObject(<>c<>4750) @ #3225
-    [2] <>temp<>4847 := <>g<>4823
-    [3] <>temp<>4848 := "gas"
-    [4] <>temp<>4849 := "rhcc"
-    [5] <>arguments<>4850 := allocArg(3) @ #3226
-    [6] <>arguments<>4850["0"] := <>temp<>4847
-    [7] <>arguments<>4850["1"] := <>temp<>4848
-    [8] <>arguments<>4850["2"] := <>temp<>4849
-    [9] <>fun<>4851 := @GetBase(<>c<>4750)
-    [10] <>this<> := enterCode(<>fun<>4851)
+    [1] merge(3)
+    [2] <>obj<>4846 := @ToObject(<>c<>4750) @ #3225
+    [3] <>temp<>4847 := <>g<>4823
+    [4] <>temp<>4848 := "gas"
+    [5] <>temp<>4849 := "rhcc"
+    [6] <>arguments<>4850 := allocArg(3) @ #3226
+    [7] <>arguments<>4850["0"] := <>temp<>4847
+    [8] <>arguments<>4850["1"] := <>temp<>4848
+    [9] <>arguments<>4850["2"] := <>temp<>4849
+    [10] <>fun<>4851 := @GetBase(<>c<>4750)
+    [11] <>this<> := enterCode(<>fun<>4851)
 
   LoopHead[3] -> [5], [4]
 
@@ -19287,6 +19346,7 @@ function[164] l<>funexpr@48:418-560<> {
 
   Block[5] -> [21], [2]
     [0] assert(! <>obj<>4824[<>b<>4819])
+    [1] merge(3)
 
   Call[6] -> [2]
     [0] call(<>fun<>4828, <>this<>, <>arguments<>4827) @ #3211

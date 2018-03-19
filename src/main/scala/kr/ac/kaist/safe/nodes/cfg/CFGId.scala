@@ -14,16 +14,23 @@ package kr.ac.kaist.safe.nodes.cfg
 import kr.ac.kaist.safe.util.NodeUtil
 
 sealed abstract class CFGId(
-  val text: String,
-  val kind: VarKind
-)
+    val text: String,
+    val kind: VarKind,
+    val keyVar: Boolean = false,
+    val headID: Option[BlockId] = None
+) {
+  def makeKey(head: Option[BlockId]): CFGId
+}
 
 case class CFGUserId(
     override val text: String,
     override val kind: VarKind,
     originalName: String,
-    fromWith: Boolean
+    fromWith: Boolean,
+    override val keyVar: Boolean = false,
+    override val headID: Option[BlockId] = None
 ) extends CFGId(text, kind) {
+  override def makeKey(head: Option[BlockId]): CFGUserId = copy(keyVar = true, headID = head)
   override def toString: String = NodeUtil.pp(text)
 }
 
@@ -31,6 +38,7 @@ case class CFGTempId(
     override val text: String,
     override val kind: VarKind
 ) extends CFGId(text, kind) {
+  override def makeKey(head: Option[BlockId]): CFGUserId = throw new InternalError("not possible")
   override def toString: String = NodeUtil.pp(text)
 }
 

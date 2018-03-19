@@ -61,6 +61,7 @@ function[0] top-level {
 
   Block[10] -> [15], ExitExc
     [0] assert(! pixcounter < 200)
+    [1] merge(8)
 
   Call[11] -> ExitExc
     [0] call(<>fun<>62, <>this<>, <>arguments<>61) @ #43
@@ -158,6 +159,7 @@ function[1] <>funexpr@24:15-42:6<> {
 
   Block[11] -> [13], ExitExc
     [0] assert(! <>new<>32)
+    [1] merge(9)
 
   LCont[12] -> [9], ExitExc
     [0] <>old<>31 := <>p<>16
@@ -191,6 +193,7 @@ function[1] <>funexpr@24:15-42:6<> {
 
   Block[17] -> [19], ExitExc
     [0] assert(! <>new<>43)
+    [1] merge(15)
 
   LCont[18] -> [15], ExitExc
     [0] <>old<>42 := <>p<>16

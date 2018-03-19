@@ -35,6 +35,7 @@ function[0] top-level {
 
   Block[7] -> [21], ExitExc
     [0] assert(! <>new1<>6)
+    [1] merge(5)
 
   LoopHead[8] -> [10], [9]
 
@@ -45,9 +46,11 @@ function[0] top-level {
 
   Block[10] -> [15], ExitExc
     [0] assert(! <>y<>7 < <>obj<>8["length"])
+    [1] merge(8)
 
   Block[11] -> [15], ExitExc
     [0] assert(<>y<>9 == <>obj<>10[i])
+    [1] merge(8)
 
   Block[12] -> [13], ExitExc
     [0] assert(<>y<>9 != <>obj<>10[i])

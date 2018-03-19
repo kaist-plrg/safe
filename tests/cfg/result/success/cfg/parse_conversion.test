@@ -719,6 +719,7 @@ function[1] <>funexpr@1:2-17:208<> {
 
   Block[177] -> [179], ExitExc
     [0] assert(! <>y<>1230 < <>obj<>1231["length"])
+    [1] merge(175)
 
   LCont[178] -> [175], ExitExc
     [0] <>old<>1234 := <>Q<>32
@@ -1130,6 +1131,7 @@ function[5] u {
 
   Block[17] -> [81], ExitExc
     [0] assert(! <>cond1<>129)
+    [1] merge(15)
 
   Call[18] -> ExitExc
     [0] call(<>fun<>137, <>this<>, <>arguments<>136) @ #60
@@ -1179,6 +1181,7 @@ function[5] u {
 
   Block[29] -> [45], ExitExc
     [0] assert(! <>y<>142 < <>obj<>143["length"])
+    [1] merge(27)
 
   Call[30] -> ExitExc
     [0] call(<>obj<>144, <>this<>, <>arguments<>147) @ #68
@@ -1516,6 +1519,7 @@ function[7] w {
 
   Block[9] -> [65], ExitExc
     [0] assert(! <>d<>202 < <>c<>203)
+    [1] merge(7)
 
   Block[10] -> [12], ExitExc
     [0] assert(<>e<>204)
@@ -4119,6 +4123,7 @@ function[19] k<>funexpr@1:69-163<> {
 
   Block[3] -> [18], ExitExc
     [0] assert(! <>cond1<>948)
+    [1] merge(1)
 
   Call[4] -> ExitExc
     [0] call(<>fun<>956, <>this<>, <>arguments<>955) @ #590
@@ -4204,6 +4209,7 @@ function[20] l<>funexpr@1:170-265<> {
 
   Block[3] -> [5], ExitExc
     [0] assert(! <>b<>969 < <>d<>970)
+    [1] merge(1)
 
   LCont[4] -> [1], ExitExc
     [0] <>old<>978 := <>b<>969

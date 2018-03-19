@@ -77,6 +77,7 @@ case class CFGFunction(
     block
   }
   def createLoopHead: LoopHead = {
+    // TODO Keep this into the exit and exitexc blocks.
     val loopHead = LoopHead(this)
     addBlock(loopHead)
     loopHead

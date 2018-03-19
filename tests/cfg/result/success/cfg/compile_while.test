@@ -21,6 +21,7 @@ function[0] top-level {
 
   Block[3] -> [8], ExitExc
     [0] assert(! x > 0)
+    [1] merge(1)
 
   Block[4] -> [6], ExitExc
     [0] assert(<>new<>4 == x)

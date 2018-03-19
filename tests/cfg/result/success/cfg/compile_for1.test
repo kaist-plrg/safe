@@ -21,6 +21,7 @@ function[0] top-level {
 
   Block[3] -> [8], ExitExc
     [0] assert(! "test")
+    [1] merge(1)
 
   Call[4] -> ExitExc
     [0] call(<>obj<>1, <>this<>, <>arguments<>3) @ #3
@@ -41,6 +42,7 @@ function[0] top-level {
 
   Block[11] -> [13], ExitExc
     [0] assert(! null)
+    [1] merge(9)
 
   LCont[12] -> [9], ExitExc
     [0] <>old<>5 := c
@@ -61,6 +63,7 @@ function[0] top-level {
 
   Block[16] -> [18], ExitExc
     [0] assert(! true)
+    [1] merge(14)
 
   LCont[17] -> [14], ExitExc
     [0] <>old<>9 := b
@@ -75,9 +78,11 @@ function[0] top-level {
 
   Block[20] -> [23], ExitExc
     [0] assert(12)
+    [1] merge(19)
 
   Block[21] -> [23], ExitExc
     [0] assert(! 12)
+    [1] merge(19)
 
   LCont[22] -> [19], ExitExc
     [0] <>Global<>ignore18 := false
@@ -93,6 +98,7 @@ function[0] top-level {
 
   Block[26] -> [28], ExitExc
     [0] assert(! true)
+    [1] merge(24)
 
   LCont[27] -> [24]
 

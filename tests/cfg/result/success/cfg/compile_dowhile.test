@@ -16,6 +16,7 @@ function[0] top-level {
 
   Block[5] -> [8], ExitExc
     [0] assert(! true)
+    [1] merge(3)
 
   done:[6] -> [7]
 

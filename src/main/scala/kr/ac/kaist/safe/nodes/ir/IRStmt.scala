@@ -283,7 +283,8 @@ case class IRFunDecl(
 // Stmt ::= break label
 case class IRBreak(
     override val ast: ASTNode,
-    label: IRId
+    label: IRId,
+    fromLoop: Boolean = false
 ) extends IRStmt(ast) {
   override def toString(indent: Int): String = {
     val s: StringBuilder = new StringBuilder
@@ -410,7 +411,8 @@ case class IRWhile(
     cond: IRExpr,
     body: IRStmt,
     breakLabel: IRId,
-    contLabel: IRId
+    contLabel: IRId,
+    keys: List[IRId]
 ) extends IRStmt(ast) {
   override def toString(indent: Int): String = {
     val s: StringBuilder = new StringBuilder

@@ -121,7 +121,7 @@ class CapturedVariableCollector(
         walk(lhs, locals) ++
           walk(elements, walk(_: Option[IRExpr], walk(_: IRExpr, locals)))
       case IRArrayNumber(_, lhs, _) => walk(lhs, locals)
-      case IRBreak(_, label) => EMPTY
+      case IRBreak(_, label, _) => EMPTY
       case IRInternalCall(_, lhs, name, args) =>
         walk(lhs, locals) ++
           walk(args, walk(_: IRExpr, locals))
@@ -156,7 +156,7 @@ class CapturedVariableCollector(
           walk(index, locals) ++
           walk(rhs, locals)
       case IRThrow(_, expr) => walk(expr, locals)
-      case IRWhile(_, cond, body, _, _) =>
+      case IRWhile(_, cond, body, _, _, _) =>
         walk(cond, locals) ++ walk(body, locals)
       case _ =>
         excLog.signal(IRIgnored(stmt))

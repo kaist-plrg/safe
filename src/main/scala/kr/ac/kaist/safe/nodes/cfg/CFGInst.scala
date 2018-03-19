@@ -219,6 +219,11 @@ case class CFGInternalCall(
   })
 }
 
+case class CFGMerge(block: NormalBlock, lIDs: Set[BlockId]) extends CFGNormalInst {
+  override val ir: IRNode = null
+  override def toString: String = s"merge(${lIDs.mkString(", ")})"
+}
+
 // TODO revert after modeling
 // case class CFGAPICall(
 //   ir: IRNode,

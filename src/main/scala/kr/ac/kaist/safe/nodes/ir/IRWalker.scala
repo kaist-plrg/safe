@@ -48,8 +48,8 @@ trait IRWalker {
       IRStore(ast, walk(obj), walk(index), walk(rhs))
     case fd: IRFunDecl =>
       walk(fd)
-    case IRBreak(ast, label) =>
-      IRBreak(ast, walk(label))
+    case IRBreak(ast, label, b) =>
+      IRBreak(ast, walk(label), b)
     case IRReturn(ast, expr) =>
       IRReturn(ast, expr.map(walk))
     case IRWith(ast, id, stmt) =>
@@ -64,8 +64,8 @@ trait IRWalker {
       IRSeq(ast, stmts.map(walk))
     case IRIf(ast, expr, trueB, falseB) =>
       IRIf(ast, walk(expr), walk(trueB), falseB.map(walk))
-    case IRWhile(ast, cond, body, br, cont) =>
-      IRWhile(ast, walk(cond), walk(body), walk(br), walk(cont))
+    case IRWhile(ast, cond, body, br, cont, keys) =>
+      IRWhile(ast, walk(cond), walk(body), walk(br), walk(cont), keys)
     case IRTry(ast, body, name, catchB, finallyB) =>
       IRTry(ast, walk(body), name.map(walk), catchB.map(walk), finallyB.map(walk))
     case IRNoOp(ast, desc) =>

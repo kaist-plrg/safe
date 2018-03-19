@@ -20,6 +20,7 @@ function[0] top-level {
 
   Block[3] -> [5], ExitExc
     [0] assert(! <>cond1<>3)
+    [1] merge(1)
 
   LCont[4] -> [1]
     [0] <>cond1<>3 := @iteratorHasNext(<>obj<>1, <>iterator<>2)

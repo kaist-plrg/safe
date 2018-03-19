@@ -17,6 +17,7 @@ import kr.ac.kaist.safe.nodes.ast._
 import kr.ac.kaist.safe.nodes.ir._
 import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.util.{ NodeUtil => NU }
+import scala.language.reflectiveCalls
 
 /* Translates JavaScript AST to IR. */
 class Translator(program: Program) {
@@ -263,6 +264,15 @@ class Translator(program: Program) {
         excLog.signal(IRIdNotBoundError(name, id.ast))
         id
       case Some((_, id)) => id
+    }
+  }
+  private def getE_(env: Env, name: String): (IRId, Boolean) = {
+    env.find { case (n, _) => n.equals(name) } match {
+      case None =>
+        val id = defaultIRId(name)
+        excLog.signal(IRIdNotBoundError(name, id.ast))
+        (id, false)
+      case Some((_, id)) => (id, true)
     }
   }
   private def getContLabel(env: Env, label: Label): IRId = {
@@ -596,6 +606,16 @@ class Translator(program: Program) {
       IRStmtUnit(s, switchS)
 
     case DoWhile(_, body, cond) =>
+      val map = IndexCollector.emptyMap |>
+        IndexCollector.collect(cond) |>
+        IndexCollector.collect(body) |>
+        IndexCollector.getVariables
+
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      if (map.nonEmpty) {
+        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
+      }
+
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
       val cont = freshId(s, CONTINUE_NAME)
@@ -608,10 +628,20 @@ class Translator(program: Program) {
         IRSeq(s, ss)
       )
       isDoWhile = false
-      val stmt = IRSeq(s, newBody, IRWhile(s, r, newBody, labelName, cont))
+      val stmt = IRSeq(s, newBody, IRWhile(s, r, newBody, labelName, cont, indices))
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case While(_, cond, body) =>
+      val map = IndexCollector.emptyMap |>
+        IndexCollector.collect(cond) |>
+        IndexCollector.collect(body) |>
+        IndexCollector.getVariables
+
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      if (map.nonEmpty) {
+        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
+      }
+
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
       val cont = freshId(s, CONTINUE_NAME)
@@ -622,10 +652,22 @@ class Translator(program: Program) {
         s,
         IRLabelStmt(s, cont, walkStmt(body, newEnv)) :: ssList
       )
-      val stmt = IRSeq(s, ssList :+ IRWhile(s, r, newBody, labelName, cont))
+      val stmt = IRSeq(s, ssList :+ IRWhile(s, r, newBody, labelName, cont, indices))
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case For(_, init, cond, action, body) =>
+      val map = IndexCollector.emptyMap |>
+        IndexCollector.collect(init) |>
+        IndexCollector.collect(action) |>
+        IndexCollector.collect(cond) |>
+        IndexCollector.collect(body) |>
+        IndexCollector.getVariables
+
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      if (map.nonEmpty) {
+        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
+      }
+
       val labelName = freshId(s, BREAK_NAME)
       val cont = freshId(s, CONTINUE_NAME)
       val newEnv = addE(addE(env, BREAK_NAME, labelName), CONTINUE_NAME, cont)
@@ -651,7 +693,7 @@ class Translator(program: Program) {
             IRWhile(s, TRUE_BOOL, IRSeq(
               s,
               nbody, IRSeq(s, back)
-            ), labelName, cont)
+            ), labelName, cont, indices)
           )
         case Some(cexpr) =>
           val newtwo = freshId(cexpr, cexpr.span, "new2")
@@ -660,7 +702,7 @@ class Translator(program: Program) {
           IRSeq(
             s,
             IRSeq(s, front ++ ss2),
-            IRWhile(s, r2, IRSeq(s, newBody), labelName, cont)
+            IRWhile(s, r2, IRSeq(s, newBody), labelName, cont, indices)
           )
       }
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
@@ -695,7 +737,7 @@ class Translator(program: Program) {
           iteratorInit(s, iterator, obj),
           iteratorCheck
         )),
-        IRWhile(s, condone, newBody, labelName, cont)
+        IRWhile(s, condone, newBody, labelName, cont, List.empty)
       )
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
@@ -718,8 +760,10 @@ class Translator(program: Program) {
     case Break(_, target) =>
       target match {
         case None =>
-          IRStmtUnit(s, IRBreak(s, getE(env, BREAK_NAME)))
+          val (id, b) = getE_(env, BREAK_NAME)
+          IRStmtUnit(s, IRBreak(s, id, fromLoop = b))
         case Some(tg) =>
+          // TODO fromLoop
           IRStmtUnit(s, IRBreak(s, label2ir(tg)))
       }
 
