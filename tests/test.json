@@ -1,6 +1,9 @@
 {
   "testMode": true,
   "silent": true,
+  "compiler": {
+	"keyvars": true
+  },
   "analyzer": {
     "console": false,
     "exitDump": false,
@@ -14,6 +17,6 @@
     "callsiteSensitivity": 10,
     "loopSensitivity": 0,
     "snapshot": "",
-    "jsModel": false
+    "jsModel": true
   }
 }
