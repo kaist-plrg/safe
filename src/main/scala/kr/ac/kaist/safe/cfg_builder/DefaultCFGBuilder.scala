@@ -258,7 +258,7 @@ class DefaultCFGBuilder(
 
             /* catch body */
             val lIDs = (LoopHeadLabel of trylmap).map(getHeadID)
-            if (lIDs.nonEmpty) catchBlock.createInst(CFGMerge(_, lIDs))
+            if (lIDs.nonEmpty) catchBlock.createInst(CFGMerge(ir, _, lIDs))
             val (catchbs: List[CFGBlock], catchlmap: LabelMap) = translateStmt(catb, func, List(catchBlock), trylmap - ThrowLabel - ThrowEndLabel - AfterCatchLabel, headID, key)
 
             /* tail blocks */
@@ -286,7 +286,7 @@ class DefaultCFGBuilder(
 
             /* finally body */
             val lIDs = (LoopHeadLabel of trylmap).map(getHeadID)
-            if (lIDs.nonEmpty) finBlock.createInst(CFGMerge(_, lIDs))
+            if (lIDs.nonEmpty) finBlock.createInst(CFGMerge(ir, _, lIDs))
             val (finbs: List[CFGBlock], finlmap: LabelMap) = translateStmt(finb, func, List(finBlock), lmap, headID, key)
 
             /* edge : try -> finally */
@@ -332,12 +332,12 @@ class DefaultCFGBuilder(
 
             /* catch body */
             val lIDs_1 = (LoopHeadLabel of trylmap).map(getHeadID)
-            if (lIDs_1.nonEmpty) catchBlock.createInst(CFGMerge(_, lIDs_1))
+            if (lIDs_1.nonEmpty) catchBlock.createInst(CFGMerge(ir, _, lIDs_1))
             val (catchbs: List[CFGBlock], catchlmap: LabelMap) = translateStmt(catb, func, List(catchBlock), trylmap - ThrowLabel - ThrowEndLabel - AfterCatchLabel, headID, key)
 
             /* finally body */
             val lIDs_2 = (LoopHeadLabel of catchlmap).map(getHeadID)
-            if (lIDs_2.nonEmpty) finBlock.createInst(CFGMerge(_, lIDs_2))
+            if (lIDs_2.nonEmpty) finBlock.createInst(CFGMerge(ir, _, lIDs_2))
             val (finbs: List[CFGBlock], finlmap: LabelMap) = translateStmt(finb, func, List(finBlock), lmap, headID, key)
 
             /* edge : try+catch -> finally */
@@ -394,7 +394,7 @@ class DefaultCFGBuilder(
         lazy val tailBlock: NormalBlock = getTail(blocks, func)
         if (fromLoop) {
           headID match {
-            case Some(lID) => tailBlock.createInst(CFGMerge(_, Set(lID)))
+            case Some(lID) => tailBlock.createInst(CFGMerge(ir, _, Set(lID)))
             case None =>
           }
         }
@@ -583,7 +583,7 @@ class DefaultCFGBuilder(
         }
 
         val lID = getHeadID(headBlock)
-        loopOutBlock.createInst(CFGMerge(_, Set(lID)))
+        loopOutBlock.createInst(CFGMerge(ir, _, Set(lID)))
 
         /* add edge from tail to loop head */
         cfg.addEdge(tailBlock, headBlock)
@@ -595,7 +595,7 @@ class DefaultCFGBuilder(
         val (bs: List[CFGBlock], lm: LabelMap) = translateStmt(body, func, List(loopBodyBlock), lmap, Some(lID), oKey)
         // at the end of the loop body, we need to merge the partitions.
         bs.foreach {
-          case b: NormalBlock => b.createInst(CFGMerge(_, Set(lID)))
+          case b: NormalBlock => b.createInst(CFGMerge(ir, _, Set(lID)))
           case _ =>
         }
 

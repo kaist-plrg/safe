@@ -1115,6 +1115,25 @@ object CKeyObject extends ObjDomain {
       (strSet.toList.sortBy { _.toString }, astr) // TODO for-in order
     }
 
+    def keySetPairs(h: AbsHeap): Set[AbsStr] = {
+      var visited = HashSet[Loc]()
+      def visit(currObj: Elem): Set[AbsStr] = {
+        val aset = currObj.ownKeySet
+        val proto = currObj(IPrototype)
+        proto.value.locset.foldLeft(aset) {
+          case (aset, loc) =>
+            if (visited contains loc) aset
+            else {
+              visited += loc
+              val newStrSet = visit(h.get(loc))
+
+              aset ++ newStrSet
+            }
+        }
+      }
+      visit(this) // TODO for-in order
+    }
+
     private def ownKeySetPair: (Set[String], AbsStr) = {
       ((HashSet.empty[String], AbsStr.Bot) /: map.keySet) {
         case ((strSet, astr), key) =>
@@ -1130,6 +1149,17 @@ object CKeyObject extends ObjDomain {
               (strSet + s, astr)
             } else (strSet, astr ⊔ key)
           } else (strSet, astr)
+      }
+    }
+
+    private def ownKeySet: Set[AbsStr] = {
+      (HashSet.empty[AbsStr] /: map.keySet) {
+        case (strSet, key) =>
+          val av = lookup(key)
+          val isEnum = av.content.enumerable
+          if (AbsBool.True ⊑ isEnum) {
+            strSet + key
+          } else strSet
       }
     }
 

@@ -54,7 +54,7 @@ case object BugDetect extends PhaseObj[(CFG, Int, Semantics), BugDetectConfig, C
   private def checkExpr(expr: CFGExpr, state: AbsState,
     semantics: Semantics): List[String] = expr match {
     // Don't check if this instruction is "LHS = <>fun<>["prototype"]".
-    case CFGLoad(_, CFGVarRef(_, CFGTempId(name, _)),
+    case CFGLoad(_, CFGVarRef(_, CFGTempId(name, _, _, _)),
       CFGVal(EJSString("prototype"))) if name.startsWith("<>fun<>") =>
       List[String]()
     case CFGLoad(_, obj, index) =>

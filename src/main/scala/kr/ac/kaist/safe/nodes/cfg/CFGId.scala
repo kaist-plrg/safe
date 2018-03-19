@@ -41,10 +41,17 @@ case class CFGUserId(
 
 case class CFGTempId(
     override val text: String,
-    override val kind: VarKind
+    override val kind: VarKind,
+    override val keyVar: Boolean = false,
+    override val headID: Option[BlockId] = None
 ) extends CFGId(text, kind) {
-  override def makeKey(head: Option[BlockId]): CFGUserId = throw new InternalError("not possible")
-  override def toString: String = NodeUtil.pp(text)
+  override def makeKey(head: Option[BlockId]): CFGTempId = copy(keyVar = true, headID = head)
+  override def toString: String = {
+    val post =
+      if (keyVar) "(*)"
+      else ""
+    NodeUtil.pp(text) + post
+  }
 }
 
 sealed abstract class VarKind

@@ -152,7 +152,7 @@ object CFGInstProtocol extends DefaultJsonProtocol {
             case None => JsNull
           }
         )
-        case CFGMerge(blk, lIDs) => throw new InternalError("TODO")
+        case CFGMerge(_, blk, lIDs) => throw new InternalError("TODO")
       }
     }
 

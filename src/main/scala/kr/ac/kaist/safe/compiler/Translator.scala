@@ -21,6 +21,7 @@ import scala.language.reflectiveCalls
 
 /* Translates JavaScript AST to IR. */
 class Translator(program: Program, keyVars: Boolean) {
+  //  if (keyVars) System.out.println("Key var on.")
   ////////////////////////////////////////////////////////////////
   // results
   ////////////////////////////////////////////////////////////////
@@ -606,12 +607,13 @@ class Translator(program: Program, keyVars: Boolean) {
       IRStmtUnit(s, switchS)
 
     case DoWhile(_, body, cond) =>
-      lazy val map = IndexCollector.emptyMap |>
+      val map = IndexCollector.emptyMap |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      //      if (indices.nonEmpty) System.err.println(map.mkString(", "))
 
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
@@ -631,12 +633,13 @@ class Translator(program: Program, keyVars: Boolean) {
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case While(_, cond, body) =>
-      lazy val map = IndexCollector.emptyMap |>
+      val map = IndexCollector.emptyMap |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      //      if (indices.nonEmpty) System.err.println(map.mkString(", "))
 
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
@@ -653,15 +656,17 @@ class Translator(program: Program, keyVars: Boolean) {
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case For(_, init, cond, action, body) =>
-      lazy val map = IndexCollector.emptyMap |>
+      val map = IndexCollector.emptyMap |>
         IndexCollector.collect(init) |>
         IndexCollector.collect(action) |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
-      lazy val ids = if (keyVars) indices else List.empty
+      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      //      if (indices.nonEmpty) System.err.println(map.mkString(", "))
+
+      val ids = if (keyVars) indices else List.empty
 
       val labelName = freshId(s, BREAK_NAME)
       val cont = freshId(s, CONTINUE_NAME)
@@ -733,7 +738,7 @@ class Translator(program: Program, keyVars: Boolean) {
           iteratorInit(s, iterator, obj),
           iteratorCheck
         )),
-        IRWhile(s, condone, newBody, labelName, cont, List.empty)
+        IRWhile(s, condone, newBody, labelName, cont, List(iterator))
       )
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 

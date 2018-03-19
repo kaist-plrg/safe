@@ -308,6 +308,8 @@ case class Semantics(
             case Some(lhs_id) =>
               (emptyTP /: ss) {
                 case (m_i, (str, nst, v, b)) =>
+                  System.out.println(s"- case: $lhs_id = $str with $v for $b")
+
                   val tp_n = tp.next_case(id.headID.get, lhs_id, str, b)
                   // v is always not bottom.
                   val st1 = nst.varStore(x, v)
@@ -320,7 +322,52 @@ case class Semantics(
         val newExcSt = st.raiseException(es)
         (ntps, (tp, newExcSt))
 
-      case CFGMerge(_, lIDs) =>
+      case CFGInternalCall(ir, _, lhs, NodeUtil.INTERNAL_ITER_NEXT, List(_, expr @ CFGVarRef(_, id)), loc) if bPartitioned =>
+        val heap = st.heap
+        val (v, excSet) = V(expr, st)
+        val locset = v.locset
+        val cur = v.pvalue.numval
+        val strVo: Option[AbsStr] = locset.foldLeft[Option[AbsStr]](Some(AbsStr.Bot)) {
+          case (str, loc) =>
+            val obj = heap.get(loc)
+            val (strList, astr) = obj.keySetPair(heap)
+            cur.gamma match {
+              case ConInf => None
+              case ConFin(idxSet) => idxSet.foldLeft(str) {
+                case (Some(str), Num(idx)) if str.isBottom && idx < strList.length => Some(AbsStr(strList(idx.toInt)))
+                case _ => None
+              }
+            }
+        }
+        val newExcSt = st.raiseException(excSet)
+        strVo match {
+          case Some(strV) =>
+            val st1 = st.varStore(lhs, strV)
+            val next = AbsValue(cur + AbsNum(1), locset)
+            val st2 = st1.varStore(id, next)
+            (emptyTP + (tp -> st2), (tp, newExcSt))
+          case None =>
+            val ntps =
+              locset.foldLeft(emptyTP)((set_i, l) => {
+                val obj = heap.get(l)
+                val aset = obj.keySetPairs(heap)
+
+                // performing partitioning
+                (set_i /: aset) {
+                  case (s_i, astr) =>
+                    System.err.println(s"* case: $astr")
+                    val ntp = tp.next_case(id.headID.get, null, astr, in = true)
+                    val st1 = st.varStore(lhs, astr)
+                    val next = AbsValue(AbsNum.UInt, locset)
+                    val st2 = st1.varStore(id, next)
+                    val ost = s_i.getOrElse(tp, AbsState.Bot)
+                    s_i + (ntp -> (ost ⊔ st2))
+                }
+              })
+            (ntps, (tp, newExcSt))
+        }
+
+      case CFGMerge(_, _, lIDs) =>
         (emptyTP + (tp.merge(lIDs) -> st), (tp, AbsState.Bot))
 
       case _ =>
@@ -1126,7 +1173,7 @@ case class Semantics(
       val (locset2, st2) =
         if (v.pvalue.undefval.isTop || v.pvalue.nullval.isTop) {
           val heap = st.heap
-          val newObj = heap.get(locset) ⊔ AbsObj.Empty
+          val newObj = heap.get(locset) ⊔ AbsObj.Empty // TODO Really? This is weird.
           val loc = Loc(aNew)
           (locset + loc, AbsState(st1.heap ⊔ heap.update(loc, newObj), st.context))
         } else (locset, st1)
@@ -1456,7 +1503,12 @@ case class Semantics(
           if (!idxV.isBottom) TypeConversionHelper.ToPrimitive(idxV, st.heap).toStringSet
           else HashSet[AbsStr]()
 
+        System.out.println(s"* Prop Loads for $absStrSet")
         val (m_n, m_e) = Helper.propLoads(objV, absStrSet, st.heap)
+        System.out.println("- in : ")
+        m_n.foreach { case (s, v) => System.out.println(s"$s => $v") }
+        System.out.println("- not in : ")
+        m_e.foreach { case (s, v) => System.out.println(s"$s => $v") }
         val r1 = m_n.map {
           case (str, value) =>
             val rev = TypeConversionHelper.ToStringRev(str)

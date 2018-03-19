@@ -27,7 +27,7 @@ sealed abstract class Sensitivity {
 // trace partition
 abstract class TracePartition {
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): TracePartition
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): TracePartition
   def merge(hids: Set[BlockId]): TracePartition
 }
 
@@ -43,7 +43,7 @@ case object EmptyTP extends TracePartition {
     to: CFGBlock,
     edgeType: CFGEdgeType
   ): EmptyTP.type = EmptyTP
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): EmptyTP.type = EmptyTP
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): EmptyTP.type = EmptyTP
   def merge(hids: Set[BlockId]): EmptyTP.type = EmptyTP
 
   override def toString: String = s"Empty"
@@ -58,7 +58,7 @@ case class ProductTP(
 ) extends TracePartition {
   def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): ProductTP =
     ProductTP(ltp.next(from, to, edgeType), rtp.next(from, to, edgeType))
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): ProductTP = ProductTP(ltp.next_case(hid, id, s, absent), rtp.next_case(hid, id, s, absent))
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): ProductTP = ProductTP(ltp.next_case(hid, id, s, in), rtp.next_case(hid, id, s, in))
   def merge(hids: Set[BlockId]): ProductTP = ProductTP(ltp.merge(hids), rtp.merge(hids))
   override def toString: String = s"$ltp x $rtp"
 }
@@ -83,7 +83,7 @@ case class CallSiteContext(callsiteList: List[Call], depth: Int) extends TracePa
       CallSiteContext((call :: callsiteList).take(depth), depth)
     case _ => this
   }
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): CallSiteContext = this
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): CallSiteContext = this
   def merge(hids: Set[BlockId]): CallSiteContext = this
   override def toString: String = callsiteList
     .map(call => s"${call.func.id}:${call.id}")
@@ -190,7 +190,7 @@ case class LoopContext(
     case (_, ExitExc(_) | Exit(_), _) => LoopContext(None, None, depth)
     case _ => this
   }
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, absent: Boolean): LoopContext = this
+  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): LoopContext = this
   override def merge(hid: Set[BlockId]): LoopContext = this
 
   override def toString: String = infoOpt match {
