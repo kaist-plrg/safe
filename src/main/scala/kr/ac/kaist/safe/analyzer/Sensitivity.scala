@@ -112,19 +112,14 @@ case class LookupPartition(list: List[LocalCase]) extends TracePartition {
 
   private def find_replace(c: LocalCase, list: List[LocalCase]): List[LocalCase] = {
     list match {
-      case cp :: tail if cp.id == c.id => c :: tail
+      case Nil => c :: Nil
+      case cp :: tail if cp.headID == c.headID => c :: tail
       case cp :: tail => cp :: find_replace(c, tail)
-      case _ => throw new InternalError("TODO")
     }
   }
 
   def update_local(c: LocalCase): LookupPartition = {
-    val nlist =
-      try {
-        find_replace(c, this.list)
-      } catch {
-        case _: InternalError => c :: this.list
-      }
+    val nlist = find_replace(c, this.list)
     LookupPartition(nlist)
   }
 

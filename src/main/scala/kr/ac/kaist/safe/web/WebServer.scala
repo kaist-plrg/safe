@@ -119,7 +119,7 @@ object WebServer extends {
                 complete(ast.toString)
 
                 // Translate AST -> IR.
-                val translator = new Translator(ast)
+                val translator = new Translator(ast, false)
                 val ir = translator.result
 
                 // Build CFG from IR.

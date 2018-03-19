@@ -4015,6 +4015,7 @@ function[11] _mlToken {
 
   LCont[89] -> [63]
     [0] <>cond1<>418 := @iteratorHasNext(<>obj<>416, <>iterator<>417)
+    [1] merge(63)
 
   LBreak[90] -> [91], [2]
     [0] <>obj<>448 := @ToObject(<>l<>332) @ #171
@@ -4814,6 +4815,7 @@ function[20] Jb {
     [3] <>Global<>ignore58 := <>new<>653
     [4] <>y<>648 := <>f<>644
     [5] <>obj<>649 := @ToObject(<>Cb<>214) @ #306
+    [6] merge(3)
 
   LBreak[7] -> [8]
 
@@ -5285,6 +5287,7 @@ function[20] Jb {
 
   LCont[121] -> [89]
     [0] <>cond1<>750 := @iteratorHasNext(<>obj<>748, <>iterator<>749)
+    [1] merge(89)
 
   LBreak[122] -> [123], ExitExc
     [0] <>obj<>783 := @ToObject(<>f<>644) @ #387
@@ -5711,6 +5714,7 @@ function[23] a {
     [0] <>new2<>843 := ! <>y<>840
 
   Block[19] -> [10]
+    [0] merge(10)
 
   Block[20] -> [22], ExitExc
     [0] assert(typeof <>obj<>835[<>new<>837] == "boolean")
@@ -6457,6 +6461,7 @@ function[39] G<>funexpr@5:3-145<> {
     [0] assert(! <>obj<>1128[<>b<>1125])
 
   Block[13] -> [7]
+    [0] merge(7)
 
   Block[14] -> [16], ExitExc
     [0] assert(typeof <>obj<>1128[<>b<>1125] == "boolean")
@@ -6730,6 +6735,7 @@ function[42] E<>funexpr@5:198-283<> {
 
   LCont[8] -> [5]
     [0] <>cond1<>1186 := @iteratorHasNext(<>obj<>1184, <>iterator<>1185)
+    [1] merge(5)
 
   LBreak[9] -> [10]
 
@@ -6942,6 +6948,7 @@ function[45] xa<>funexpr@5:592-659<> {
     [0] assert(! <>new0<>1320)
 
   Block[25] -> [15]
+    [0] merge(15)
 
   Block[26] -> [28], ExitExc
     [0] assert(typeof <>new0<>1320 == "boolean")
@@ -7031,6 +7038,7 @@ function[47] b {
     [3] <>Global<>ignore189 := <>new<>1338 + 1
     [4] <>obj<>1335 := @ToObject(<>b<>1327) @ #784
     [5] <>g<>1329 := <>obj<>1335[<>d<>1328]
+    [6] merge(5)
 
   LBreak[9] -> [10], ExitExc
     [0] <>b<>1327 := 0
@@ -7160,6 +7168,7 @@ function[47] b {
     [3] <>Global<>ignore194 := <>new<>1355 + 1
     [4] <>obj<>1339 := @ToObject(<>z<>131) @ #797
     [5] <>d<>1328 := <>obj<>1339[<>b<>1327]
+    [6] merge(10)
 
   LBreak[45] -> Exit
 
@@ -7551,6 +7560,7 @@ function[55] Na<>funexpr@9:8-101<> {
     [3] <>Global<>ignore239 := <>new<>1544 + 1
     [4] <>obj<>1532 := @ToObject(<>Ia<>165) @ #927
     [5] <>c<>1530 := <>obj<>1532[<>b<>1529]
+    [6] merge(1)
 
   LBreak[19] -> Exit, ExitExc
     [0] return(<>a<>1528)
@@ -8555,6 +8565,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
     [0] <>new2<>1786 := <>new1<>1785
 
   Block[50] -> [40]
+    [0] merge(40)
 
   Block[51] -> [53], [4]
     [0] assert(typeof <>d<>1727 < <>l<>1731 == "boolean")
@@ -8613,6 +8624,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
     [3] <>Global<>ignore299 := <>new<>1797
     [4] <>obj<>1777 := @ToObject(<>B<>1734) @ #1108
     [5] <>$<>1736 := <>obj<>1777[<>Y<>1735]
+    [6] merge(27)
 
   LBreak[66] -> [68], [67]
 
@@ -8835,6 +8847,7 @@ function[65] Za<>funexpr@11:49-12:454<> {
     [3] <>Global<>ignore296 := <>new<>1834
     [4] <>obj<>1776 := @ToObject(<>c<>1726) @ #1129
     [5] <>B<>1734 := <>obj<>1776[<>s<>1733]
+    [6] merge(24)
 
   LBreak[125] -> [127], [126]
 
@@ -9024,6 +9037,7 @@ function[66] Ya<>funexpr@12:458-13:25<> {
     [1] <>new<>1887 := @ToNumber(<>old<>1886)
     [2] <>d<>1876 := <>new<>1887 + 1
     [3] <>Global<>ignore321 := <>new<>1887
+    [4] merge(1)
 
   LBreak[11] -> Exit, ExitExc
     [0] return(<>k<>114)
@@ -9926,6 +9940,7 @@ function[84] jb<>funexpr@14:345-15:47<> {
     [3] <>Global<>ignore373 := <>new<>2127
     [4] <>obj<>2116 := @ToObject(<>b<>2101) @ #1326
     [5] <>g<>2104 := <>obj<>2116[<>c<>2102]
+    [6] merge(17)
 
   LBreak[28] -> [29]
 
@@ -10070,6 +10085,7 @@ function[86] Sa<>funexpr@15:119-192<> {
     [4] <>obj<>2154 := @ToObject(<>a<>2150) @ #1346
     [5] <>obj<>2155 := @ToObject(<>obj<>2154["childNodes"]) @ #1347
     [6] <>c<>2152 := <>obj<>2155[<>b<>2151]
+    [7] merge(1)
 
   LBreak[11] -> Exit
 
@@ -10484,6 +10500,7 @@ function[96] Bb<>funexpr@16:1352-17:46<> {
     [1] <>new<>2549 := @ToNumber(<>old<>2548)
     [2] <>f<>2511 := <>new<>2549 + 1
     [3] <>Global<>ignore473 := <>new<>2549 + 1
+    [4] merge(5)
 
   LBreak[12] -> Exit, ExitExc
     [0] <>obj<>2550 := @ToObject(<>g<>2510) @ #1619
@@ -10548,6 +10565,7 @@ function[98] <>funexpr@16:1420-1497<> {
     [1] <>new<>2529 := @ToNumber(<>old<>2528)
     [2] <>d<>2522 := <>new<>2529 + 1
     [3] <>Global<>ignore466 := <>new<>2529 + 1
+    [4] merge(1)
 
   LBreak[5] -> [6], ExitExc
     [0] <>obj<>2530 := @ToObject(<>a<>2521) @ #1601
@@ -11044,6 +11062,7 @@ function[112] Xb<>funexpr@22:32-223<> {
     [3] <>Global<>ignore525 := <>new<>2812
     [4] <>y<>2807 := <>c<>2784
     [5] <>obj<>2808 := @ToObject(<>a<>2782) @ #1789
+    [6] merge(24)
 
   LBreak[37] -> Exit, ExitExc
     [0] return(- 1)
@@ -11333,6 +11352,7 @@ function[116] $b<>funexpr@22:406-503<> {
     [3] <>Global<>ignore533 := <>new<>2893
     [4] <>y<>2888 := <>d<>2879
     [5] <>obj<>2889 := @ToObject(<>c<>2878) @ #1836
+    [6] merge(8)
 
   LBreak[12] -> [13], ExitExc
     [0] <>obj<>2894 := @ToObject(<>n<>116) @ #1837
@@ -11470,6 +11490,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
 
   LCont[23] -> [10]
     [0] <>cond1<>2917 := @iteratorHasNext(<>obj<>2915, <>iterator<>2916)
+    [1] merge(10)
 
   LBreak[24] -> [25]
 
@@ -11507,6 +11528,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
     [3] <>Global<>ignore542 := <>new<>2933
     [4] <>y<>2928 := <>d<>2906
     [5] <>obj<>2929 := @ToObject(<>c<>2905) @ #1858
+    [6] merge(26)
 
   LBreak[30] -> [25]
 
@@ -11645,11 +11667,13 @@ function[118] bc<>funexpr@23:139-288<> {
     [3] <>Global<>ignore551 := <>new<>2972
     [4] <>y<>2954 := <>c<>2945
     [5] <>obj<>2955 := @ToObject(<>b<>2944) @ #1879
+    [6] merge(8)
 
   LBreak[25] -> [26]
 
   LCont[26] -> [5]
     [0] <>cond1<>2951 := @iteratorHasNext(<>obj<>2949, <>iterator<>2950)
+    [1] merge(5)
 
   LBreak[27] -> [28]
 
@@ -12390,6 +12414,7 @@ function[126] ic<>funexpr@25:292-380<> {
     [3] <>Global<>ignore578 := <>new<>3142
     [4] <>obj<>3138 := @ToObject(<>a<>3133) @ #1983
     [5] <>c<>3135 := <>obj<>3138[<>b<>3134]
+    [6] merge(1)
 
   LBreak[14] -> Exit, ExitExc
     [0] return(<>e<>112)
@@ -14703,6 +14728,7 @@ function[136] W<>funexpr@35:207-36:284<> {
     [1] <>new<>3778 := @ToNumber(<>old<>3777)
     [2] <>b<>3698 := <>new<>3778 + 1
     [3] <>Global<>ignore701 := <>new<>3778
+    [4] merge(79)
 
   LBreak[90] -> [91]
 
@@ -15032,6 +15058,7 @@ function[139] gb<>funexpr@37:244-316<> {
     [3] <>Global<>ignore737 := <>new<>3882 + 1
     [4] <>obj<>3876 := @ToObject(<>R<>3305) @ #2544
     [5] <>d<>3873 := <>obj<>3876[<>b<>3872]
+    [6] merge(5)
 
   LBreak[12] -> [16]
 
@@ -17472,6 +17499,7 @@ function[146] nb<>funexpr@42:325-43:164<> {
     [1] <>new<>4316 := @ToNumber(<>old<>4315)
     [2] <>b<>4271 := <>new<>4316 + 1
     [3] <>Global<>ignore885 := <>new<>4316
+    [4] merge(70)
 
   LBreak[74] -> [75], [2]
     [0] <>obj<>4317 := @ToObject(<>d<>4272) @ #2830
@@ -18037,6 +18065,7 @@ function[147] V<>funexpr@43:167-44:330<> {
     [3] <>Global<>ignore894 := <>new<>4455
     [4] <>obj<>4344 := @ToObject(<>Wa<>3301) @ #2933
     [5] <>c<>4328 := <>obj<>4344[<>f<>4327]
+    [6] merge(19)
 
   LBreak[145] -> Exit, ExitExc
     [0] return(<>d<>4326)
@@ -18107,6 +18136,7 @@ function[148] Z<>funexpr@44:333-397<> {
     [1] <>new<>4472 := @ToNumber(<>old<>4471)
     [2] <>f<>4459 := <>new<>4472 + 1
     [3] <>Global<>ignore913 := <>new<>4472 + 1
+    [4] merge(1)
 
   LBreak[15] -> Exit
 
@@ -19245,6 +19275,7 @@ function[163] k<>funexpr@48:273-415<> {
     [3] <>Global<>ignore994 := <>new<>4802
     [4] <>obj<>4790 := @ToObject(<>f<>4752) @ #3193
     [5] <>a<>4786 := <>obj<>4790[<>b<>4785]
+    [6] merge(3)
 
   LBreak[21] -> [23], [22], [2]
     [0] <>obj<>4803 := @ToObject(<>e<>4751) @ #3194
@@ -19401,6 +19432,7 @@ function[164] l<>funexpr@48:418-560<> {
     [3] <>Global<>ignore1003 := <>new<>4836
     [4] <>obj<>4824 := @ToObject(<>f<>4752) @ #3216
     [5] <>a<>4820 := <>obj<>4824[<>b<>4819]
+    [6] merge(3)
 
   LBreak[21] -> [23], [22], [2]
     [0] <>obj<>4837 := @ToObject(<>e<>4751) @ #3217

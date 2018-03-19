@@ -20,7 +20,7 @@ import kr.ac.kaist.safe.util.{ NodeUtil => NU }
 import scala.language.reflectiveCalls
 
 /* Translates JavaScript AST to IR. */
-class Translator(program: Program) {
+class Translator(program: Program, keyVars: Boolean) {
   ////////////////////////////////////////////////////////////////
   // results
   ////////////////////////////////////////////////////////////////
@@ -606,15 +606,12 @@ class Translator(program: Program) {
       IRStmtUnit(s, switchS)
 
     case DoWhile(_, body, cond) =>
-      val map = IndexCollector.emptyMap |>
+      lazy val map = IndexCollector.emptyMap |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
-      if (map.nonEmpty) {
-        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
-      }
+      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
 
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
@@ -628,19 +625,18 @@ class Translator(program: Program) {
         IRSeq(s, ss)
       )
       isDoWhile = false
-      val stmt = IRSeq(s, newBody, IRWhile(s, r, newBody, labelName, cont, indices))
+
+      val ids = if (keyVars) indices else List.empty
+      val stmt = IRSeq(s, newBody, IRWhile(s, r, newBody, labelName, cont, ids))
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case While(_, cond, body) =>
-      val map = IndexCollector.emptyMap |>
+      lazy val map = IndexCollector.emptyMap |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
-      if (map.nonEmpty) {
-        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
-      }
+      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
 
       val newone = freshId(cond, cond.span, "new1")
       val labelName = freshId(s, BREAK_NAME)
@@ -652,21 +648,20 @@ class Translator(program: Program) {
         s,
         IRLabelStmt(s, cont, walkStmt(body, newEnv)) :: ssList
       )
-      val stmt = IRSeq(s, ssList :+ IRWhile(s, r, newBody, labelName, cont, indices))
+      val ids = if (keyVars) indices else List.empty
+      val stmt = IRSeq(s, ssList :+ IRWhile(s, r, newBody, labelName, cont, ids))
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))
 
     case For(_, init, cond, action, body) =>
-      val map = IndexCollector.emptyMap |>
+      lazy val map = IndexCollector.emptyMap |>
         IndexCollector.collect(init) |>
         IndexCollector.collect(action) |>
         IndexCollector.collect(cond) |>
         IndexCollector.collect(body) |>
         IndexCollector.getVariables
 
-      val indices = IndexCollector.sorted(map).map(id2ir(env, _))
-      if (map.nonEmpty) {
-        System.err.println(s"* ${indices.map(m => m.originalName).mkString(", ")}")
-      }
+      lazy val indices = IndexCollector.sorted(map).map(id2ir(env, _))
+      lazy val ids = if (keyVars) indices else List.empty
 
       val labelName = freshId(s, BREAK_NAME)
       val cont = freshId(s, CONTINUE_NAME)
@@ -685,6 +680,7 @@ class Translator(program: Program) {
       }
       val bodyspan = body.span
       val nbody = IRLabelStmt(body, cont, walkStmt(body, newEnv))
+
       val stmt = cond match {
         case None =>
           IRSeq(
@@ -693,7 +689,7 @@ class Translator(program: Program) {
             IRWhile(s, TRUE_BOOL, IRSeq(
               s,
               nbody, IRSeq(s, back)
-            ), labelName, cont, indices)
+            ), labelName, cont, ids)
           )
         case Some(cexpr) =>
           val newtwo = freshId(cexpr, cexpr.span, "new2")
@@ -702,7 +698,7 @@ class Translator(program: Program) {
           IRSeq(
             s,
             IRSeq(s, front ++ ss2),
-            IRWhile(s, r2, IRSeq(s, newBody), labelName, cont, indices)
+            IRWhile(s, r2, IRSeq(s, newBody), labelName, cont, ids)
           )
       }
       IRStmtUnit(s, IRLabelStmt(s, labelName, stmt))

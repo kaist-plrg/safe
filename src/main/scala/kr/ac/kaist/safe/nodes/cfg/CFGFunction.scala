@@ -43,8 +43,13 @@ case class CFGFunction(
     -2 -> exit,
     -3 -> exitExc
   )
+  // all loop head blocks in this function
+  private var blocksHead: Set[CFGBlock] = Set.empty[CFGBlock]
+  lazy val blockHeadIDs: Set[BlockId] = blocksHead.map(_.id)
+
   def getBlock(bid: BlockId): Option[CFGBlock] = blockMap.get(bid)
   def getAllBlocks: List[CFGBlock] = blocks
+  def getLoopHeadIDs: Set[BlockId] = blockHeadIDs
 
   // used when create CFGFunction from JSON
   var blockData: Vector[JsValue] = _
@@ -77,8 +82,8 @@ case class CFGFunction(
     block
   }
   def createLoopHead: LoopHead = {
-    // TODO Keep this into the exit and exitexc blocks.
     val loopHead = LoopHead(this)
+    blocksHead += loopHead
     addBlock(loopHead)
     loopHead
   }

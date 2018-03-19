@@ -57,6 +57,7 @@ function[0] top-level {
   Block[11] -> [12]
 
   LCont[12] -> [6]
+    [0] merge(6)
 
   LBreak[13] -> [5]
 

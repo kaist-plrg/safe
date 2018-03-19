@@ -63,6 +63,7 @@ function[0] top-level {
     [3] <>Global<>ignore5 := <>new<>12
     [4] <>y<>7 := i
     [5] <>obj<>8 := @ToObject(quitchars) @ #7
+    [6] merge(8)
 
   LBreak[15] -> [16]
 
@@ -81,6 +82,7 @@ function[0] top-level {
 
   Block[20] -> [5], ExitExc
     [0] c := <>new1<>6
+    [1] merge(5)
 
   LBreak[21] -> [22]
 

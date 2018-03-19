@@ -24,6 +24,7 @@ function[0] top-level {
 
   LCont[4] -> [1]
     [0] <>cond1<>6 := @iteratorHasNext(<>obj<>4, <>iterator<>5)
+    [1] merge(1)
 
   LBreak[5] -> Exit, ExitExc
     [0] <>Global<>ignore6 := function (2) @ #4, #5
@@ -52,6 +53,7 @@ function[1] g {
     [1] merge(1)
 
   LCont[4] -> [1]
+    [0] merge(1)
 
   LBreak[5] -> Exit, ExitExc
     [0] return(<>x<>1)

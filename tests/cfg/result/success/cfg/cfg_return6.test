@@ -44,6 +44,7 @@ function[1] f {
     [1] merge(2)
 
   LCont[5] -> [2]
+    [0] merge(2)
 
   LBreak[6] -> Exit
 

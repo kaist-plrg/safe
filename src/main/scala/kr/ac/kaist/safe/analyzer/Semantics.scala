@@ -278,9 +278,11 @@ case class Semantics(
           (next_normal, next_exc, empty_inter)
 
         case Exit(_) | ExitExc(_) =>
+          // merge all the partitions generated in this function.
+          val hids = cp.block.func.getLoopHeadIDs
           val next_inter =
             (empty_inter /: st.partitioningIndex)((s_i, tp) => {
-              s_i ++ propagate_inter(cp.copy(tracePartition = tp), st)
+              s_i ++ propagate_inter(cp.copy(tracePartition = tp.merge(hids)), st)
             })
           (empty, empty, next_inter)
 
@@ -295,7 +297,7 @@ case class Semantics(
 
   lazy val emptyTP = HashMap.empty[TracePartition, AbsState]
   // TODO makes the following variable optional.
-  val bPartitioned = false
+  val bPartitioned = true
 
   def Is(tp: TracePartition, i: CFGNormalInst, st: AbsState): (HashMap[TracePartition, AbsState], (TracePartition, AbsState)) = {
     i match {
@@ -306,8 +308,6 @@ case class Semantics(
             case Some(lhs_id) =>
               (emptyTP /: ss) {
                 case (m_i, (str, nst, v, b)) =>
-                  System.out.println(s"- case: $lhs_id = $str with $v for $b")
-
                   val tp_n = tp.next_case(id.headID.get, lhs_id, str, b)
                   // v is always not bottom.
                   val st1 = nst.varStore(x, v)
@@ -320,12 +320,7 @@ case class Semantics(
         val newExcSt = st.raiseException(es)
         (ntps, (tp, newExcSt))
 
-      //      case CFGInternalCall(_, _, lhs, NodeUtil.INTERNAL_MERGE, List(CFGVarRef(_, id)), loc) =>
-      //        val ntp = tp.merge(List(id))
-      //        (emptyTP + (ntp -> st), (ntp, AbsState.Bot))
-      //
       case CFGMerge(_, lIDs) =>
-        // TODO merge tp by lIDs
         (emptyTP + (tp.merge(lIDs) -> st), (tp, AbsState.Bot))
 
       case _ =>
@@ -1461,12 +1456,7 @@ case class Semantics(
           if (!idxV.isBottom) TypeConversionHelper.ToPrimitive(idxV, st.heap).toStringSet
           else HashSet[AbsStr]()
 
-        System.out.println(s"* Prop Loads for $absStrSet")
         val (m_n, m_e) = Helper.propLoads(objV, absStrSet, st.heap)
-        System.out.println("- in : ")
-        m_n.foreach { case (s, v) => System.out.println(s"$s => $v") }
-        System.out.println("- not in : ")
-        m_e.foreach { case (s, v) => System.out.println(s"$s => $v") }
         val r1 = m_n.map {
           case (str, value) =>
             val rev = TypeConversionHelper.ToStringRev(str)

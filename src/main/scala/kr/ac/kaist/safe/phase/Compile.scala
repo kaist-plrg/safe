@@ -29,7 +29,7 @@ case object Compile extends PhaseObj[Program, CompileConfig, IRRoot] {
     config: CompileConfig
   ): Try[IRRoot] = {
     // Translate AST -> IR.
-    val translator = new Translator(program)
+    val translator = new Translator(program, config.keyVariables)
     val ir = translator.result
     val excLog = translator.excLog
 
@@ -56,6 +56,8 @@ case object Compile extends PhaseObj[Program, CompileConfig, IRRoot] {
   val options: List[PhaseOption[CompileConfig]] = List(
     ("silent", BoolOption(c => c.silent = true),
       "messages during compilation are muted."),
+    ("keyvars", BoolOption(c => c.keyVariables = true),
+      "it performs a pre-analysis to find key variables in loops."),
     ("out", StrOption((c, s) => c.outFile = Some(s)),
       "the resulting IR will be written to the outfile.")
   )
@@ -64,5 +66,6 @@ case object Compile extends PhaseObj[Program, CompileConfig, IRRoot] {
 // Compile phase config
 case class CompileConfig(
   var silent: Boolean = false,
+  var keyVariables: Boolean = false,
   var outFile: Option[String] = None
 ) extends Config

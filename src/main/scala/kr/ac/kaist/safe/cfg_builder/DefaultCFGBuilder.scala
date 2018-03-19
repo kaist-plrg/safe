@@ -593,6 +593,12 @@ class DefaultCFGBuilder(
         cfg.addEdge(headBlock, loopOutBlock)
         /* build loop body */
         val (bs: List[CFGBlock], lm: LabelMap) = translateStmt(body, func, List(loopBodyBlock), lmap, Some(lID), oKey)
+        // at the end of the loop body, we need to merge the partitions.
+        bs.foreach {
+          case b: NormalBlock => b.createInst(CFGMerge(_, Set(lID)))
+          case _ =>
+        }
+
         /* add edge from tails of loop body to loop head */
         cfg.addEdge(bs, headBlock)
         (List(loopOutBlock), lm.updated(ThrowLabel, (ThrowLabel of lm) + loopBodyBlock + loopOutBlock).updated(LoopHeadLabel, (LoopHeadLabel of lm) + headBlock))

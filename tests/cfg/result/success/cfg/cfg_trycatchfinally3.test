@@ -96,6 +96,7 @@ function[0] top-level {
   Block[21] -> [22]
 
   LCont[22] -> [16]
+    [0] merge(16)
 
   LBreak[23] -> [24]
 
@@ -132,6 +133,7 @@ function[0] top-level {
   Block[33] -> [34]
 
   LCont[34] -> [28]
+    [0] merge(28)
 
   LBreak[35] -> [36]
 
@@ -167,6 +169,7 @@ function[0] top-level {
   Block[45] -> [46]
 
   LCont[46] -> [40]
+    [0] merge(40)
 
   LBreak[47] -> [48]
 

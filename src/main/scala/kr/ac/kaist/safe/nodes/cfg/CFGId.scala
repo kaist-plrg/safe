@@ -31,7 +31,12 @@ case class CFGUserId(
     override val headID: Option[BlockId] = None
 ) extends CFGId(text, kind) {
   override def makeKey(head: Option[BlockId]): CFGUserId = copy(keyVar = true, headID = head)
-  override def toString: String = NodeUtil.pp(text)
+  override def toString: String = {
+    val post =
+      if (keyVar) "(*)"
+      else ""
+    NodeUtil.pp(text) + post
+  }
 }
 
 case class CFGTempId(

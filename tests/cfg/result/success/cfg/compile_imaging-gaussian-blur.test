@@ -163,6 +163,7 @@ function[1] buildKernel {
     [3] <>Global<>ignore9 := <>new<>24 + 1
 
   LCont[31] -> [17]
+    [0] merge(17)
 
   LBreak[32] -> [33], ExitExc
     [0] kernelSize := <>i<>3
@@ -239,6 +240,7 @@ function[1] buildKernel {
     [1] <>new<>40 := @ToNumber(<>old<>39)
     [2] <>i<>3 := <>new<>40 + 1
     [3] <>Global<>ignore19 := <>new<>40 + 1
+    [4] merge(40)
 
   LBreak[51] -> [52]
 
@@ -247,6 +249,7 @@ function[1] buildKernel {
     [1] <>new<>42 := @ToNumber(<>old<>41)
     [2] <>j<>4 := <>new<>42 + 1
     [3] <>Global<>ignore14 := <>new<>42 + 1
+    [4] merge(33)
 
   LBreak[53] -> [54], ExitExc
     [0] kernelSum := 0
@@ -312,6 +315,7 @@ function[1] buildKernel {
     [1] <>new<>57 := @ToNumber(<>old<>56)
     [2] <>i<>3 := <>new<>57 + 1
     [3] <>Global<>ignore30 := <>new<>57 + 1
+    [4] merge(57)
 
   LBreak[69] -> [70]
 
@@ -320,6 +324,7 @@ function[1] buildKernel {
     [1] <>new<>59 := @ToNumber(<>old<>58)
     [2] <>j<>4 := <>new<>59 + 1
     [3] <>Global<>ignore26 := <>new<>59 + 1
+    [4] merge(54)
 
   LBreak[71] -> Exit
 
@@ -567,6 +572,7 @@ function[2] gaussianBlur {
     [1] <>new<>130 := @ToNumber(<>old<>129)
     [2] <>i<>67 := <>new<>130 + 1
     [3] <>Global<>ignore47 := <>new<>130 + 1
+    [4] merge(18)
 
   LBreak[62] -> [63]
 
@@ -575,6 +581,7 @@ function[2] gaussianBlur {
     [1] <>new<>132 := @ToNumber(<>old<>131)
     [2] <>j<>66 := <>new<>132 + 1
     [3] <>Global<>ignore44 := <>new<>132 + 1
+    [4] merge(7)
 
   LBreak[64] -> [65], ExitExc
     [0] <>obj<>133 := @ToObject(squidImageData) @ #96
@@ -591,6 +598,7 @@ function[2] gaussianBlur {
     [1] <>new<>138 := @ToNumber(<>old<>137)
     [2] <>x<>61 := <>new<>138 + 1
     [3] <>Global<>ignore37 := <>new<>138 + 1
+    [4] merge(4)
 
   LBreak[66] -> [67]
 
@@ -599,6 +607,7 @@ function[2] gaussianBlur {
     [1] <>new<>140 := @ToNumber(<>old<>139)
     [2] <>y<>60 := <>new<>140 + 1
     [3] <>Global<>ignore34 := <>new<>140 + 1
+    [4] merge(1)
 
   LBreak[68] -> Exit, ExitExc
     [0] return(squidImageData)
