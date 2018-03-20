@@ -126,8 +126,10 @@ var pixcounter
             <>y<>44 = <>y<>42 + <>obj<>43[<>pix1<>21]
             <>obj<>45 = @ToObject(<>data<>15)
             <>obj<>40[<>pix<>20 + 2] = <>y<>44 + <>obj<>45[<>pix2<>22] / 3
-            <>obj<>39[<>pix<>20 + 1] = <>obj<>40[<>pix<>20 + 2]
-            <>obj<>37[<>old<>38 - 4] = <>obj<>39[<>pix<>20 + 1]
+            <>load<>46 = <>obj<>40[<>pix<>20 + 2]
+            <>obj<>39[<>pix<>20 + 1] = <>load<>46
+            <>load<>47 = <>obj<>39[<>pix<>20 + 1]
+            <>obj<>37[<>old<>38 - 4] = <>load<>47
           }
           {
             <>old<>34 = <>p<>19
@@ -137,35 +139,37 @@ var pixcounter
         }
       }
     else
-      <>break<>46 : {
+      <>break<>48 : {
         {
-          <>old<>47 = <>p<>19
-          <>new<>48 = @ToNumber(<>old<>47)
-          <>p<>19 = <>new<>48 - 1
+          <>old<>49 = <>p<>19
+          <>new<>50 = @ToNumber(<>old<>49)
+          <>p<>19 = <>new<>50 - 1
         }
-        while(<>new<>48)
+        while(<>new<>50)
         {
-          <>continue<>49 : {
-            <>obj<>50 = @ToObject(<>data<>15)
-            <>old<>51 = <>pix<>20
-            <>pix<>20 = <>old<>51 - 4
+          <>continue<>51 : {
             <>obj<>52 = @ToObject(<>data<>15)
-            <>pix1<>21 = <>pix<>20 + 1
-            <>obj<>53 = @ToObject(<>data<>15)
-            <>pix2<>22 = <>pix<>20 + 2
+            <>old<>53 = <>pix<>20
+            <>pix<>20 = <>old<>53 - 4
             <>obj<>54 = @ToObject(<>data<>15)
-            <>y<>55 = <>obj<>54[<>pix<>20] * 0.3
+            <>pix1<>21 = <>pix<>20 + 1
+            <>obj<>55 = @ToObject(<>data<>15)
+            <>pix2<>22 = <>pix<>20 + 2
             <>obj<>56 = @ToObject(<>data<>15)
-            <>y<>57 = <>y<>55 + <>obj<>56[<>pix1<>21] * 0.59
+            <>y<>57 = <>obj<>56[<>pix<>20] * 0.3
             <>obj<>58 = @ToObject(<>data<>15)
-            <>obj<>53[<>pix<>20 + 2] = <>y<>57 + <>obj<>58[<>pix2<>22] * 0.11
-            <>obj<>52[<>pix<>20 + 1] = <>obj<>53[<>pix<>20 + 2]
-            <>obj<>50[<>old<>51 - 4] = <>obj<>52[<>pix<>20 + 1]
+            <>y<>59 = <>y<>57 + <>obj<>58[<>pix1<>21] * 0.59
+            <>obj<>60 = @ToObject(<>data<>15)
+            <>obj<>55[<>pix<>20 + 2] = <>y<>59 + <>obj<>60[<>pix2<>22] * 0.11
+            <>load<>61 = <>obj<>55[<>pix<>20 + 2]
+            <>obj<>54[<>pix<>20 + 1] = <>load<>61
+            <>load<>62 = <>obj<>54[<>pix<>20 + 1]
+            <>obj<>52[<>old<>53 - 4] = <>load<>62
           }
           {
-            <>old<>47 = <>p<>19
-            <>new<>48 = @ToNumber(<>old<>47)
-            <>p<>19 = <>new<>48 - 1
+            <>old<>49 = <>p<>19
+            <>new<>50 = @ToNumber(<>old<>49)
+            <>p<>19 = <>new<>50 - 1
           }
         }
       }
@@ -177,15 +181,15 @@ var pixcounter
   <>obj<>9["desaturate"] = <>Global<>ignore7
 }
 {
-  <>temp<>59 = {
+  <>temp<>63 = {
     width : width,
     height : height
   }
-  <>temp<>60 = {
-    rect : <>temp<>59
+  <>temp<>64 = {
+    rect : <>temp<>63
   }
   <>Global<>ignore17 = {
-    options : <>temp<>60,
+    options : <>temp<>64,
     data : squidImageData
   }
   params = <>Global<>ignore17
@@ -194,23 +198,23 @@ var pixcounter
   {
     pixcounter = 0
   }
-  <>break<>61 : {
+  <>break<>65 : {
     while(pixcounter < 200)
     {
-      <>continue<>62 : {
-        <>obj<>63 = @ToObject(Pixastic)
-        <>obj<>64 = @ToObject(<>obj<>63["Actions"])
-        <>obj<>65 = @ToObject(<>obj<>64["desaturate"])
-        <>temp<>66 = params
-        <>arguments<>67 = [<>temp<>66, ]
-        <>fun<>68 = @ToObject(<>obj<>65["process"])
-        <>Global<>ignore21 = <>fun<>68(<>obj<>65, <>arguments<>67)
+      <>continue<>66 : {
+        <>obj<>67 = @ToObject(Pixastic)
+        <>obj<>68 = @ToObject(<>obj<>67["Actions"])
+        <>obj<>69 = @ToObject(<>obj<>68["desaturate"])
+        <>temp<>70 = params
+        <>arguments<>71 = [<>temp<>70, ]
+        <>fun<>72 = @ToObject(<>obj<>69["process"])
+        <>Global<>ignore21 = <>fun<>72(<>obj<>69, <>arguments<>71)
       }
       {
-        <>old<>69 = pixcounter
-        <>new<>70 = @ToNumber(<>old<>69)
-        pixcounter = <>new<>70 + 1
-        <>Global<>ignore20 = <>new<>70
+        <>old<>73 = pixcounter
+        <>new<>74 = @ToNumber(<>old<>73)
+        pixcounter = <>new<>74 + 1
+        <>Global<>ignore20 = <>new<>74
       }
     }
   }

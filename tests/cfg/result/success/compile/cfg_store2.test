@@ -22,11 +22,13 @@ var obj2
 {
   <>obj<>2 = @ToObject(obj)
   <>obj<>3 = @ToObject(obj2)
-  <>obj<>2["y"] = <>obj<>3["z"]
+  <>load<>4 = <>obj<>3["z"]
+  <>obj<>2["y"] = <>load<>4
 }
 {
-  <>obj<>4 = @ToObject(obj2)
-  <>obj<>5 = @ToObject(obj)
-  <>obj<>4["y"] = <>obj<>5["y"]
+  <>obj<>5 = @ToObject(obj2)
+  <>obj<>6 = @ToObject(obj)
+  <>load<>7 = <>obj<>6["y"]
+  <>obj<>5["y"] = <>load<>7
 }
 

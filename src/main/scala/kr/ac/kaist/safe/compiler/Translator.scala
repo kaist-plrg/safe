@@ -1441,7 +1441,19 @@ class Translator(program: Program, keyVars: Boolean) {
       val (ss1, r1) = walkExpr(first, env, obj1)
       val (ss2, r2) = walkExpr(index, env, field1)
       val front = (ss1 :+ toObject(first, obj, r1)) ++ ss2
-      val back = stmts :+ IRStore(ast, obj, r2, e)
+
+      val back =
+        e match {
+          case IRLoad(info_2, o_2, idx_2) =>
+            // o1[x] = o2[x];
+            //   ==>
+            // t = o2[x];
+            // o1[x] = t;
+            val ie = freshId(first, firstspan, "load")
+            stmts :+ IRExprStmt(first, ie, e) :+ IRStore(ast, obj, r2, ie)
+          case _ =>
+            stmts :+ IRStore(ast, obj, r2, e)
+        }
       if (keepOld)
         ((front :+ makeLoadStmt(true, lhs, span, getE(env, OLD_NAME), obj, r2)) ++ back,
           IRLoad(lhs, obj, r2))

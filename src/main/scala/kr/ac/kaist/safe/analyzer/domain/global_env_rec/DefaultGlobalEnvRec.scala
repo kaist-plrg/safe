@@ -159,6 +159,25 @@ object DefaultGlobalEnvRec extends GlobalEnvRecDomain {
         (retV, excSet)
     }
 
+    // 10.2.1.2.4 GetBindingValue(N, S)
+    def GetBindingValueRev(
+      name: String,
+      rev: AbsValue,
+      abs: AbsAbsent
+    )(heap: AbsHeap): AbsHeap = this match {
+      case Bot => heap
+      case Top =>
+        val bindings = getGlobalObj(heap)
+        val o =
+          if (abs.isTop) {
+            bindings.delete(name)
+          } else {
+            val dp = bindings(name)
+            bindings.update(name, dp.copy(value = rev))
+          }
+        heap.update(GLOBAL_LOC, o)
+    }
+
     // 10.2.1.2.5 DeleteBinding(N)
     def DeleteBinding(
       name: String

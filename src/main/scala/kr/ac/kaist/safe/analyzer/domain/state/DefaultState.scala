@@ -117,10 +117,22 @@ object DefaultState extends StateDomain {
           // give up.
           this
         case GlobalVar =>
-          // give up.
-          this
-        //
-        //          AbsGlobalEnvRec.Top.GetBindingValue(x, true)(heap)
+          val (ov, exc) = AbsGlobalEnvRec.Top.GetBindingValue(x, true)(heap)
+          if (exc.isEmpty) {
+            val npv = ov.pvalue ⊓ v
+            if (!npv.isBottom) {
+              val nv: AbsValue = ov.copy(npv)
+              val abs =
+                if (absent) AbsAbsent.Top
+                else AbsAbsent.Bot
+              val newH = AbsGlobalEnvRec.Top.GetBindingValueRev(x, nv, abs)(heap)
+              this.copy(heap = newH)
+            } else {
+              this
+            }
+          } else {
+            this
+          }
       }
     }
 

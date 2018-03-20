@@ -14,11 +14,13 @@ function[0] top-level {
     [9] <>obj<>1["x"] := 1
     [10] <>obj<>2 := @ToObject(obj) @ #4
     [11] <>obj<>3 := @ToObject(obj2) @ #5
-    [12] <>obj<>2["y"] := <>obj<>3["z"]
-    [13] <>obj<>4 := @ToObject(obj2) @ #6
-    [14] <>obj<>5 := @ToObject(obj) @ #7
-    [15] <>obj<>4["y"] := <>obj<>5["y"]
-    [16] noop(EndOfFile)
+    [12] <>load<>4 := <>obj<>3["z"]
+    [13] <>obj<>2["y"] := <>load<>4
+    [14] <>obj<>5 := @ToObject(obj2) @ #6
+    [15] <>obj<>6 := @ToObject(obj) @ #7
+    [16] <>load<>7 := <>obj<>6["y"]
+    [17] <>obj<>5["y"] := <>load<>7
+    [18] noop(EndOfFile)
 
   Exit[-2]
 

@@ -14,17 +14,19 @@ function[0] top-level {
     [9] <>obj<>8 := @ToObject(g) @ #8
     [10] <>obj<>9 := @ToObject(<>obj<>8["h"]) @ #9
     [11] <>obj<>10 := @ToObject(<>obj<>9["i"]) @ #10
-    [12] <>obj<>7["d"] := <>obj<>10["j"]
-    [13] <>obj<>11 := @ToObject(a) @ #11
-    [14] <>obj<>12 := @ToObject(g) @ #12
-    [15] <>obj<>13 := @ToObject(g) @ #13
-    [16] <>obj<>11[<>obj<>12["c"]] := <>obj<>13["asd"]
-    [17] <>obj<>14 := @ToObject(a) @ #14
-    [18] <>Global<>ignore5 := <>obj<>14["b"]
-    [19] a := 1
-    [20] <>obj<>15 := @ToObject(a) @ #15
-    [21] <>obj<>15["b"] := 1
-    [22] noop(EndOfFile)
+    [12] <>load<>11 := <>obj<>10["j"]
+    [13] <>obj<>7["d"] := <>load<>11
+    [14] <>obj<>12 := @ToObject(a) @ #11
+    [15] <>obj<>13 := @ToObject(g) @ #12
+    [16] <>obj<>14 := @ToObject(g) @ #13
+    [17] <>load<>15 := <>obj<>14["asd"]
+    [18] <>obj<>12[<>obj<>13["c"]] := <>load<>15
+    [19] <>obj<>16 := @ToObject(a) @ #14
+    [20] <>Global<>ignore5 := <>obj<>16["b"]
+    [21] a := 1
+    [22] <>obj<>17 := @ToObject(a) @ #15
+    [23] <>obj<>17["b"] := 1
+    [24] noop(EndOfFile)
 
   Exit[-2]
 

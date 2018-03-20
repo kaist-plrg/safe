@@ -31,17 +31,17 @@ function[0] top-level {
     [5] <>obj<>7["Actions"] := <>Global<>ignore6
     [6] <>obj<>8 := @ToObject(Pixastic) @ #9
     [7] <>obj<>9 := @ToObject(<>obj<>8["Actions"]) @ #10
-    [8] <>temp<>54 := function (1) @ #32, #33
+    [8] <>temp<>58 := function (1) @ #32, #33
     [9] <>Global<>ignore7 := alloc() @ #34
-    [10] <>Global<>ignore7["process"] := <>temp<>54
+    [10] <>Global<>ignore7["process"] := <>temp<>58
     [11] <>obj<>9["desaturate"] := <>Global<>ignore7
-    [12] <>temp<>55 := alloc() @ #35
-    [13] <>temp<>55["width"] := width
-    [14] <>temp<>55["height"] := height
-    [15] <>temp<>56 := alloc() @ #36
-    [16] <>temp<>56["rect"] := <>temp<>55
+    [12] <>temp<>59 := alloc() @ #35
+    [13] <>temp<>59["width"] := width
+    [14] <>temp<>59["height"] := height
+    [15] <>temp<>60 := alloc() @ #36
+    [16] <>temp<>60["rect"] := <>temp<>59
     [17] <>Global<>ignore17 := alloc() @ #37
-    [18] <>Global<>ignore17["options"] := <>temp<>56
+    [18] <>Global<>ignore17["options"] := <>temp<>60
     [19] <>Global<>ignore17["data"] := squidImageData
     [20] params := <>Global<>ignore17
     [21] pixcounter := 0
@@ -50,31 +50,31 @@ function[0] top-level {
 
   Block[9] -> [11], ExitExc
     [0] assert(pixcounter < 200)
-    [1] <>obj<>57 := @ToObject(Pixastic) @ #38
-    [2] <>obj<>58 := @ToObject(<>obj<>57["Actions"]) @ #39
-    [3] <>obj<>59 := @ToObject(<>obj<>58["desaturate"]) @ #40
-    [4] <>temp<>60 := params
-    [5] <>arguments<>61 := allocArg(1) @ #41
-    [6] <>arguments<>61["0"] := <>temp<>60
-    [7] <>fun<>62 := @ToObject(<>obj<>59["process"]) @ #42
-    [8] <>this<> := enterCode(<>obj<>59)
+    [1] <>obj<>61 := @ToObject(Pixastic) @ #38
+    [2] <>obj<>62 := @ToObject(<>obj<>61["Actions"]) @ #39
+    [3] <>obj<>63 := @ToObject(<>obj<>62["desaturate"]) @ #40
+    [4] <>temp<>64 := params
+    [5] <>arguments<>65 := allocArg(1) @ #41
+    [6] <>arguments<>65["0"] := <>temp<>64
+    [7] <>fun<>66 := @ToObject(<>obj<>63["process"]) @ #42
+    [8] <>this<> := enterCode(<>obj<>63)
 
   Block[10] -> [15], ExitExc
     [0] assert(! pixcounter < 200)
     [1] merge(8)
 
   Call[11] -> ExitExc
-    [0] call(<>fun<>62, <>this<>, <>arguments<>61) @ #43
+    [0] call(<>fun<>66, <>this<>, <>arguments<>65) @ #43
 
   AfterCall[12] -> [14]
 
   AfterCatch[13] -> ExitExc
 
   LCont[14] -> [8], ExitExc
-    [0] <>old<>63 := pixcounter
-    [1] <>new<>64 := @ToNumber(<>old<>63)
-    [2] pixcounter := <>new<>64 + 1
-    [3] <>Global<>ignore20 := <>new<>64
+    [0] <>old<>67 := pixcounter
+    [1] <>new<>68 := @ToNumber(<>old<>67)
+    [2] pixcounter := <>new<>68 + 1
+    [3] <>Global<>ignore20 := <>new<>68
     [4] merge(8)
 
   LBreak[15] -> Exit
@@ -134,9 +134,9 @@ function[1] <>funexpr@24:15-42:6<> {
 
   Block[8] -> [15], ExitExc
     [0] assert(! <>useAverage<>11)
-    [1] <>old<>42 := <>p<>16
-    [2] <>new<>43 := @ToNumber(<>old<>42)
-    [3] <>p<>16 := <>new<>43 - 1
+    [1] <>old<>44 := <>p<>16
+    [2] <>new<>45 := @ToNumber(<>old<>44)
+    [3] <>p<>16 := <>new<>45 - 1
 
   LoopHead[9] -> [11], [10]
 
@@ -155,8 +155,10 @@ function[1] <>funexpr@24:15-42:6<> {
     [11] <>y<>40 := <>y<>38 + <>obj<>39[<>pix1<>18]
     [12] <>obj<>41 := @ToObject(<>data<>12) @ #25
     [13] <>obj<>36[<>pix<>17 + 2] := <>y<>40 + <>obj<>41[<>pix2<>19] / 3
-    [14] <>obj<>35[<>pix<>17 + 1] := <>obj<>36[<>pix<>17 + 2]
-    [15] <>obj<>33[<>old<>34 - 4] := <>obj<>35[<>pix<>17 + 1]
+    [14] <>load<>42 := <>obj<>36[<>pix<>17 + 2]
+    [15] <>obj<>35[<>pix<>17 + 1] := <>load<>42
+    [16] <>load<>43 := <>obj<>35[<>pix<>17 + 1]
+    [17] <>obj<>33[<>old<>34 - 4] := <>load<>43
 
   Block[11] -> [13], ExitExc
     [0] assert(! <>new<>32)
@@ -176,31 +178,33 @@ function[1] <>funexpr@24:15-42:6<> {
   LoopHead[15] -> [17], [16]
 
   Block[16] -> [18], ExitExc
-    [0] assert(<>new<>43)
-    [1] <>obj<>44 := @ToObject(<>data<>12) @ #26
-    [2] <>old<>45 := <>pix<>17
-    [3] <>pix<>17 := <>old<>45 - 4
-    [4] <>obj<>46 := @ToObject(<>data<>12) @ #27
+    [0] assert(<>new<>45)
+    [1] <>obj<>46 := @ToObject(<>data<>12) @ #26
+    [2] <>old<>47 := <>pix<>17
+    [3] <>pix<>17 := <>old<>47 - 4
+    [4] <>obj<>48 := @ToObject(<>data<>12) @ #27
     [5] <>pix1<>18 := <>pix<>17 + 1
-    [6] <>obj<>47 := @ToObject(<>data<>12) @ #28
+    [6] <>obj<>49 := @ToObject(<>data<>12) @ #28
     [7] <>pix2<>19 := <>pix<>17 + 2
-    [8] <>obj<>48 := @ToObject(<>data<>12) @ #29
-    [9] <>y<>49 := <>obj<>48[<>pix<>17] * 0.3
-    [10] <>obj<>50 := @ToObject(<>data<>12) @ #30
-    [11] <>y<>51 := <>y<>49 + <>obj<>50[<>pix1<>18] * 0.59
-    [12] <>obj<>52 := @ToObject(<>data<>12) @ #31
-    [13] <>obj<>47[<>pix<>17 + 2] := <>y<>51 + <>obj<>52[<>pix2<>19] * 0.11
-    [14] <>obj<>46[<>pix<>17 + 1] := <>obj<>47[<>pix<>17 + 2]
-    [15] <>obj<>44[<>old<>45 - 4] := <>obj<>46[<>pix<>17 + 1]
+    [8] <>obj<>50 := @ToObject(<>data<>12) @ #29
+    [9] <>y<>51 := <>obj<>50[<>pix<>17] * 0.3
+    [10] <>obj<>52 := @ToObject(<>data<>12) @ #30
+    [11] <>y<>53 := <>y<>51 + <>obj<>52[<>pix1<>18] * 0.59
+    [12] <>obj<>54 := @ToObject(<>data<>12) @ #31
+    [13] <>obj<>49[<>pix<>17 + 2] := <>y<>53 + <>obj<>54[<>pix2<>19] * 0.11
+    [14] <>load<>55 := <>obj<>49[<>pix<>17 + 2]
+    [15] <>obj<>48[<>pix<>17 + 1] := <>load<>55
+    [16] <>load<>56 := <>obj<>48[<>pix<>17 + 1]
+    [17] <>obj<>46[<>old<>47 - 4] := <>load<>56
 
   Block[17] -> [19], ExitExc
-    [0] assert(! <>new<>43)
+    [0] assert(! <>new<>45)
     [1] merge(15)
 
   LCont[18] -> [15], ExitExc
-    [0] <>old<>42 := <>p<>16
-    [1] <>new<>43 := @ToNumber(<>old<>42)
-    [2] <>p<>16 := <>new<>43 - 1
+    [0] <>old<>44 := <>p<>16
+    [1] <>new<>45 := @ToNumber(<>old<>44)
+    [2] <>p<>16 := <>new<>45 - 1
     [3] merge(15)
 
   LBreak[19] -> [14]

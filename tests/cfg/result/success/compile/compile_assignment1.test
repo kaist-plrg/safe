@@ -15,21 +15,23 @@ var g
   <>obj<>8 = @ToObject(g)
   <>obj<>9 = @ToObject(<>obj<>8["h"])
   <>obj<>10 = @ToObject(<>obj<>9["i"])
-  <>obj<>7["d"] = <>obj<>10["j"]
+  <>load<>11 = <>obj<>10["j"]
+  <>obj<>7["d"] = <>load<>11
 }
 {
-  <>obj<>11 = @ToObject(a)
-  <>obj<>12 = @ToObject(g)
+  <>obj<>12 = @ToObject(a)
   <>obj<>13 = @ToObject(g)
-  <>obj<>11[<>obj<>12["c"]] = <>obj<>13["asd"]
+  <>obj<>14 = @ToObject(g)
+  <>load<>15 = <>obj<>14["asd"]
+  <>obj<>12[<>obj<>13["c"]] = <>load<>15
 }
 {
-  <>obj<>14 = @ToObject(a)
-  <>Global<>ignore5 = <>obj<>14["b"]
+  <>obj<>16 = @ToObject(a)
+  <>Global<>ignore5 = <>obj<>16["b"]
 }
 a = 1
 {
-  <>obj<>15 = @ToObject(a)
-  <>obj<>15["b"] = 1
+  <>obj<>17 = @ToObject(a)
+  <>obj<>17["b"] = 1
 }
 
