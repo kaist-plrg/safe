@@ -48,7 +48,7 @@ case object HeapBuild extends PhaseObj[CFG, HeapBuildConfig, (CFG, Semantics, Tr
       initSt = Initialize.addSnapshot(initSt, str))
 
     val sens =
-      CallSiteSensitivity(config.callsiteSensitivity) * CAPartition
+      CallSiteSensitivity(config.callsiteSensitivity) * CAPartition.DefaultCAPartitioning
     //    val sens =
     //      CallSiteSensitivity(config.callsiteSensitivity) *
     //        LoopSensitivity(config.loopSensitivity)

@@ -100,42 +100,49 @@ object CallSiteSensitivity {
   }
 }
 
-trait Case
-case object CaseIn extends Case
-case object CaseNotIn extends Case
+object CAPartition {
+  def apply(k: Int = 10): Sensitivity = new Sensitivity {
+    trait Case
+    case object CaseIn extends Case
+    case object CaseNotIn extends Case
 
-object LookupPartition {
-  val empty = LookupPartition(List.empty[LocalCase])
-}
-case class LookupPartition(list: List[LocalCase]) extends TracePartition {
-  def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition = this
+    override val initTP: TracePartition = LookupPartition(List.empty[LocalCase])
 
-  private def find_replace(c: LocalCase, list: List[LocalCase]): List[LocalCase] = {
-    list match {
-      case Nil => c :: Nil
-      case cp :: tail if cp.headID == c.headID => c :: tail
-      case cp :: tail => cp :: find_replace(c, tail)
+    case class LookupPartition(list: List[LocalCase]) extends TracePartition {
+      def next(from: CFGBlock, to: CFGBlock, edgeType: CFGEdgeType): TracePartition = this
+
+      private def find_replace(c: LocalCase, list: List[LocalCase]): List[LocalCase] = {
+        list match {
+          case Nil => c :: Nil
+          case cp :: tail if cp.headID == c.headID => c :: tail
+          case cp :: tail => cp :: find_replace(c, tail)
+        }
+      }
+
+      def update_local(c: LocalCase): LookupPartition = {
+        val nlist = find_replace(c, this.list)
+
+        val nlist_2 =
+          if (nlist.length > k) nlist.takeRight(k)
+          else nlist
+
+        LookupPartition(nlist_2)
+      }
+
+      def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): LookupPartition = {
+        val c = if (in) CaseIn else CaseNotIn
+        update_local(LocalCase(hid, id, s, c))
+      }
+      def merge(hids: Set[BlockId]): LookupPartition = {
+        val nlist = this.list.filterNot(p => hids.contains(p.headID))
+        LookupPartition(nlist)
+      }
     }
+
+    case class LocalCase(headID: BlockId, id: CFGId, s: AbsStr, c: Case)
   }
 
-  def update_local(c: LocalCase): LookupPartition = {
-    val nlist = find_replace(c, this.list)
-    LookupPartition(nlist)
-  }
-
-  def next_case(hid: BlockId, id: CFGId, s: AbsStr, in: Boolean): LookupPartition = {
-    val c = if (in) CaseIn else CaseNotIn
-    update_local(LocalCase(hid, id, s, c))
-  }
-  def merge(hids: Set[BlockId]): LookupPartition = {
-    val nlist = this.list.filterNot(p => hids.contains(p.headID))
-    LookupPartition(nlist)
-  }
-}
-case class LocalCase(headID: BlockId, id: CFGId, s: AbsStr, c: Case)
-
-object CAPartition extends Sensitivity {
-  override val initTP: TracePartition = LookupPartition.empty
+  lazy val DefaultCAPartitioning: Sensitivity = CAPartition(k = 5)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
