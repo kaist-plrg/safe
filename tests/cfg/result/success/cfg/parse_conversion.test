@@ -1117,7 +1117,7 @@ function[5] u {
 
   Block[16] -> [18], ExitExc
     [0] assert(<>cond1<>129)
-    [1] <>key<>130 := @iteratorNext(<>obj<>127, <>iterator<>128)
+    [1] <>key<>130 := @iteratorNext(<>obj<>127, <>iterator<>128(*))
     [2] <>b<>116 := <>key<>130
     [3] <>obj<>131 := @ToObject(Object) @ #55
     [4] <>obj<>132 := @ToObject(<>obj<>131["prototype"]) @ #56
@@ -1357,7 +1357,7 @@ function[5] u {
   Block[79] -> [80]
 
   LCont[80] -> [15]
-    [0] <>cond1<>129 := @iteratorHasNext(<>obj<>127, <>iterator<>128)
+    [0] <>cond1<>129 := @iteratorHasNext(<>obj<>127, <>iterator<>128(*))
     [1] merge(15)
 
   LBreak[81] -> [82], ExitExc
@@ -4112,7 +4112,7 @@ function[19] k<>funexpr@1:69-163<> {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>948)
-    [1] <>key<>949 := @iteratorNext(<>obj<>946, <>iterator<>947)
+    [1] <>key<>949 := @iteratorNext(<>obj<>946, <>iterator<>947(*))
     [2] <>d<>944 := <>key<>949
     [3] <>obj<>950 := @ToObject(Object) @ #585
     [4] <>obj<>951 := @ToObject(<>obj<>950["prototype"]) @ #586
@@ -4178,7 +4178,7 @@ function[19] k<>funexpr@1:69-163<> {
   Block[16] -> [13]
 
   LCont[17] -> [1]
-    [0] <>cond1<>948 := @iteratorHasNext(<>obj<>946, <>iterator<>947)
+    [0] <>cond1<>948 := @iteratorHasNext(<>obj<>946, <>iterator<>947(*))
     [1] merge(1)
 
   LBreak[18] -> Exit

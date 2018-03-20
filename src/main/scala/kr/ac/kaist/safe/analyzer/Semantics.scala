@@ -308,8 +308,6 @@ case class Semantics(
             case Some(lhs_id) =>
               (emptyTP /: ss) {
                 case (m_i, (str, nst, v, b)) =>
-                  System.out.println(s"- case: $lhs_id = $str with $v for $b")
-
                   val tp_n = tp.next_case(id.headID.get, lhs_id, str, b)
                   // v is always not bottom.
                   val st1 = nst.varStore(x, v)
@@ -355,7 +353,6 @@ case class Semantics(
                 // performing partitioning
                 (set_i /: aset) {
                   case (s_i, astr) =>
-                    System.err.println(s"* case: $astr")
                     val ntp = tp.next_case(id.headID.get, null, astr, in = true)
                     val st1 = st.varStore(lhs, astr)
                     val next = AbsValue(AbsNum.UInt, locset)
@@ -1503,12 +1500,7 @@ case class Semantics(
           if (!idxV.isBottom) TypeConversionHelper.ToPrimitive(idxV, st.heap).toStringSet
           else HashSet[AbsStr]()
 
-        System.out.println(s"* Prop Loads for $absStrSet")
         val (m_n, m_e) = Helper.propLoads(objV, absStrSet, st.heap)
-        System.out.println("- in : ")
-        m_n.foreach { case (s, v) => System.out.println(s"$s => $v") }
-        System.out.println("- not in : ")
-        m_e.foreach { case (s, v) => System.out.println(s"$s => $v") }
         val r1 = m_n.map {
           case (str, value) =>
             val rev = TypeConversionHelper.ToStringRev(str)

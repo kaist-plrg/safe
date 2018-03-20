@@ -13,7 +13,7 @@ function[0] top-level {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>3)
-    [1] <>key<>4 := @iteratorNext(<>obj<>1, <>iterator<>2)
+    [1] <>key<>4 := @iteratorNext(<>obj<>1, <>iterator<>2(*))
     [2] x := <>key<>4
     [3] <>obj<>5 := @ToObject(obj) @ #3
     [4] <>obj<>5[x] := 1
@@ -23,7 +23,7 @@ function[0] top-level {
     [1] merge(1)
 
   LCont[4] -> [1]
-    [0] <>cond1<>3 := @iteratorHasNext(<>obj<>1, <>iterator<>2)
+    [0] <>cond1<>3 := @iteratorHasNext(<>obj<>1, <>iterator<>2(*))
     [1] merge(1)
 
   LBreak[5] -> Exit

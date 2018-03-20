@@ -11,7 +11,7 @@ function[0] top-level {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>3)
-    [1] <>key<>4 := @iteratorNext(<>obj<>1, <>iterator<>2)
+    [1] <>key<>4 := @iteratorNext(<>obj<>1, <>iterator<>2(*))
     [2] x := <>key<>4
 
   Block[3] -> [5], ExitExc
@@ -19,7 +19,7 @@ function[0] top-level {
     [1] merge(1)
 
   LCont[4] -> [1]
-    [0] <>cond1<>3 := @iteratorHasNext(<>obj<>1, <>iterator<>2)
+    [0] <>cond1<>3 := @iteratorHasNext(<>obj<>1, <>iterator<>2(*))
     [1] merge(1)
 
   LBreak[5] -> [6], ExitExc
@@ -32,7 +32,7 @@ function[0] top-level {
 
   Block[7] -> [9], ExitExc
     [0] assert(<>cond1<>7)
-    [1] <>key<>8 := @iteratorNext(<>obj<>5, <>iterator<>6)
+    [1] <>key<>8 := @iteratorNext(<>obj<>5, <>iterator<>6(*))
     [2] y := <>key<>8
 
   Block[8] -> [10], ExitExc
@@ -40,7 +40,7 @@ function[0] top-level {
     [1] merge(6)
 
   LCont[9] -> [6]
-    [0] <>cond1<>7 := @iteratorHasNext(<>obj<>5, <>iterator<>6)
+    [0] <>cond1<>7 := @iteratorHasNext(<>obj<>5, <>iterator<>6(*))
     [1] merge(6)
 
   LBreak[10] -> [11]

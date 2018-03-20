@@ -3919,7 +3919,7 @@ function[11] _mlToken {
 
   Block[64] -> [66], [2]
     [0] assert(<>cond1<>418)
-    [1] <>key<>419 := @iteratorNext(<>obj<>416, <>iterator<>417)
+    [1] <>key<>419 := @iteratorNext(<>obj<>416, <>iterator<>417(*))
     [2] <>p<>333 := <>key<>419
     [3] <>obj<>420 := @ToObject(<>l<>332) @ #148
     [4] <>temp<>421 := "&"
@@ -4014,7 +4014,7 @@ function[11] _mlToken {
   AfterCatch[88] -> [2]
 
   LCont[89] -> [63]
-    [0] <>cond1<>418 := @iteratorHasNext(<>obj<>416, <>iterator<>417)
+    [0] <>cond1<>418 := @iteratorHasNext(<>obj<>416, <>iterator<>417(*))
     [1] merge(63)
 
   LBreak[90] -> [91], [2]
@@ -5170,7 +5170,7 @@ function[20] Jb {
 
   Block[90] -> [93], [92], ExitExc
     [0] assert(<>cond1<>750)
-    [1] <>key<>751 := @iteratorNext(<>obj<>748, <>iterator<>749)
+    [1] <>key<>751 := @iteratorNext(<>obj<>748, <>iterator<>749(*))
     [2] <>l<>646 := <>key<>751
     [3] <>y<>752 := 0
     [4] <>obj<>753 := @ToObject(<>f<>644) @ #363
@@ -5286,7 +5286,7 @@ function[20] Jb {
   AfterCatch[120] -> ExitExc
 
   LCont[121] -> [89]
-    [0] <>cond1<>750 := @iteratorHasNext(<>obj<>748, <>iterator<>749)
+    [0] <>cond1<>750 := @iteratorHasNext(<>obj<>748, <>iterator<>749(*))
     [1] merge(89)
 
   LBreak[122] -> [123], ExitExc
@@ -6723,7 +6723,7 @@ function[42] E<>funexpr@5:198-283<> {
 
   Block[6] -> [8], ExitExc
     [0] assert(<>cond1<>1186)
-    [1] <>key<>1187 := @iteratorNext(<>obj<>1184, <>iterator<>1185)
+    [1] <>key<>1187 := @iteratorNext(<>obj<>1184, <>iterator<>1185(*))
     [2] <>d<>1182 := <>key<>1187
     [3] <>obj<>1188 := @ToObject(<>a<>1179) @ #677
     [4] <>obj<>1189 := @ToObject(<>c<>1181) @ #678
@@ -6734,7 +6734,7 @@ function[42] E<>funexpr@5:198-283<> {
     [1] merge(5)
 
   LCont[8] -> [5]
-    [0] <>cond1<>1186 := @iteratorHasNext(<>obj<>1184, <>iterator<>1185)
+    [0] <>cond1<>1186 := @iteratorHasNext(<>obj<>1184, <>iterator<>1185(*))
     [1] merge(5)
 
   LBreak[9] -> [10]
@@ -11441,7 +11441,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
 
   Block[11] -> [14], [13], ExitExc
     [0] assert(<>cond1<>2917)
-    [1] <>key<>2918 := @iteratorNext(<>obj<>2915, <>iterator<>2916)
+    [1] <>key<>2918 := @iteratorNext(<>obj<>2915, <>iterator<>2916(*))
     [2] <>d<>2906 := <>key<>2918
     [3] <>obj<>2919 := @ToObject(<>W<>233) @ #1849
     [4] <>obj<>2920 := @ToObject(<>W<>233) @ #1850
@@ -11489,7 +11489,7 @@ function[117] ac<>funexpr@22:507-23:135<> {
   Block[22] -> [19]
 
   LCont[23] -> [10]
-    [0] <>cond1<>2917 := @iteratorHasNext(<>obj<>2915, <>iterator<>2916)
+    [0] <>cond1<>2917 := @iteratorHasNext(<>obj<>2915, <>iterator<>2916(*))
     [1] merge(10)
 
   LBreak[24] -> [25]
@@ -11588,7 +11588,7 @@ function[118] bc<>funexpr@23:139-288<> {
 
   Block[6] -> [8], [2]
     [0] assert(<>cond1<>2951)
-    [1] <>key<>2952 := @iteratorNext(<>obj<>2949, <>iterator<>2950)
+    [1] <>key<>2952 := @iteratorNext(<>obj<>2949, <>iterator<>2950(*))
     [2] <>a<>2943 := <>key<>2952
     [3] <>obj<>2953 := @ToObject(<>V<>231) @ #1867
     [4] <>b<>2944 := <>obj<>2953[<>a<>2943]
@@ -11672,7 +11672,7 @@ function[118] bc<>funexpr@23:139-288<> {
   LBreak[25] -> [26]
 
   LCont[26] -> [5]
-    [0] <>cond1<>2951 := @iteratorHasNext(<>obj<>2949, <>iterator<>2950)
+    [0] <>cond1<>2951 := @iteratorHasNext(<>obj<>2949, <>iterator<>2950(*))
     [1] merge(5)
 
   LBreak[27] -> [28]

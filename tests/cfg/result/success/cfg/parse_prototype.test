@@ -3272,7 +3272,7 @@ function[19] <>funexpr@87:28-92:4<> {
 
   Block[2] -> [5], [4], ExitExc
     [0] assert(<>cond1<>386)
-    [1] <>key<>387 := @iteratorNext(<>obj<>384, <>iterator<>385)
+    [1] <>key<>387 := @iteratorNext(<>obj<>384, <>iterator<>385(*))
     [2] <>p<>381 := <>key<>387
 
   Block[3] -> [8], ExitExc
@@ -3289,7 +3289,7 @@ function[19] <>funexpr@87:28-92:4<> {
   Block[6] -> [7]
 
   LCont[7] -> [1]
-    [0] <>cond1<>386 := @iteratorHasNext(<>obj<>384, <>iterator<>385)
+    [0] <>cond1<>386 := @iteratorHasNext(<>obj<>384, <>iterator<>385(*))
     [1] merge(1)
 
   LBreak[8] -> Exit, ExitExc
@@ -3648,7 +3648,7 @@ function[22] extend {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>444)
-    [1] <>key<>445 := @iteratorNext(<>obj<>442, <>iterator<>443)
+    [1] <>key<>445 := @iteratorNext(<>obj<>442, <>iterator<>443(*))
     [2] <>property<>440 := <>key<>445
     [3] <>obj<>446 := @ToObject(<>destination<>438) @ #298
     [4] <>obj<>447 := @ToObject(<>source<>439) @ #299
@@ -3659,7 +3659,7 @@ function[22] extend {
     [1] merge(1)
 
   LCont[4] -> [1]
-    [0] <>cond1<>444 := @iteratorHasNext(<>obj<>442, <>iterator<>443)
+    [0] <>cond1<>444 := @iteratorHasNext(<>obj<>442, <>iterator<>443(*))
     [1] merge(1)
 
   LBreak[5] -> Exit, ExitExc
@@ -4520,7 +4520,7 @@ function[29] keys {
 
   Block[15] -> [17], ExitExc
     [0] assert(<>cond1<>636)
-    [1] <>key<>637 := @iteratorNext(<>obj<>634, <>iterator<>635)
+    [1] <>key<>637 := @iteratorNext(<>obj<>634, <>iterator<>635(*))
     [2] <>property<>620 := <>key<>637
     [3] <>obj<>638 := @ToObject(<>object<>618) @ #434
     [4] <>temp<>639 := <>property<>620
@@ -4562,7 +4562,7 @@ function[29] keys {
   Block[25] -> [26]
 
   LCont[26] -> [14]
-    [0] <>cond1<>636 := @iteratorHasNext(<>obj<>634, <>iterator<>635)
+    [0] <>cond1<>636 := @iteratorHasNext(<>obj<>634, <>iterator<>635(*))
     [1] merge(14)
 
   LBreak[27] -> Exit, ExitExc
@@ -4588,7 +4588,7 @@ function[30] values {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>653)
-    [1] <>key<>654 := @iteratorNext(<>obj<>651, <>iterator<>652)
+    [1] <>key<>654 := @iteratorNext(<>obj<>651, <>iterator<>652(*))
     [2] <>property<>649 := <>key<>654
     [3] <>obj<>655 := @ToObject(<>results<>648) @ #446
     [4] <>obj<>656 := @ToObject(<>object<>647) @ #447
@@ -4610,7 +4610,7 @@ function[30] values {
   AfterCatch[6] -> ExitExc
 
   LCont[7] -> [1]
-    [0] <>cond1<>653 := @iteratorHasNext(<>obj<>651, <>iterator<>652)
+    [0] <>cond1<>653 := @iteratorHasNext(<>obj<>651, <>iterator<>652(*))
     [1] merge(1)
 
   LBreak[8] -> Exit, ExitExc
@@ -13091,7 +13091,7 @@ function[178] _each {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>3095)
-    [1] <>key<>3096 := @iteratorNext(<>obj<>3093, <>iterator<>3094)
+    [1] <>key<>3096 := @iteratorNext(<>obj<>3093, <>iterator<>3094(*))
     [2] <>key<>3088 := <>key<>3096
     [3] <>obj<>3097 := @ToObject(this) @ #2172
     [4] <>obj<>3098 := @ToObject(<>obj<>3097["_object"]) @ #2173
@@ -13125,7 +13125,7 @@ function[178] _each {
   AfterCatch[6] -> ExitExc
 
   LCont[7] -> [1]
-    [0] <>cond1<>3095 := @iteratorHasNext(<>obj<>3093, <>iterator<>3094)
+    [0] <>cond1<>3095 := @iteratorHasNext(<>obj<>3093, <>iterator<>3094(*))
     [1] merge(1)
 
   LBreak[8] -> Exit
@@ -15558,7 +15558,7 @@ function[224] <>funexpr@1548:22-1580:4<> {
 
   Block[49] -> [51], ExitExc
     [0] assert(<>cond1<>3856)
-    [1] <>key<>3857 := @iteratorNext(<>obj<>3854, <>iterator<>3855)
+    [1] <>key<>3857 := @iteratorNext(<>obj<>3854, <>iterator<>3855(*))
     [2] <>name<>3788 := <>key<>3857
     [3] <>obj<>3858 := @ToObject(this) @ #2772
     [4] <>obj<>3859 := @ToObject(<>obj<>3858["transport"]) @ #2773
@@ -15583,7 +15583,7 @@ function[224] <>funexpr@1548:22-1580:4<> {
   AfterCatch[53] -> ExitExc
 
   LCont[54] -> [48]
-    [0] <>cond1<>3856 := @iteratorHasNext(<>obj<>3854, <>iterator<>3855)
+    [0] <>cond1<>3856 := @iteratorHasNext(<>obj<>3854, <>iterator<>3855(*))
     [1] merge(48)
 
   LBreak[55] -> Exit
@@ -19581,7 +19581,7 @@ function[268] <>funexpr@2072:11-2106:4<> {
 
   Block[40] -> [42], ExitExc
     [0] assert(<>cond1<>4992)
-    [1] <>key<>4993 := @iteratorNext(<>obj<>4990, <>iterator<>4991)
+    [1] <>key<>4993 := @iteratorNext(<>obj<>4990, <>iterator<>4991(*))
     [2] <>position<>4963 := <>key<>4993
     [3] <>obj<>4994 := @ToObject(<>insertions<>4958) @ #3668
     [4] <>content<>4959 := <>obj<>4994[<>position<>4963]
@@ -19848,7 +19848,7 @@ function[268] <>funexpr@2072:11-2106:4<> {
   AfterCatch[115] -> ExitExc
 
   LCont[116] -> [39]
-    [0] <>cond1<>4992 := @iteratorHasNext(<>obj<>4990, <>iterator<>4991)
+    [0] <>cond1<>4992 := @iteratorHasNext(<>obj<>4990, <>iterator<>4991(*))
     [1] merge(39)
 
   LBreak[117] -> Exit, ExitExc
@@ -21849,7 +21849,7 @@ function[289] <>funexpr@2269:19-2287:4<> {
 
   Block[15] -> [18], [17], ExitExc
     [0] assert(<>cond1<>5626)
-    [1] <>key<>5627 := @iteratorNext(<>obj<>5624, <>iterator<>5625)
+    [1] <>key<>5627 := @iteratorNext(<>obj<>5624, <>iterator<>5625(*))
     [2] <>attr<>5610 := <>key<>5627
     [3] <>obj<>5628 := @ToObject(<>t<>5609) @ #4132
     [4] <>obj<>5629 := @ToObject(<>obj<>5628["names"]) @ #4133
@@ -21972,7 +21972,7 @@ function[289] <>funexpr@2269:19-2287:4<> {
   Branch[46] -> [47]
 
   LCont[47] -> [14]
-    [0] <>cond1<>5626 := @iteratorHasNext(<>obj<>5624, <>iterator<>5625)
+    [0] <>cond1<>5626 := @iteratorHasNext(<>obj<>5624, <>iterator<>5625(*))
     [1] merge(14)
 
   LBreak[48] -> Exit, ExitExc
@@ -23131,7 +23131,7 @@ function[303] <>funexpr@2382:13-2398:4<> {
 
   Block[32] -> [35], [34], ExitExc
     [0] assert(<>cond1<>5970)
-    [1] <>key<>5971 := @iteratorNext(<>obj<>5968, <>iterator<>5969)
+    [1] <>key<>5971 := @iteratorNext(<>obj<>5968, <>iterator<>5969(*))
     [2] <>property<>5929 := <>key<>5971
 
   Block[33] -> [55], ExitExc
@@ -23209,7 +23209,7 @@ function[303] <>funexpr@2382:13-2398:4<> {
     [1] <>obj<>5977[<>field1<>5978] := <>obj<>5985[<>property<>5929]
 
   LCont[54] -> [31]
-    [0] <>cond1<>5970 := @iteratorHasNext(<>obj<>5968, <>iterator<>5969)
+    [0] <>cond1<>5970 := @iteratorHasNext(<>obj<>5968, <>iterator<>5969(*))
     [1] merge(31)
 
   LBreak[55] -> Exit, ExitExc
@@ -26760,7 +26760,7 @@ function[349] extendElementWith {
 
   Block[2] -> [4], ExitExc
     [0] assert(<>cond1<>7108)
-    [1] <>key<>7109 := @iteratorNext(<>obj<>7106, <>iterator<>7107)
+    [1] <>key<>7109 := @iteratorNext(<>obj<>7106, <>iterator<>7107(*))
     [2] <>property<>7103 := <>key<>7109
     [3] <>obj<>7110 := @ToObject(<>methods<>7102) @ #5204
     [4] <>value<>7104 := <>obj<>7110[<>property<>7103]
@@ -26816,7 +26816,7 @@ function[349] extendElementWith {
   Branch[17] -> [18]
 
   LCont[18] -> [1]
-    [0] <>cond1<>7108 := @iteratorHasNext(<>obj<>7106, <>iterator<>7107)
+    [0] <>cond1<>7108 := @iteratorHasNext(<>obj<>7106, <>iterator<>7107(*))
     [1] merge(1)
 
   LBreak[19] -> Exit
@@ -27535,7 +27535,7 @@ function[354] Element.addMethods<>funexpr@2967:22-3058:2<> {
 
   Block[75] -> [77], ExitExc
     [0] assert(<>cond1<>7433)
-    [1] <>key<>7434 := @iteratorNext(<>obj<>7431, <>iterator<>7432)
+    [1] <>key<>7434 := @iteratorNext(<>obj<>7431, <>iterator<>7432(*))
     [2] <>tag<>7261 := <>key<>7434
     [3] <>obj<>7435 := @ToObject(<>findDOMClass<>7256) @ #5465
     [4] <>temp<>7436 := <>tag<>7261
@@ -27597,7 +27597,7 @@ function[354] Element.addMethods<>funexpr@2967:22-3058:2<> {
   AfterCatch[89] -> ExitExc
 
   LCont[90] -> [74]
-    [0] <>cond1<>7433 := @iteratorHasNext(<>obj<>7431, <>iterator<>7432)
+    [0] <>cond1<>7433 := @iteratorHasNext(<>obj<>7431, <>iterator<>7432(*))
     [1] merge(74)
 
   LBreak[91] -> [92]
@@ -27737,7 +27737,7 @@ function[356] copy {
 
   Block[5] -> [7], ExitExc
     [0] assert(<>cond1<>7291)
-    [1] <>key<>7292 := @iteratorNext(<>obj<>7289, <>iterator<>7290)
+    [1] <>key<>7292 := @iteratorNext(<>obj<>7289, <>iterator<>7290(*))
     [2] <>property<>7286 := <>key<>7292
     [3] <>obj<>7293 := @ToObject(<>methods<>7283) @ #5344
     [4] <>value<>7287 := <>obj<>7293[<>property<>7286]
@@ -27803,7 +27803,7 @@ function[356] copy {
   Branch[24] -> [25]
 
   LCont[25] -> [4]
-    [0] <>cond1<>7291 := @iteratorHasNext(<>obj<>7289, <>iterator<>7290)
+    [0] <>cond1<>7291 := @iteratorHasNext(<>obj<>7289, <>iterator<>7290(*))
     [1] merge(4)
 
   LBreak[26] -> Exit
@@ -36328,7 +36328,7 @@ function[445] <>funexpr@3972:2-4942:2<> {
 
   Block[69] -> [71], ExitExc
     [0] assert(<>cond1<>11084)
-    [1] <>key<>11085 := @iteratorNext(<>obj<>11082, <>iterator<>11083)
+    [1] <>key<>11085 := @iteratorNext(<>obj<>11082, <>iterator<>11083(*))
     [2] <>type<>9581 := <>key<>11085
     [3] <>obj<>11086 := @ToObject(<>Expr<>9579) @ #7968
     [4] <>obj<>11087 := @ToObject(<>obj<>11086["match"]) @ #7969
@@ -36460,7 +36460,7 @@ function[445] <>funexpr@3972:2-4942:2<> {
     [0] <>obj<>11110[<>type<>9581] := <>Global<>ignore1360
 
   LCont[99] -> [68]
-    [0] <>cond1<>11084 := @iteratorHasNext(<>obj<>11082, <>iterator<>11083)
+    [0] <>cond1<>11084 := @iteratorHasNext(<>obj<>11082, <>iterator<>11083(*))
     [1] merge(68)
 
   LBreak[100] -> [101], ExitExc
@@ -38678,7 +38678,7 @@ function[453] Sizzle.filter<>funexpr@4156:17-4228:2<> {
 
   Block[27] -> [29], ExitExc
     [0] assert(<>cond1<>10066)
-    [1] <>key<>10067 := @iteratorNext(<>obj<>10064, <>iterator<>10065)
+    [1] <>key<>10067 := @iteratorNext(<>obj<>10064, <>iterator<>10065(*))
     [2] <>type<>10047 := <>key<>10067
     [3] <>obj<>10068 := @ToObject(<>Expr<>9579) @ #7385
     [4] <>obj<>10069 := @ToObject(<>obj<>10068["match"]) @ #7386
@@ -38944,7 +38944,7 @@ function[453] Sizzle.filter<>funexpr@4156:17-4228:2<> {
   Block[96] -> [97]
 
   LCont[97] -> [26]
-    [0] <>cond1<>10066 := @iteratorHasNext(<>obj<>10064, <>iterator<>10065)
+    [0] <>cond1<>10066 := @iteratorHasNext(<>obj<>10064, <>iterator<>10065(*))
     [1] merge(26)
 
   LBreak[98] -> [100], [99]
@@ -43412,7 +43412,7 @@ function[513] <>funexpr@4782:35-4807:2<> {
 
   Block[17] -> [19], ExitExc
     [0] assert(<>cond1<>11475)
-    [1] <>key<>11476 := @iteratorNext(<>obj<>11473, <>iterator<>11474)
+    [1] <>key<>11476 := @iteratorNext(<>obj<>11473, <>iterator<>11474(*))
     [2] <>prop<>11427 := <>key<>11476
     [3] <>obj<>11477 := @ToObject(<>Sizzle<>9578) @ #8249
     [4] <>obj<>11478 := @ToObject(<>oldSizzle<>11425) @ #8250
@@ -43423,7 +43423,7 @@ function[513] <>funexpr@4782:35-4807:2<> {
     [1] merge(16)
 
   LCont[19] -> [16]
-    [0] <>cond1<>11475 := @iteratorHasNext(<>obj<>11473, <>iterator<>11474)
+    [0] <>cond1<>11475 := @iteratorHasNext(<>obj<>11473, <>iterator<>11474(*))
     [1] merge(16)
 
   LBreak[20] -> Exit, ExitExc
