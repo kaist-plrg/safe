@@ -1,0 +1,279 @@
+/**
+  * *****************************************************************************
+  * Copyright (c) 2015-2017, KAIST.
+  * All rights reserved.
+  *
+  * Use is subject to license terms.
+  *
+  * This distribution may include materials developed by third parties.
+  * ****************************************************************************
+  */
+module kr.ac.kaist.compabs.models.parser.Shape;
+
+header {
+import java.util.HashMap;
+import kr.ac.kaist.compabs.models.shape.*;
+import kr.ac.kaist.compabs.models.cdomain.*;
+import scala.collection.immutable.List;
+}
+
+body {
+}
+
+option parser(kr.ac.kaist.compabs.models.parser.Shape);
+
+public List<HObject> Host =
+     initParser yyValue:Objects w EndOfFile;
+
+void initParser = w ;
+
+/*
+ * Objects ::= { w } | { w Objects w }
+ */
+private List<HObject> Objects =
+     "{" w "}"
+     { yyValue = Factory.emptyHObjList(); }
+   / "{" w a1:ObjectList w "}"
+     { yyValue = a1; }
+   ;
+
+/*
+ * ObjectList ::= Object
+ *              | ObjectList w , w Object
+ */
+private List<HObject> ObjectList =
+     a1:SObject w void:"," w a2:ObjectList
+     {
+       // Note: reverse order. Doesn't matter.
+       yyValue = a2.$colon$colon(a1);
+     }
+   / a1:SObject
+     {
+       yyValue = Factory.singleList(a1);
+     }
+   ;
+/*
+ * SObject ::= Location : { Properties }
+ */
+private HObject SObject =
+      l:Location w ":" w "{" w "}"
+      { yyValue = new HObject(l, Factory.emptyHPropList()); }
+
+    / l:Location w ":" w "{" w ps:Properties w "}"
+      { yyValue = new HObject(l, ps); }
+      ;
+
+/*
+ * Location ::= "#"[a-zA-Z0-9._$]+ ;
+ */
+private CLoc Location = l:LocationStr { yyValue = new CLoc(l); };
+private transient String LocationStr = [#][a-zA-Z0-9._$*&+`']+ ;
+
+private List<HProp> Properties =
+    p:Property w void:"," w a2:Properties
+    {
+      // Note: reverse order. Doesn't matter.
+      yyValue = a2.$colon$colon(p);
+    }
+  / p:Property
+    { yyValue = Factory.singleList(p); };
+
+private HProp Property =
+    n:IName w ":" w iv:IPropValue
+    { yyValue = new HIProp(n, iv); }
+  / n:PString w ":" w "{" w pv:PropValue w "}"
+    { yyValue = new HUProp(n, pv); }
+    ;
+
+private HIPropValue IPropValue =
+    l:Location { yyValue = new HIPropValue(l); }
+  / pv:PValue  { yyValue = new HIPropValue(pv); }
+    ;
+
+private HUPropValue PropValue =
+    es:Elements {
+     yyValue = Factory.genPropValue(es); };
+
+private HashMap<String, Object> Elements =
+    e:Element w void:"," w es:Elements
+    {
+      yyValue = es;
+      es.putAll(e);
+    }
+  / e:Element
+    { yyValue = e; };
+
+private HashMap<String, Object> Element =
+    "\"writable\"" w ":" w b:BoolValue
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("w", b);
+    }
+  / "\"enumerable\"" w ":" w b:BoolValue
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("e", b);
+    }
+  / "\"configurable\"" w ":" w b:BoolValue
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("c", b);
+    }
+  / "\"value\"" w ":" w v:Value
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("v", v);
+    }
+  / "\"set\"" w ":" w b:Location
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("s", b);
+    }
+  / "\"get\"" w ":" w b:Location
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("g", b);
+    }
+  / "\"getset\"" w ":" w v:Value
+    {
+        yyValue = new HashMap<String, Object>();
+        yyValue.put("gs", v);
+    }
+    ;
+
+private Boolean BoolValue =
+    "true" { yyValue = true; }
+  / "false" { yyValue = false; };
+
+
+private CValue Value =
+    "Const(" w pv:PValue w ")"
+    { yyValue = pv; }
+  / "IntRange(" w l:PNumber w "~" w r:PNumber w ")"
+    {
+      yyValue = new CIntRange(Long.valueOf(l), Long.valueOf(r));
+    }
+  / l: Location
+    { yyValue = l; }
+    ;
+
+private CValue PValue =
+    "undefined" { yyValue = CUndefined$.MODULE$; }
+  / "null"      { yyValue = CNull$.MODULE$; }
+  / b: BoolValue { yyValue = new CBoolean(b); }
+  / s: PString { yyValue = new CString(Factory.unescapeJava(s)); }
+  / "Infinity" { yyValue = CNumberPInf$.MODULE$; }
+  / "-Infinity" { yyValue = CNumberNInf$.MODULE$; }
+  / "NaN" { yyValue = CNumberNaN$.MODULE$; }
+  / n: PNumber
+  {
+    try {
+      yyValue = new CNumberLong(Long.valueOf(n));
+    } catch (NumberFormatException e) {
+      yyValue = new CNumberDouble(Double.valueOf(n));
+    }
+  }
+    ;
+
+/*
+ * PNumber ::= -? w DecimalIntegerLiteral PFraction? ExponentPart?
+ */
+private String PNumber =
+     a1:"-"? w a2:DecimalIntegerLiteral a3:PFraction? a4:ExponentPart?
+     { if (a1 != null) yyValue = "-"+a2; else yyValue = a2;
+       if (a3 != null) yyValue += a3;
+       if (a4 != null) yyValue += a4;
+     };
+
+private transient String DecimalIntegerLiteral =
+     "0"
+   / a1:[1-9] a2:DecimalDigits?
+     { yyValue = a1+"";
+       if (a2 != null) yyValue += a2;
+     };
+
+/*
+ * PFraction ::= . DecimalDigits
+ */
+private transient String PFraction =
+     "." a1:DecimalDigits
+     { yyValue = "."+a1; };
+
+private transient String DecimalDigits = [0-9]+ ;
+
+private transient String ExponentPart =
+     ([eE]) a1:('+' / '-')? a2:DecimalDigits
+     { if (a1 == null) yyValue = "e"+a2;
+       else            yyValue = "e"+a1+a2;
+     };
+
+/*
+ * PString ::= " PStringCharacters? "
+ */
+private String PString =
+     ["] a1s:PStringCharacter* ["]
+     { yyValue = "";
+       for (String c : (java.util.List<String>)a1s.list()) yyValue = yyValue.concat(c);
+     };
+
+/*
+ * PStringCharacters ::= PStringCharacter PStringCharacters?
+ * PStringCharacter ::= SourceCharacter but not one of " or \ or U+0000 through U+001F
+ *                       | \ PEscapeSequence
+ */
+private transient String PStringCharacter =
+     a1:'\\' a2:PEscapeSequence { yyValue = a2; }
+   / a1:(!NonPStringChar _) { yyValue = String.valueOf(a1); }
+   ;
+
+/*
+ * PEscapeSequence ::= PEscapeCharacter | UnicodeEscapeSequence
+ */
+private transient String PEscapeSequence =
+     PEscapeCharacter
+   / UnicodeEscapeSequence
+   ;
+
+/*
+ * PEscapeCharacter ::= one of " / \ b f n r t
+ */
+private transient String PEscapeCharacter =
+     a1:["/\\bfnrt] //"
+     { switch (a1) {
+           case '"': { yyValue = "\\\""; break; }
+           case '/': { yyValue = "/"; break; }
+           case '\\': { yyValue = "\\\\"; break; }
+           case 'b': { yyValue = "\\b"; break; }
+           case 'f': { yyValue = "\\f"; break; }
+           case 'n': { yyValue = "\\n"; break; }
+           case 'r': { yyValue = "\\r"; break; }
+           case 't': { yyValue = "\\t"; break; }
+           default : { yyValue = ""; break; }
+       }
+     }
+   ;
+
+private transient String UnicodeEscapeSequence =
+     a1:[u] a2:HexDigit a3:HexDigit a4:HexDigit a5:HexDigit
+     { yyValue = "\\"+a1+a2+a3+a4+a5; };
+
+private transient String HexDigit = [0-9a-fA-F] ;
+
+private transient String NonPStringChar =
+     a1:["\\\u0000-\u001f] { yyValue = a1+""; }; //"
+
+
+private String IName = "\"" n:INameStr "\"" { yyValue = n; } ;
+private transient String INameStr = [@][a-zA-Z0-9]+ ;
+transient void EndOfFile  = "\u001a"? w !_ ;
+
+transient void w = Space*; // whitespace optional
+
+/*
+ * JSONWhiteSpace ::= <TAB> | <CR> | <LF> | <SP>
+ */
+transient private void Space =
+     void:"\t"
+   / [\u000D]
+   / [\u000A]
+   / void:" " ;

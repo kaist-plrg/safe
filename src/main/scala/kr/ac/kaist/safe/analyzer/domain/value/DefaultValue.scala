@@ -14,12 +14,13 @@ package kr.ac.kaist.safe.analyzer.domain
 import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
 import kr.ac.kaist.safe.errors.error.AbsValueParseError
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.compabs.models.{ DLocSet, DLoc }
 import spray.json._
 
 // default value abstract domain
 object DefaultValue extends ValueDomain {
-  lazy val Bot: Elem = Elem(AbsPValue.Bot, AbsLoc.Bot)
-  lazy val Top: Elem = Elem(AbsPValue.Top, AbsLoc.Top)
+  lazy val Bot: Elem = Elem(AbsPValue.Bot, AbsLoc.Bot, DLocSet.bottom)
+  lazy val Top: Elem = Elem(AbsPValue.Top, AbsLoc.Top, DLocSet.bottom)
 
   def alpha(value: Value): Elem = value match {
     case (pvalue: PValue) => apply(AbsPValue(pvalue))
@@ -31,20 +32,20 @@ object DefaultValue extends ValueDomain {
 
   def apply(pvalue: AbsPValue): Elem = Bot.copy(pvalue = pvalue)
   def apply(locset: AbsLoc): Elem = Bot.copy(locset = locset)
-  def apply(pvalue: AbsPValue, locset: AbsLoc): Elem = Elem(pvalue, locset)
+  def apply(pvalue: AbsPValue, locset: AbsLoc): Elem = Bot.copy(pvalue = pvalue, locset = locset)
 
   def fromJson(v: JsValue): Elem = v match {
     case JsObject(m) => (
       m.get("pvalue").map(AbsPValue.fromJson _),
       m.get("locset").map(AbsLoc.fromJson _)
     ) match {
-        case (Some(p), Some(l)) => Elem(p, l)
+        case (Some(p), Some(l)) => Elem(p, l, DLocSet.bottom) // TODO
         case _ => throw AbsValueParseError(v)
       }
     case _ => throw AbsValueParseError(v)
   }
 
-  case class Elem(pvalue: AbsPValue, locset: AbsLoc) extends ElemTrait {
+  case class Elem(pvalue: AbsPValue, locset: AbsLoc, dlocset: DLocSet.T) extends ElemTrait {
     def gamma: ConSet[Value] = ConInf // TODO more precisely
 
     def getSingle: ConSingle[Value] = ConMany() // TODO more precisely
@@ -52,14 +53,16 @@ object DefaultValue extends ValueDomain {
     def ⊑(that: Elem): Boolean = {
       val (left, right) = (this, that)
       left.pvalue ⊑ right.pvalue &&
-        left.locset ⊑ right.locset
+        left.locset ⊑ right.locset &&
+        left.dlocset <= right.dlocset
     }
 
     def ⊔(that: Elem): Elem = {
       val (left, right) = (this, that)
       Elem(
         left.pvalue ⊔ right.pvalue,
-        left.locset ⊔ right.locset
+        left.locset ⊔ right.locset,
+        left.dlocset + right.dlocset
       )
     }
 
@@ -67,7 +70,8 @@ object DefaultValue extends ValueDomain {
       val (left, right) = (this, that)
       Elem(
         left.pvalue ⊓ right.pvalue,
-        left.locset ⊓ right.locset
+        left.locset ⊓ right.locset,
+        left.dlocset <> right.dlocset
       )
     }
 
@@ -89,10 +93,12 @@ object DefaultValue extends ValueDomain {
     }
 
     def subsLoc(locR: Recency, locO: Recency): Elem =
-      Elem(this.pvalue, this.locset.subsLoc(locR, locO))
+      Elem(this.pvalue, this.locset.subsLoc(locR, locO), dlocset)
 
     def weakSubsLoc(locR: Recency, locO: Recency): Elem =
-      Elem(this.pvalue, this.locset.weakSubsLoc(locR, locO))
+      Elem(this.pvalue, this.locset.weakSubsLoc(locR, locO), dlocset)
+
+    def doldify(alloc: Long): Elem = copy(dlocset = dlocset.oldify(alloc))
 
     def typeCount: Int = {
       if (this.locset.isBottom)

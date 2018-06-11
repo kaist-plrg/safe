@@ -126,6 +126,7 @@ object DefaultEnvRec extends EnvRecDomain {
     def ImplicitThisValue(heap: AbsHeap): AbsValue =
       decEnvRec.ImplicitThisValue ⊔ globalEnvRec.ImplicitThisValue(heap)
 
+    def doldify(alloc: Long): Elem = copy(decEnvRec = decEnvRec.doldify(alloc))
     def subsLoc(locR: Recency, locO: Recency): Elem =
       Elem(decEnvRec.subsLoc(locR, locO), globalEnvRec)
 

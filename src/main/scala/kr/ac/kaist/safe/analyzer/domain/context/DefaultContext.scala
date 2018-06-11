@@ -200,6 +200,19 @@ object DefaultContext extends ContextDomain {
       }
     }
 
+    def doldify(alloc: Long): Elem = this match {
+      case Bot => Bot
+      case Top => Top
+      case CtxMap(map, old, thisBinding) =>
+        val newMap = (EmptyMap /: map) {
+          case (m, (loc, env)) =>
+            m + (loc -> env.doldify(alloc))
+        }
+        val newOld = old
+        val newThis = thisBinding.doldify(alloc)
+        CtxMap(newMap, newOld, newThis)
+    }
+
     def oldify(loc: Loc): Elem = loc match {
       case locR @ Recency(subLoc, Recent) => this match {
         case Bot => Bot

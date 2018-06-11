@@ -32,6 +32,11 @@ abstract class Loc extends Value {
   }
 
   def toJson: JsValue
+
+  def isSingleton: Boolean = this match {
+    case Recency(_, _) => true
+    case _ => false
+  }
 }
 
 object Loc {

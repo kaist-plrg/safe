@@ -18,6 +18,7 @@ import kr.ac.kaist.safe.nodes.cfg.CFG
 import kr.ac.kaist.safe.nodes.ir.IRRoot
 import kr.ac.kaist.safe.phase._
 import kr.ac.kaist.safe.util.ArgParser
+import kr.ac.kaist.safe.html.HTMLModel
 
 import scala.collection.immutable.HashMap
 import scala.util.Try
@@ -65,6 +66,88 @@ class CommandObj[Result](
 
 // base command
 case object CmdBase extends CommandObj("", PhaseNil)
+
+/* command chains for HTML */
+case object CmdConvert extends CommandObj("convert", CmdBase >> ModelConvert) {
+}
+
+/* command chains for HTML */
+case object CmdHTMLParse extends CommandObj("HTMLParse", CmdBase >> HTMLParse) {
+  override def display(result: (HTMLModel.T, Program)): Unit = {
+    val (_, program) = result
+    println(program.toString(0))
+  }
+}
+
+// astRewrite
+case object CmdHTMLASTRewrite extends CommandObj("HTMLAstRewrite", CmdHTMLParse >> HTMLASTRewrite) {
+  override def display(result: (HTMLModel.T, Program)): Unit = {
+    val (_, program) = result
+    println(program.toString(0))
+  }
+}
+
+// compile
+case object CmdHTMLCompile extends CommandObj("HTMLCompile", CmdHTMLASTRewrite >> HTMLCompile) {
+  override def display(result: (HTMLModel.T, IRRoot)): Unit = {
+    val (_, ir) = result
+    println(ir.toString(0))
+  }
+}
+
+// cfgBuild
+case object CmdHTMLCFGBuild extends CommandObj("HTMLCFGBuild", CmdHTMLCompile >> HTMLCFGBuild) {
+  override def display(result: (HTMLModel.T, CFG)): Unit = {
+    val (_, cfg) = result
+    println(cfg.toString(0))
+  }
+}
+
+// heapBuild
+case object CmdHTMLHeapBuild extends CommandObj("HTMLHeapBuild", CmdHTMLCFGBuild >> HTMLHeapBuild) {
+  override def display(result: (CFG, Semantics, HeapBuildConfig, Int)): Unit = {
+    val (cfg, _, _, _) = result
+    println(cfg.toString(0))
+  }
+}
+
+case object CmdHTMLAnalyze extends CommandObj("HTMLAnalyze", CmdHTMLHeapBuild >> HTMLAnalyze) {
+  override def display(result: (CFG, Int, Semantics)): Unit = {
+    val (cfg, iters, sem) = result
+
+    println(s"- # of iteration: $iters")
+    // function info.
+    val userFuncs = cfg.getUserFuncs
+    println(s"- # of user functions: ${userFuncs.length}")
+    val unreachableList = userFuncs.filter(f => sem.getState(f.entry).isEmpty)
+    if (unreachableList.nonEmpty) {
+      println(s"  * There are ${unreachableList.length} unreachable user functions:")
+      unreachableList.foreach(func => {
+        val str = func.name + " @ " + func.span
+        println(s"    $str")
+      })
+    }
+    val modelFuncs = cfg.getAllFuncs.filter(func => {
+      !func.isUser && sem.getState(func.entry).nonEmpty
+    })
+    if (modelFuncs.nonEmpty) {
+      println(s"  * ${modelFuncs.length} modeling functions are used:")
+      modelFuncs.foreach(func => println(s"    ${func.name}"))
+    }
+
+    // block info.
+    val blocks = cfg.getAllBlocks.filter(sem.getState(_).nonEmpty)
+    println(s"- # of touched blocks: ${blocks.length}")
+    val userBlocks = blocks.filter(_.func.isUser)
+    println(s"    user blocks: ${userBlocks.length}")
+    println(s"    modeling blocks: ${blocks.length - userBlocks.length}")
+
+    // instruction info.
+    val insts = blocks.foldLeft(0)(_ + _.getInsts.length)
+    println(s"- # of instructions: $insts")
+  }
+}
+/* the end of command chains for HTML */
 
 // parse
 case object CmdParse extends CommandObj("parse", CmdBase >> Parse) {

@@ -1,0 +1,44 @@
+* Need to model the following getter and setters:
+- #Document.prototype.readyState$get
+- #Document.prototype.body${set, get}
+- #Document.prototype.head$get
+- #Document.prototype.currentScript$get
+- #Document.prototype.activeElement$get
+/*
+ * Added "value": Const("null"), "writable": true to #Document.prototype.activeElement and removed the following "set" and "get" properties:
+  "set": #Document.prototype.activeElement.setter,
+  "get": #Document.prototype.activeElement.getter
+*/
+- #Document.prototype.onblur${set, get}
+- #Document.prototype.onclick${set, get}
+- #Document.prototype.onfocus${set, get}
+- #Document.prototype.onkeydown${set, get}
+- #Node.prototype.parentNode$get
+- #Navigator.prototype.userAgent$get
+/*
+* Added "getset": a constant browser agent name to #Navigator.prototype.userAgent.
+*/
+- #Element.prototype.scrollWidth$get
+- #Element.prototype.scrollHeight$get
+- #Element.prototype.clientWidth$get
+- #Element.prototype.clientHeight$get
+- #HTMLElement.prototype.offsetWidth$get
+- #HTMLElement.prototype.offsetHeight$get
+
+* Added '"@primitive": ""' to #String.prototype.
+* Added '"@primitive": 0' to #Number.prototype.
+* Changed "@function": #Array.prototype.forEach to @function: "Array.prototype.forEach.js".
+* Changed "@function": #Array.prototype.filter to @function: "Array.prototype.filter.js".
+* Changed "@function": #Array.prototype.map to @function: "Array.prototype.map.js".
+* Changed "@function": #Array.prototype.sort to @function: "Array.prototype.sort.js".
+* Changed "@construct": #Array to "@construct": #Array.constructor.
+* Changed "@construct": #Boolean to "@construct": #Boolean.constructor.
+* Changed "@construct": #Date to "@construct": #Date.constructor.
+* Changed "@construct": #Number to "@construct": #Number.constructor.
+* Changed "@construct": #Object to "@construct": #Object.constructor.
+* Changed "@construct": #RegExp to "@construct": #RegExp.constructor.
+* Changed "@construct": #String to "@construct": #String.constructor.
+
+* Changed "@proto": null of #Window.prototype to "@proto": #EventTarget.prototype.
+
+* Note that all the diff are recorded into "patch.diff" file.

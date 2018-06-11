@@ -18,6 +18,8 @@ abstract class Value extends IValue
 abstract class TypeValue(name: String) extends Value {
   override def toString: String = name
 }
+
+// top values
 case object StringT extends TypeValue("string")
 case object NumberT extends TypeValue("number")
 case object BoolT extends TypeValue("bool")

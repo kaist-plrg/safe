@@ -15,8 +15,12 @@ import java.io._
 import java.nio.charset.Charset
 import scala.util.{ Try, Success, Failure }
 import xtc.parser.{ Result, ParseError, SemanticValue }
+
+import kr.ac.kaist.compabs.models.html.CodeFragment
+
+import scala.util.{ Failure, Success, Try }
 import kr.ac.kaist.safe.errors.ExcLog
-import kr.ac.kaist.safe.errors.error.{ ParserError, NotJSFileError, AlreadyMergedSourceError }
+import kr.ac.kaist.safe.errors.error.{ AlreadyMergedSourceError, NotJSFileError, ParserError }
 import kr.ac.kaist.safe.nodes.ast._
 import kr.ac.kaist.safe.util.{ NodeUtil => NU, _ }
 
@@ -101,6 +105,19 @@ object Parser {
       }
   }
 
+  def codeToAST(fs: List[CodeFragment]): Try[(Program, ExcLog)] = {
+    ((List.empty[SourceElements], new ExcLog) /: fs) {
+      case ((l, ex), f) =>
+        fragmentToStmts(f) match {
+          case (ss, ee) => (l :+ ss, ex + ee)
+        }
+    } match {
+      case (s, e) =>
+        val program = Program(NU.MERGED_SOURCE_INFO, s)
+        Try(program, e)
+    }
+  }
+
   // Used by parser/JSFromHTML.scala
   def scriptToAST(ss: List[(String, (Int, Int), String)]): Try[(SourceElements, ExcLog)] = ss match {
     case List(script) =>
@@ -168,6 +185,10 @@ object Parser {
       val ses = program.body.stmts.head
       Try(SourceElements(info, (NoOp(info, "StartOfFile")) +: ses.body :+ (NoOp(info, "EndOfFile")), ses.strict))
     } else Failure(AlreadyMergedSourceError(info.span))
+  }
+
+  private def fragmentToStmts(fragment: CodeFragment): (SourceElements, ExcLog) = {
+    scriptToStmts((fragment.filename, (fragment.startLine, fragment.startOffset), fragment.content)).get
   }
 
   private def scriptToStmts(script: (String, (Int, Int), String)): Try[(SourceElements, ExcLog)] = {

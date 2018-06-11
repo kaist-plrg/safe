@@ -104,6 +104,7 @@ object DefaultLexEnv extends LexEnvDomain {
     def weakSubsLoc(locR: Recency, locO: Recency): Elem =
       copy(record = record.weakSubsLoc(locR, locO), outer = outer.subsLoc(locR, locO))
 
+    def doldify(alloc: Long): Elem = copy(record = record.doldify(alloc))
     def toJson: JsValue = JsObject(
       ("record", record.toJson),
       ("outer", outer.toJson),
@@ -238,7 +239,7 @@ object DefaultLexEnv extends LexEnvDomain {
         case (loc, newEnv) => newCtx = newCtx.weakUpdate(loc, newEnv)
       }
     }
-    (AbsState(newH, newCtx), excSet)
+    (st.copy(newH, newCtx), excSet)
   }
 
   def NewDeclarativeEnvironment(outer: AbsLoc): Elem =

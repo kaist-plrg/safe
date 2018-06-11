@@ -27,6 +27,10 @@ import scala.collection.immutable.HashMap
 import scala.util.{ Try, Success => Succ, Failure => Fail }
 import scala.util.parsing.combinator._
 
+object JSModel {
+  val empty: JSModel = JSModel(Heap(HashMap()), Nil, 0)
+}
+
 case class JSModel(heap: Heap, funcs: List[(String, CFGFunction)], fidMax: Int) {
   def +(other: JSModel): JSModel = {
     // 1. rearrange function id in other.funcs
@@ -120,7 +124,7 @@ object ModelParser extends RegexParsers with JavaTokenParsers {
   }
   def mergeJsModels(dir: String): JSModel = {
     val fileNames: List[String] = new File(dir).list.toList
-    val mergeModel = fileNames.foldLeft(JSModel(Heap(HashMap()), Nil, 0)) {
+    val mergeModel = fileNames.foldLeft(JSModel.empty) {
       case (model, fileName) =>
         model + ModelParser.parseFile(dir + fileName).get
     }

@@ -36,6 +36,19 @@ case class Obj(nmap: Map[String, DataProp], imap: Map[IName, IValue]) {
     }
     Obj(newnmap, newimap)
   }
+  def update(name: String, dp: DataProp): Obj = {
+    copy(nmap = nmap + (name -> dp))
+  }
+  def updatei(name: IName, dp: IValue): Obj = {
+    copy(imap = imap + (name -> dp))
+  }
+  def lookup(name: String): DataProp = nmap(name)
+  def lookupi(name: IName): IValue = imap(name)
+  def containsi(in: IName): Boolean = imap.keySet.contains(in)
+}
+
+object Obj {
+  val empty: Obj = Obj(HashMap.empty[String, DataProp], HashMap.empty[IName, IValue])
 }
 
 // internal property names

@@ -21,10 +21,12 @@ import kr.ac.kaist.safe.util._
 
 import scala.collection.immutable.{ HashMap, HashSet }
 import scala.collection.mutable.{ HashMap => MHashMap, Map => MMap }
+import kr.ac.kaist.safe.html.HTMLModel
 
 case class Semantics(
     cfg: CFG,
-    worklist: Worklist
+    worklist: Worklist,
+    model: Option[HTMLModel.T] = None
 ) {
   def init: Unit = {
     val entry = cfg.globalFunc.entry
@@ -146,7 +148,7 @@ case class Semantics(
           val ctx3 = data.env.outer.foldLeft[AbsContext](AbsContext.Bot)((hi, locEnv) => {
             hi ⊔ ctx2.update(locEnv, objEnv)
           })
-          AbsState(st.heap, ctx3
+          st.copy(context = ctx3
             .setOldASiteSet(data.old)
             .setThisBinding(data.thisBinding))
         }
@@ -160,7 +162,7 @@ case class Semantics(
           val localEnv = ctx1.pureLocal
           val (returnV, _) = localEnv.record.decEnvRec.GetBindingValue("@return")
           val ctx2 = ctx1.subsPureLocal(env1)
-          val newSt = AbsState(st.heap, ctx2
+          val newSt = st.copy(context = ctx2
             .setOldASiteSet(old2)
             .setThisBinding(data.thisBinding))
           newSt.varStore(retVar, returnV)
@@ -187,7 +189,7 @@ case class Semantics(
           val (env2, _) = env1.SetMutableBinding("@exception", excValue)
           val (env3, _) = env2.SetMutableBinding("@exception_all", excValue ⊔ oldExcAllValue)
           val ctx2 = ctx1.subsPureLocal(envL.copy(record = env3))
-          AbsState(st.heap, ctx2
+          st.copy(context = ctx2
             .setOldASiteSet(c2)
             .setThisBinding(data.thisBinding))
         }
@@ -273,8 +275,8 @@ case class Semantics(
 
         case ModelBlock(_, sem) =>
           val (newSt, newExc) = sem(st)
-          val next_normal = propagate(cp, CFGEdgeNormal, newSt)
-          val next_exc = propagate(cp, CFGEdgeExc, newExc)
+          val next_normal = propagate(cp, CFGEdgeNormal, newSt.keepPartitioningIndex(cp.tracePartition))
+          val next_exc = propagate(cp, CFGEdgeExc, newExc.keepPartitioningIndex(cp.tracePartition))
           (next_normal, next_exc, empty_inter)
 
         case Exit(_) | ExitExc(_) =>
@@ -391,7 +393,7 @@ case class Semantics(
           }
         }
         val h2 = st1.heap.update(loc, AbsObj.newObject(vLocSet))
-        val newSt = AbsState(h2, st1.context).varStore(x, AbsValue(loc))
+        val newSt = st1.copy(heap = h2).varStore(x, AbsValue(loc))
         val newExcSt = st.raiseException(excSet)
         val s1 = excSt ⊔ newExcSt
         (newSt, s1)
@@ -401,7 +403,7 @@ case class Semantics(
         val st1 = st.oldify(loc)
         val np = AbsNum(n.toInt)
         val h2 = st1.heap.update(loc, AbsObj.newArrayObject(np))
-        val newSt = AbsState(h2, st1.context).varStore(x, AbsValue(loc))
+        val newSt = st1.copy(heap = h2).varStore(x, AbsValue(loc))
         (newSt, excSt)
       }
       case CFGAllocArg(_, _, x, n, newASite) => {
@@ -409,7 +411,7 @@ case class Semantics(
         val st1 = st.oldify(loc)
         val absN = AbsNum(n.toInt)
         val h2 = st1.heap.update(loc, AbsObj.newArgObject(absN))
-        val newSt = AbsState(h2, st1.context).varStore(x, AbsValue(loc))
+        val newSt = st1.copy(heap = h2).varStore(x, AbsValue(loc))
         (newSt, excSt)
       }
       case CFGEnterCode(_, _, x, e) => {
@@ -467,7 +469,7 @@ case class Semantics(
             (tmpHeap2 ⊔ delHeap, tmpB2 ⊔ delB)
           })
         })
-        val st1 = AbsState(h1, st.context)
+        val st1 = st.copy(heap = h1)
         val st2 =
           if (st1.isBottom) AbsState.Bot
           else {
@@ -499,7 +501,7 @@ case class Semantics(
           }
 
         val newExcSt = st.raiseException(excSet1)
-        (AbsState(heap1, st.context), excSt ⊔ newExcSt)
+        (st.copy(heap = heap1), excSt ⊔ newExcSt)
       }
       case CFGStoreStringIdx(_, block, obj, strIdx, rhs) => {
         // locSet must not be empty because obj is coming through <>toObject.
@@ -517,7 +519,7 @@ case class Semantics(
           }
 
         val newExcSt = st.raiseException(excSet1)
-        (AbsState(heap1, st.context), excSt ⊔ newExcSt)
+        (st.copy(heap = heap1), excSt ⊔ newExcSt)
       }
       case CFGFunExpr(_, block, lhs, None, f, aNew1, aNew2, None) => {
         //Recency Abstraction

@@ -2,6 +2,7 @@ import java.io.File
 
 lazy val checkCopyrights = taskKey[Unit]("Checks copyrights of source files")
 lazy val buildParsers = taskKey[Unit]("Builds parsers")
+lazy val buildCAParsers = taskKey[Unit]("Builds CA parsers")
 lazy val deleteParserDir = taskKey[Unit]("Delete java parser directory")
 
 // phase test
@@ -62,8 +63,43 @@ lazy val root = (project in file(".")).
       }
       cache(file(inDir).asFile.listFiles.toSet)
     },
+    buildCAParsers in Compile := {
+      // xtc
+      val xtcFile = new File("./lib/xtc.jar")
+      if (!xtcFile.exists) {
+        // TODO exception handling: not downloaded
+        IO.download(new URL("http://cs.nyu.edu/rgrimm/xtc/xtc.jar"), xtcFile)
+      }
+
+      // webix
+      val webixJsFile = new File("./src/main/resources/assets/js/webix.js")
+      val webixCssFile = new File("./src/main/resources/assets/css/webix.css")
+      if (!webixJsFile.exists)
+        IO.download(new URL("http://cdn.webix.com/edge/webix.js"), webixJsFile)
+      if (!webixCssFile.exists)
+        IO.download(new URL("http://cdn.webix.com/edge/webix.css"), webixCssFile)
+
+      val options = ForkOptions(bootJars = Seq(xtcFile))
+      val srcDir = baseDirectory.value + "/src/main"
+      val inDir = srcDir + "/scala/kr/ac/kaist/compabs/models/parser/"
+      val outDir = srcDir + "/java/kr/ac/kaist/compabs/models/parser/"
+      val outFile = file(outDir)
+      if (!outFile.exists) IO.createDirectory(outFile)
+      val arguments = Seq("-in", srcDir + "/scala", "-enc-out", "UTF-8",
+        "-out", outDir, inDir + "Shape.rats")
+      val mainClass = "xtc.parser.Rats"
+      val cache = FileFunction.cached(outFile,
+        FilesInfo.lastModified,
+        FilesInfo.exists) {
+        in: Set[File] => {
+          Fork.java(options, mainClass +: arguments)
+          Set(file(inDir + "Shape.rats"))
+        }
+      }
+      cache(file(inDir).asFile.listFiles.toSet)
+    },
     testOptions in Test += Tests.Argument("-fDG", baseDirectory.value + "/tests/detail"),
-    compile <<= (compile in Compile) dependsOn (buildParsers in Compile, checkCopyrights in Compile),
+    compile <<= (compile in Compile) dependsOn (buildParsers in Compile, checkCopyrights in Compile, buildCAParsers in Compile),
     test <<= (testOnly in Test).toTask(s" -- -n ParseTest -n ASTRewriteTest -n CompileTest -n CFGBuildTest -n AnalyzeTest -n HtmlTest") dependsOn compile,
     parseTest <<= (testOnly in Test).toTask(s" -- -n ParseTest") dependsOn compile,
     astRewriteTest <<= (testOnly in Test).toTask(s" -- -n ASTRewriteTest") dependsOn compile,
@@ -91,7 +127,11 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.0.10",
   "io.spray" %% "spray-json" % "1.3.2",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.2",
-  "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.1"
+  "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.1",
+  // HTML environment.
+  "xml-apis" % "xml-apis" % "1.4.01",
+  "xerces" % "xercesImpl" % "2.11.0",
+  "net.sourceforge.nekohtml" % "nekohtml" % "1.9.22"
 )
 
 javacOptions ++= Seq("-encoding", "UTF-8")

@@ -30,6 +30,15 @@ case class NotJSFileError(fileName: String) extends ParseError({
   s"Need a JavaScript file instead of '$relFileName'."
 }, None)
 
+case class NotHTMLFileError(fileName: String) extends ParseError({
+  val relFileName = Useful.toRelativePath(fileName)
+  s"Need a HTML file instead of '$relFileName'."
+}, None)
+
+object NotHTMLsError extends ParseError({
+  s"Need only one HTML file."
+}, None)
+
 case class ParserError(msg: String, span: Span) extends ParseError(msg, Some(span))
 
 case class AlreadyMergedSourceError(span: Span) extends ParseError({

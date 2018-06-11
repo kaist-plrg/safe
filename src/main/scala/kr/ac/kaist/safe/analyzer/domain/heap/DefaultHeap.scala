@@ -17,6 +17,7 @@ import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
 import kr.ac.kaist.safe.util._
 import scala.collection.immutable.HashMap
 import spray.json._
+import kr.ac.kaist.compabs.models.DLoc
 
 // default heap abstract domain
 object DefaultHeap extends HeapDomain {
@@ -179,6 +180,17 @@ object DefaultHeap extends HeapDomain {
         val newMap = map.foldLeft(Map[Loc, AbsObj]())((m, kv) => {
           val (l, obj) = kv
           m + (l -> obj.subsLoc(locR, locO))
+        })
+        HeapMap(newMap)
+    }
+
+    def doldify(alloc: Long): Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case HeapMap(map) =>
+        val newMap = map.foldLeft(Map[Loc, AbsObj]())((m, kv) => {
+          val (l, obj) = kv
+          m + (l -> obj.doldify(alloc))
         })
         HeapMap(newMap)
     }

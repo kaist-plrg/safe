@@ -41,6 +41,11 @@ case object DefaultLoc extends LocDomain {
   }
 
   sealed abstract class Elem extends ElemTrait {
+    def isConcrete: Boolean = this match {
+      case LocSet(set) => set.size == 1 && set.head.isSingleton
+      case _ => false
+    }
+
     def gamma: ConSet[Loc] = this match {
       case Top => throw LocTopGammaError // TODO ConFin(locSet)
       case LocSet(set) => ConFin(set)

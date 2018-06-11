@@ -20,6 +20,7 @@ trait LocDomain extends AbsDomain[Loc] {
 
   // abstract location element traits
   trait ElemTrait extends super.ElemTrait { this: Elem =>
+    def isConcrete: Boolean
     def contains(loc: Loc): Boolean
     def exists(f: Loc => Boolean): Boolean
     def filter(f: Loc => Boolean): Elem

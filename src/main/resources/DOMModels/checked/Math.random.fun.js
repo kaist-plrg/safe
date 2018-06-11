@@ -1,0 +1,4 @@
+function random () {
+    return @NumTop;
+  }
+  

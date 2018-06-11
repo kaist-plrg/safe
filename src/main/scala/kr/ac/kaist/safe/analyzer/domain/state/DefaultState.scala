@@ -18,24 +18,24 @@ import kr.ac.kaist.safe.analyzer.TracePartition
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.util._
 
-import scala.collection.immutable.HashMap
 import spray.json._
+import kr.ac.kaist.compabs.models.DHeap
 
 // default state abstract domain
 object DefaultState extends StateDomain {
-  lazy val Bot: Elem = Elem(AbsHeap.Bot, AbsContext.Bot)
-  lazy val Top: Elem = Elem(AbsHeap.Top, AbsContext.Top)
+  lazy val Bot: Elem = Elem(AbsHeap.Bot, AbsContext.Bot, DHeap.bottom)
+  lazy val Top: Elem = Elem(AbsHeap.Top, AbsContext.Top, DHeap.bottom) // TODO
 
   def alpha(st: State): Elem = Top // TODO more precise
 
-  def apply(heap: AbsHeap, context: AbsContext): Elem = Elem(heap, context)
+  def apply(heap: AbsHeap, context: AbsContext): Elem = Bot.copy(heap, context)
 
   def fromJson(v: JsValue): Elem = v match {
     case JsObject(m) => (
       m.get("heap").map(AbsHeap.fromJson _),
       m.get("context").map(AbsContext.fromJson _)
     ) match {
-        case (Some(h), Some(c)) => Elem(h, c)
+        case (Some(h), Some(c)) => Elem(h, c, DHeap.bottom) // TODO
         case _ => throw AbsStateParseError(v)
       }
     case _ => throw AbsStateParseError(v)
@@ -43,20 +43,23 @@ object DefaultState extends StateDomain {
 
   case class Elem(
       heap: AbsHeap,
-      context: AbsContext
+      context: AbsContext,
+      dom: DHeap.T
   ) extends ElemTrait {
     def gamma: ConSet[State] = ConInf // TODO more precise
 
     def getSingle: ConSingle[State] = ConMany() // TODO more precise
 
     def ⊑(that: Elem): Boolean =
-      this.heap ⊑ that.heap && this.context ⊑ that.context
+      this.heap ⊑ that.heap && this.context ⊑ that.context && this.dom <= that.dom
 
     def ⊔(that: Elem): Elem =
-      Elem(this.heap ⊔ that.heap, this.context ⊔ that.context)
+      Elem(this.heap ⊔ that.heap, this.context ⊔ that.context, this.dom + that.dom)
 
-    def ⊓(that: Elem): Elem =
-      Elem(this.heap ⊓ that.heap, this.context ⊓ that.context)
+    def ⊓(that: Elem): Elem = {
+      throw new InternalError("TODO")
+      //      Elem(this.heap ⊓ that.heap, this.context ⊓ that.context)
+    }
 
     def raiseException(excSet: Set[Exception]): Elem = {
       if (excSet.isEmpty) Bot
@@ -70,7 +73,7 @@ object DefaultState extends StateDomain {
             val (protoModel, _, _, _) = errModel.protoModel.get
             val newErrObj = AbsObj.newErrorObj(errModel.name, protoModel.loc)
             val retH = newSt.heap.update(errLoc, newErrObj)
-            (Elem(retH, newSt.context), locSet + errLoc)
+            (newSt.copy(heap = retH), locSet + errLoc)
           }
         }
         val excValue = AbsValue(newExcSet)
@@ -78,15 +81,17 @@ object DefaultState extends StateDomain {
         val (envRec1, _) = localEnv.record.decEnvRec.SetMutableBinding("@exception", excValue)
         val (envRec2, _) = envRec1.SetMutableBinding("@exception_all", excValue ⊔ oldValue)
         val newCtx = newSt.context.subsPureLocal(localEnv.copy(record = envRec2))
-        Elem(newSt.heap, newCtx)
+        newSt.copy(context = newCtx)
       }
     }
 
     def oldify(loc: Loc): Elem = loc match {
       case Recency(_, Recent) =>
-        Elem(this.heap.oldify(loc), this.context.oldify(loc))
+        Elem(this.heap.oldify(loc), this.context.oldify(loc), this.dom.oldify(loc))
       case _ => this
     }
+
+    def doldify(alloc: Long): Elem = Elem(heap = heap.doldify(alloc), context.doldify(alloc), dom = this.dom.doldify(alloc))
 
     ////////////////////////////////////////////////////////////////
     // Lookup
@@ -175,7 +180,7 @@ object DefaultState extends StateDomain {
             .CreateMutableBinding(x).fold(envRec)((e: AbsDecEnvRec) => e)
             .SetMutableBinding(x, value)
           val newEnv = localEnv.copy(record = newEnvRec)
-          Elem(heap, context.subsPureLocal(newEnv))
+          copy(context = context.subsPureLocal(newEnv))
         case CapturedVar =>
           val (newSt, _) = AbsLexEnv.setId(localEnv.outer, x, value, false)(this)
           newSt
@@ -184,11 +189,11 @@ object DefaultState extends StateDomain {
           val (newEnv, _): (AbsDecEnvRec, Set[Exception]) = env
             .CreateMutableBinding(x).fold(env)((e: AbsDecEnvRec) => e)
             .SetMutableBinding(x, value)
-          Elem(heap, context.update(PredAllocSite.COLLAPSED, AbsLexEnv(newEnv)))
+          copy(context = context.update(PredAllocSite.COLLAPSED, AbsLexEnv(newEnv)))
         case GlobalVar =>
           val (_, newH, _) = AbsGlobalEnvRec.Top
             .SetMutableBinding(x, value, false)(heap)
-          Elem(newH, context)
+          copy(heap = newH)
       }
     }
 
@@ -204,7 +209,7 @@ object DefaultState extends StateDomain {
           val (newEnvRec, _) = envRec
             .CreateMutableBinding(x).fold(envRec)((e: AbsDecEnvRec) => e)
             .SetMutableBinding(x, value)
-          Elem(heap, context.subsPureLocal(env.copy(record = newEnvRec)))
+          copy(context = context.subsPureLocal(env.copy(record = newEnvRec)))
         case CapturedVar =>
           val bind = AbsBinding(value)
           val newCtx = context.pureLocal.outer.foldLeft[AbsContext](AbsContext.Bot)((tmpCtx, loc) => {
@@ -215,7 +220,7 @@ object DefaultState extends StateDomain {
               .SetMutableBinding(x, value)
             tmpCtx ⊔ context.update(loc, env.copy(record = newEnvRec))
           })
-          Elem(heap, newCtx)
+          copy(context = newCtx)
         case CapturedCatchVar =>
           val collapsedLoc = PredAllocSite.COLLAPSED
           val env = context.getOrElse(collapsedLoc, AbsLexEnv.Bot)
@@ -223,14 +228,14 @@ object DefaultState extends StateDomain {
           val (newEnvRec, _) = envRec
             .CreateMutableBinding(x).fold(envRec)((e: AbsDecEnvRec) => e)
             .SetMutableBinding(x, value)
-          Elem(heap, context.update(collapsedLoc, env.copy(record = newEnvRec)))
+          copy(context = context.update(collapsedLoc, env.copy(record = newEnvRec)))
         case GlobalVar =>
           val globalLoc = BuiltinGlobal.loc
           val objV = AbsDataProp(value, AbsBool.True, AbsBool.True, AbsBool.False)
           val newHeap =
             if (AbsBool.True == heap.get(globalLoc).HasProperty(AbsStr(x), heap)) heap
             else heap.update(globalLoc, heap.get(globalLoc).update(x, objV))
-          Elem(newHeap, context)
+          copy(heap = newHeap)
       }
     }
 
@@ -241,13 +246,13 @@ object DefaultState extends StateDomain {
       val absStr = AbsStr(str)
       val (newHeap, b1) = heap.delete(loc, absStr)
       val (newCtx, b2) = context.delete(loc, str)
-      (Elem(newHeap, newCtx), b1 ⊔ b2)
+      (copy(heap = newHeap, context = newCtx), b1 ⊔ b2)
     }
 
     def keepPartitioningIndex(tp: TracePartition): Elem = {
       val env = context.pureLocal
       val env_new = env.copy(froms = env.froms + tp)
-      Elem(heap, context.subsPureLocal(env_new))
+      copy(context = context.subsPureLocal(env_new))
     }
 
     lazy val partitioningIndex: Set[TracePartition] = context.pureLocal.froms

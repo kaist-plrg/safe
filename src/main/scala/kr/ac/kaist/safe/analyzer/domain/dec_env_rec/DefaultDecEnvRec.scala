@@ -339,6 +339,20 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
       }
     }
 
+    def doldify(alloc: Long): Elem = {
+      def subs(map: EnvMap): EnvMap = map.foldLeft(EmptyMap) {
+        case (m, (key, (bind, abs))) =>
+          val newV = bind.value.doldify(alloc)
+          val newBind = bind.copy(value = newV)
+          m + (key -> (newBind, abs))
+      }
+      this match {
+        case Bot => Bot
+        case LBindMap(map) => LBindMap(subs(map))
+        case UBindMap(map) => UBindMap(subs(map))
+      }
+    }
+
     // substitute locR by locO
     def subsLoc(locR: Recency, locO: Recency): Elem = {
       def subs(map: EnvMap): EnvMap = map.foldLeft(EmptyMap) {

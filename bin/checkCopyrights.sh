@@ -31,7 +31,9 @@ do
     res=`grep "2017, KAIST" $fil`
     if strdiff "$res" "2017, KAIST" ; then
       if (strdiff "$fil" "main/java/kr/ac/kaist/safe/parser/JS.java") ; then
-        echo "  $fil"
+      	if (strdiff "$fil" "main/java/kr/ac/kaist/compabs/models/parser/Shape.java") ; then
+	        echo "  $fil"
+		fi
       fi
     fi
   done

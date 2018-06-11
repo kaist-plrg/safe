@@ -6,7 +6,7 @@
   },
   "analyzer": {
     "console": false,
-    "exitDump": false,
+    "exitDump": true,
     "out": false,
     "html": ""
   },

@@ -1,0 +1,207 @@
+4370c4370
+<         "@proto": null,
+---
+>         "@proto": #EventTarget.prototype,
+160686c160686
+<         "@construct": #String,
+---
+>         "@construct": #String.constructor,
+161029a161030
+> 		"@primitive": "",
+165651c165652
+<         "@construct": #Number,
+---
+>         "@construct": #Number.constructor,
+165821a165823
+> 		"@primitive": 0,
+168182c168184
+<         "@construct": #Object,
+---
+>         "@construct": #Object.constructor,
+169354c169356
+<         "@construct": #Date,
+---
+>         "@construct": #Date.constructor,
+171877c171879
+<         "@construct": #Boolean,
+---
+>         "@construct": #Boolean.constructor,
+184115c184117
+<         "@construct": #RegExp,
+---
+>         "@construct": #RegExp.constructor,
+188178c188180
+<         "@construct": #Array,
+---
+>         "@construct": #Array.constructor,
+188716c188718
+<         "@function": #Array.prototype.map,
+---
+>         "@function": "Array.prototype.map.js",
+188773c188775
+<         "@function": #Array.prototype.forEach,
+---
+>         "@function": "Array.prototype.forEach.js",
+188792c188794
+<         "@function": #Array.prototype.filter,
+---
+>         "@function": "Array.prototype.filter.js",
+188811c188813
+<         "@function": #Array.prototype.sort,
+---
+>         "@function": "Array.prototype.sort.js",
+204081,204229d204082
+<     },
+<     "exceptions": [
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to function ThrowTypeError() { [native code] } with 647"
+<         },
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to function ThrowTypeError() { [native code] } with 648"
+<         },
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to function ThrowTypeError() { [native code] } with 649"
+<         },
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to function ThrowTypeError() { [native code] } with 650"
+<         },
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to [object Storage] with 719"
+<         },
+<         {
+<             "at": "jscg_setAddr",
+<             "text": "cannot assign a property value to [object Storage] with 721"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object WindowProperties]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object DOMStringList]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object External]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object StyleMedia]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object Object]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object Object]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object Object]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function AudioSourceNode() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object AudioSourceNode]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object DeprecatedStorageInfo]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function BaseAudioContext() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object BaseAudioContext]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function BaseAudioContext() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object BaseAudioContext]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function AudioSourceNode() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object AudioSourceNode]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function AudioSourceNode() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object AudioSourceNode]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function AudioSourceNode() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object AudioSourceNode]"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: function TypedArray() { [native code] }"
+<         },
+<         {
+<             "at": "jscg_getObject",
+<             "text": "Ignored an object: [object SpeechSynthesis]"
+<         }
+<     ],
+<     "test": {
+<         "Decided a type by its __proto__": true
+204231c204084
+< }
+\ No newline at end of file
+---
+> }

@@ -21,6 +21,7 @@ import kr.ac.kaist.safe.util._
 
 import scala.collection.immutable.{ HashMap, HashSet }
 import spray.json._
+import kr.ac.kaist.compabs.models.DLoc
 
 ////////////////////////////////////////////////////////////////////////////////
 // object abstract domain with concrete keys
@@ -57,6 +58,7 @@ object CKeyObject extends ObjDomain {
       def delete_w(nk: AbsStr): T
       def subsLoc(l_r: Recency, l_o: Recency): T
       def oldify(l: Loc): T
+      def doldify(alloc: Long): T
       def map(f: (Tag, AbsDataProp) => (Tag, AbsDataProp)): T
       def toString(ind: Int): String
       val keySet: Set[AbsStr]
@@ -466,6 +468,14 @@ object CKeyObject extends ObjDomain {
         case _ => this
       }
 
+      def doldify(k: Long): T = {
+        this match {
+          case and @ FAnd(_, _) =>
+            cons(and.map { case (tag, vm) => (tag, vm.copy(value = vm.value.doldify(k))) })
+          case FOr(list) => cons(FOr(list.map(l => l.doldify(k))))
+        }
+      }
+
       //         weakly substitute locR by locO
       //        def weakSubsLoc(locR: Recency, locO: Recency): Elem = Elem(
       //          nmap = nmap.mapCValues { dp => dp.copy(dp.value.weakSubsLoc(locR, locO)) },
@@ -708,6 +718,11 @@ object CKeyObject extends ObjDomain {
       case locR @ Recency(subLoc, Recent) => subsLoc(locR, Recency(subLoc, Old))
       case _ => this
     }
+
+    def doldify(alloc: Long): Elem = Elem(
+      map = map.map { (t, v) => (t, v.copy(v.value.doldify(alloc))) },
+      imap = imap.mapCValues { iv => iv.copy(iv.value.doldify(alloc)) }
+    )
 
     // substitute locR by locO
     def subsLoc(locR: Recency, locO: Recency): Elem = Elem(
