@@ -7,9 +7,7 @@
  */
 package kr.ac.kaist.safe
 
-import kr.ac.kaist.compabs.models.html.DOMModel
-
 package object html {
   // TODO should be parameterized as like domains.
-  val HTMLModel: DOMModel = Chrome55
+  lazy val HTMLModel: Chrome55.type = Chrome55
 }

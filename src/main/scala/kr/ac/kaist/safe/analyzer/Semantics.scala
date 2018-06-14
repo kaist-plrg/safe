@@ -15,6 +15,7 @@ import kr.ac.kaist.safe.errors.ExcLog
 import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.models.builtin._
+import kr.ac.kaist.safe.html
 import kr.ac.kaist.safe.nodes.ir._
 import kr.ac.kaist.safe.nodes.cfg.{ CFGId, _ }
 import kr.ac.kaist.safe.util._
@@ -26,7 +27,7 @@ import kr.ac.kaist.safe.html.HTMLModel
 case class Semantics(
     cfg: CFG,
     worklist: Worklist,
-    model: Option[HTMLModel.T] = None
+    model: Option[html.HTMLModel.T] = None
 ) {
   def init: Unit = {
     val entry = cfg.globalFunc.entry

@@ -86,9 +86,10 @@ object Initialize {
     "@target_function" -> ITargetFunction
   )
 
-  private def convToV(v: CValue): Value = {
+  def convToV(v: CValue): Value = {
     v match {
-      case CLoc(loc) => Loc(loc.substring(1))
+      case CLoc(loc) if notpred.contains(loc) => Loc(loc.substring(1))
+      case CLoc(loc) => PredAllocSite(loc.substring(1))
       case CBoolean(b) => Bool(b)
       case CNumberLong(n) => Num(n)
       case CNumberDouble(d) => Num(d)
@@ -111,6 +112,7 @@ object Initialize {
     }
   }
 
+  val notpred = HashSet[String]("#Global")
   def loadHostEnv(cfg: CFG, model: DOMModel): JSModel = {
     // initial predefined FID
     var fid: FunctionId = -1
@@ -122,14 +124,19 @@ object Initialize {
     var apis = List.empty[(String, CFGFunction)]
     val empty = Heap.empty
     val host = model.loadModel
-    val semantics: String => (AbsValue, AbsState) => (AbsState, AbsState, AbsValue) = model.genSemantics().asInstanceOf[String => (AbsValue, AbsState) => (AbsState, AbsState, AbsValue)]
+    val semantics = model.genSemantics().asInstanceOf[String => (AbsValue, AbsState) => (AbsState, AbsState, AbsValue)]
 
     val heap =
       (empty /: host.list)((h, obj) => {
         obj match {
           case HObject(CLoc(loc), properties: List[HProp]) =>
             // The host objects are obviously singleton so that the location type is a system.
-            val l = Loc(loc.substring(1))
+            val l =
+              if (notpred.contains(loc))
+                Loc(loc.substring(1))
+              else
+                PredAllocSite(loc.substring(1))
+
             val obj_init = Obj.empty.updatei(IPrototype, Null)
 
             val obj = (obj_init /: properties)((o, prop) => {
@@ -176,7 +183,7 @@ object Initialize {
                   }
 
                 case HIProp("@proto", HIPropValue(CLoc(value))) =>
-                  val v = PredAllocSite(value)
+                  val v = PredAllocSite(value.substring(1))
                   o.updatei(IPrototype, v)
 
                 case HIProp(name, HIPropValue(value)) =>

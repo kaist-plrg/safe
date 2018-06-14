@@ -12,6 +12,7 @@
 package kr.ac.kaist.safe.analyzer.domain
 
 import kr.ac.kaist.safe.errors.error.INameParseError
+
 import scala.collection.immutable.HashMap
 import spray.json._
 
@@ -68,7 +69,13 @@ object IName {
     IHasInstance,
     ITargetFunction,
     IBoundThis,
-    IBoundArgs
+    IBoundArgs,
+    IInterval,
+    INode,
+    IStyle,
+    IChildNodes,
+    IAttributes,
+    ILength
   )
   def makeMap[V](value: V): Map[IName, V] = all.foldLeft(HashMap[IName, V]()) {
     case (map, iname) => map + (iname -> value)
@@ -99,3 +106,9 @@ case object IHasInstance extends IName("HasInstance") //TODO
 case object ITargetFunction extends IName("TargetFunction")
 case object IBoundThis extends IName("BoundThis")
 case object IBoundArgs extends IName("BoundArgs")
+case object IInterval extends IName("Interval")
+case object INode extends IName("Node")
+case object IStyle extends IName("Style")
+case object IChildNodes extends IName("StyleNodes")
+case object IAttributes extends IName("Attributes")
+case object ILength extends IName("Length")

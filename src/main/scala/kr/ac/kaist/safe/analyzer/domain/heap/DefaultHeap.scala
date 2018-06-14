@@ -11,13 +11,11 @@
 
 package kr.ac.kaist.safe.analyzer.domain
 
-import kr.ac.kaist.safe.errors.error.AbsHeapParseError
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
 import kr.ac.kaist.safe.util._
 import scala.collection.immutable.HashMap
 import spray.json._
-import kr.ac.kaist.compabs.models.DLoc
 
 // default heap abstract domain
 object DefaultHeap extends HeapDomain {

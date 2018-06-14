@@ -17,6 +17,7 @@ trait AbsDOMLoc {
   trait AbsDOMLocT {
     def ==(that: T): Boolean
     val isRecent: Boolean
+    val allocSite: Long
     def toOld: T
   }
   type T <: AbsDOMLocT

@@ -46,8 +46,7 @@ case object HTMLHeapBuild extends PhaseObj[(HTMLModel.T, CFG), HeapBuildConfig, 
 
     // Note: jsModel must be true. We do not support the case that jsModel is not true so far.
     var initSt = Initialize(cfg, jsModel = true, Some(HTMLModel))
-
-    // TODO HTML DOM tree
+    initSt = HTMLModel.init(html, initSt)
 
     // handling snapshot mode
     config.snapshot.foreach(str =>

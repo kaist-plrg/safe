@@ -48,7 +48,7 @@ object DOMNode {
     case class T(map: HashMap[String, AbsValue], handlers: HashMap[String, AbsLoc]) extends AbsDOMNodeT {
       private[this] val empty = HashMap.empty[String, AbsValue]
       private[this] val emptyHandlers: HashMap[String, AbsLoc] = HashMap.empty[String, AbsLoc]
-      private[this] val emptyHandler: AbsLoc = AbsLoc.Bot
+      private[this] lazy val emptyHandler: AbsLoc = AbsLoc.Bot
       private[this] def norm(handler: HashMap[String, AbsLoc]): HashMap[String, AbsLoc] = {
         handler
       }

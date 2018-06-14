@@ -32,6 +32,8 @@ object DefaultValue extends ValueDomain {
 
   def apply(pvalue: AbsPValue): Elem = Bot.copy(pvalue = pvalue)
   def apply(locset: AbsLoc): Elem = Bot.copy(locset = locset)
+  def apply(dlocset: DLocSet.T): Elem = Bot.copy(dlocset = dlocset)
+  def apply(dloc: DLoc.T): Elem = Bot.copy(dlocset = DLocSet.bottom + dloc)
   def apply(pvalue: AbsPValue, locset: AbsLoc): Elem = Bot.copy(pvalue = pvalue, locset = locset)
 
   def fromJson(v: JsValue): Elem = v match {
