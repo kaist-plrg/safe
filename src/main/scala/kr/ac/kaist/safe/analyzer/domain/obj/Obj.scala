@@ -54,10 +54,12 @@ object Obj {
 
 // internal property names
 sealed abstract class IName(name: String) {
+  IName.names += name -> this
   override def toString: String = s"[[$name]]"
   def toJson: JsValue = JsString(name)
 }
 object IName {
+  var names = HashMap.empty[String, IName]
   val all: List[IName] = List(
     IPrototype,
     IClass,
@@ -95,6 +97,8 @@ object IName {
     case JsString("BoundArgs") => IBoundArgs
     case _ => throw INameParseError(v)
   }
+
+  def fromName(v: String): IName = names(v)
 }
 case object IPrototype extends IName("Prototype")
 case object IClass extends IName("Class")

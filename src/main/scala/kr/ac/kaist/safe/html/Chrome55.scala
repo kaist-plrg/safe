@@ -38,6 +38,11 @@ object Chrome55 extends IChrome55 {
   type AAbsIValue = AbsIValue
   type AException = Exception
   type AAbsDataProp = AbsDataProp
+  type AIName = IName
+  def ii(s: String): AIName = s match {
+
+    case _ => IKeyCode
+  }
   // wrapper type
   override type SemanticsFun = (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
 
@@ -732,7 +737,7 @@ object Chrome55 extends IChrome55 {
 
   def toDataProp(v: AAbsValue): AAbsDataProp = AbsDataProp(v)
   def toDataProp(v: AAbsValue, w: AAbsBool, e: AAbsBool, c: AAbsBool): AAbsDataProp = AbsDataProp(v, w, e, c)
-  def update(name: IName, v: AAbsIValue)(o: AAbsObj): AAbsObj = o.update(name, v)
+  def updatei(name: IName, v: AAbsIValue)(o: AAbsObj): AAbsObj = o.update(name, v)
   def update(name: String, v: AAbsDataProp)(o: AAbsObj): AAbsObj = o.update(name, v)
   def update(name: AbsStr, v: AAbsDataProp)(o: AAbsObj): AAbsObj = o.weakUpdate(name, v)
   def supdate(l: ALoc, o: AAbsObj)(s: AAbsState): AAbsState = s.copy(heap = s.heap.update(l, o))

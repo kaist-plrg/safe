@@ -18,10 +18,6 @@ import kr.ac.kaist.compabs.models.shape.Host
 import kr.ac.kaist.compabs.models.shape.Host.ModelError
 import kr.ac.kaist.compabs.models._
 import kr.ac.kaist.compabs.models.cdomain.CValue
-import kr.ac.kaist.compabs.models.html.EventTypeEnum.Value
-
-// TODO
-import kr.ac.kaist.safe.analyzer.domain._
 
 trait IChrome55 extends DOMModel {
   val name: String
@@ -37,6 +33,9 @@ trait IChrome55 extends DOMModel {
 
   // wrapper type
   type SemanticsFun = (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
+  type AIName
+  def ii(s: String): AIName
+
   trait SFInputT {
     def copyi(state: AAbsState): SFInput
     val state: AAbsState
@@ -254,17 +253,17 @@ trait IChrome55 extends DOMModel {
     val a_attr = s.newRecentAlloc(4)
 
     // TODO
-    val ii = -1 // addr.toLong
+    val i = -1 // addr.toLong
     val st = s.state
 
     val s_0 = st |> oldify(addr) |> oldify(a_style) |> oldify(a_childNodes) |> oldify(a_attr)
-    val s_1 = doldify(ii)(s_0)
+    val s_1 = doldify(i)(s_0)
 
     val l = addr
     val l_style = a_style
     val l_childNodes = a_childNodes
     val l_attr = a_attr
-    val dl = DLoc.recent(ii)
+    val dl = DLoc.recent(i)
 
     mustNew(s_1, l)
     mustNew(s_1, l_style)
@@ -278,14 +277,14 @@ trait IChrome55 extends DOMModel {
     // links between DOM node and JS obj.
     val o =
       newObject(l_proto, cls, bExt = BoolTrue) |>
-        update(INode, toIValue(dl)) |>
-        update(IStyle, toIValue(LtoValue(l_style))) |>
-        update(IChildNodes, toIValue(LtoValue(l_childNodes))) |>
-        update(IAttributes, toIValue(LtoValue(l_attr)))
+        updatei(ii("Node"), toIValue(dl)) |>
+        updatei(ii("Style"), toIValue(LtoValue(l_style))) |>
+        updatei(ii("ChildNodes"), toIValue(LtoValue(l_childNodes))) |>
+        updatei(ii("Attributes"), toIValue(LtoValue(l_attr)))
 
     val d = newDObject |> dupdate("obj", LtoValue(l))
     val (o_2, d_2) = updateProps(cls, node, v_doc)(o, d)
-    val o_style = update(IStyle, toIValue(LtoValue(l_style)))(o_style_default)
+    val o_style = updatei(ii("Style"), toIValue(LtoValue(l_style)))(o_style_default)
 
     val o_n = newArrayObject(toAbsNum(0))
 
@@ -315,8 +314,8 @@ trait IChrome55 extends DOMModel {
     // links between DOM node and JS obj.
     val o =
       newObject(l_proto, cls, bExt = BoolTrue) |>
-        update(INode, toIValue(dl)) |>
-        update(IChildNodes, l_childNodes |> LtoValue |> toIValue)
+        updatei(ii("Node"), toIValue(dl)) |>
+        updatei(ii("ChildNodes"), l_childNodes |> LtoValue |> toIValue)
     val d = newDObject |> dupdate("obj", l |> LtoValue)
     val (o_2, d_2) = updateProps(cls, node, AAbsValueNull)(o, d)
 
@@ -332,8 +331,8 @@ trait IChrome55 extends DOMModel {
     val l = sysLoc(id)
     val dl = DLoc.sys(id)
 
-    val o = s |> slookup(l) |> update(INode, toIValue(dl)) |>
-      update(IChildNodes, toIValue(LtoValue(l_childNodes)))
+    val o = s |> slookup(l) |> updatei(ii("Node"), toIValue(dl)) |>
+      updatei(ii("ChildNodes"), toIValue(LtoValue(l_childNodes)))
     val d = newDocument |> dupdate("obj", LtoValue(l))
 
     // TODO initialize attributes.
@@ -371,10 +370,10 @@ trait IChrome55 extends DOMModel {
 
     val o =
       newObject(l_proto, cls) |>
-        update(INode, toIValue(dl)) |>
-        update(IStyle, toIValue(LtoValue(l_style))) |>
-        update(IChildNodes, toIValue(LtoValue(l_childNodes))) |>
-        update(IAttributes, toIValue(LtoValue(l_attr)))
+        updatei(ii("Node"), toIValue(dl)) |>
+        updatei(ii("Style"), toIValue(LtoValue(l_style))) |>
+        updatei(ii("ChildNodes"), toIValue(LtoValue(l_childNodes))) |>
+        updatei(ii("Attributes"), toIValue(LtoValue(l_attr)))
 
     val o_n =
       newArrayObject(toAbsNum(0))
@@ -406,7 +405,7 @@ trait IChrome55 extends DOMModel {
     })
     val d_3 = (d_2 /: list)((d_i, nlo) => d_i |> addEventListener(nlo._1, nlo._2, bubble = false))
 
-    val o_style = o_style_default |> update(IStyle, toIValue(LtoValue(l_style)))
+    val o_style = o_style_default |> updatei(ii("Style"), toIValue(LtoValue(l_style)))
     val style = attr(node)("style")
 
     val o_style_2 =
@@ -463,8 +462,8 @@ trait IChrome55 extends DOMModel {
       val l_proto = sysLoc(s"#$cls.prototype")
       val o =
         newObject(l_proto, cls) |>
-          update(INode, toIValue(dl)) |>
-          update(IChildNodes, toIValue(LtoValue(l_childNodes)))
+          updatei(ii("Node"), toIValue(dl)) |>
+          updatei(ii("ChildNodes"), toIValue(LtoValue(l_childNodes)))
       val d = newDObject |> dupdate("obj", LtoValue(l))
       val (o_2, d_2) = updateProps(cls, node, v_doc)(o, d)
 
@@ -520,7 +519,7 @@ trait IChrome55 extends DOMModel {
   }
 
   def lastChild(l_node: ALoc)(s: AAbsState): AAbsValue = {
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
 
     val ifirsts = (DLocSet.bottom /: inodes)((d_i, inode) => d_i + firstChilds(inode)(s))
 
@@ -549,9 +548,9 @@ trait IChrome55 extends DOMModel {
 
   // TODO Need to consider exception cases.
   def insertBefore(l_parent: ALoc, l_node: ALoc, l_before: ALoc)(s: AAbsState): AAbsState = {
-    val iparents = s |> slookup(l_parent) |> lookupi(INode) |> ItoValue |> dlocset
-    val ibefores = s |> slookup(l_before) |> lookupi(INode) |> ItoValue |> dlocset
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val iparents = s |> slookup(l_parent) |> lookupi(ii("Node")) |> ItoValue |> dlocset
+    val ibefores = s |> slookup(l_before) |> lookupi(ii("Node")) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
 
     val ifirsts = (DLocSet.bottom /: iparents)((d_i, iparent) => d_i + firstChilds(iparent)(s))
 
@@ -587,8 +586,8 @@ trait IChrome55 extends DOMModel {
   }
 
   def appendChildA(l_parent: ALoc, l_node: ALoc)(s: AAbsState): AAbsState = {
-    val iparents = s |> slookup(l_parent) |> lookupi(INode) |> ItoValue |> dlocset
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val iparents = s |> slookup(l_parent) |> lookupi(ii("Node")) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     //      System.out.println(s"* Info: appendChild2 - ${iparents.size * inodes.size}")
     (StateBot /: iparents)((s_i, iparent) => {
       (s_i /: inodes)((s_ii, inode) => {
@@ -628,8 +627,8 @@ trait IChrome55 extends DOMModel {
   }
 
   def removeChild(l_parent: ALoc, l_node: ALoc)(s: AAbsState): AAbsState = {
-    val iparents = s |> slookup(l_parent) |> lookupi(INode) |> ItoValue |> dlocset
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val iparents = s |> slookup(l_parent) |> lookupi(ii("Node")) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
 
     val ifirsts = (DLocSet.bottom /: iparents)((d_i, iparent) => d_i + firstChilds(iparent)(s))
 
@@ -686,7 +685,7 @@ trait IChrome55 extends DOMModel {
     val s_n = joinState(s_first, s_last)
 
     val lset_childNodes = lsetFoldLeft(lset_parent)(ValueBot)((lset_i, l) => {
-      joinValue(lset_i, s |> slookup(l) |> lookupi(IChildNodes) |> ItoValue)
+      joinValue(lset_i, s |> slookup(l) |> lookupi(ii("ChildNodes")) |> ItoValue)
     })
     val lset_nodes = s |> dlookup(inode) |> ddlookup("obj")
     lsetFoldLeft(lset_childNodes)(StateBot)((s_i, l) => joinState(s_i, appendLast(l, lset_nodes)(s_n)))
@@ -694,12 +693,12 @@ trait IChrome55 extends DOMModel {
 
   private def appendLast(l_childNodes: ALoc, lset_nodes: AAbsValue)(s: AAbsState): AAbsState = {
     val o = s |> slookup(l_childNodes)
-    val length = o |> lookupi(ILength)
+    val length = o |> lookupi(ii("Length"))
     length |> ItoValue |> NgetSingle match {
       case Some(i) =>
         val n_length = i + 1
         val o_n =
-          o |> update(ILength, toIValue(NtoValue(toAbsNum(n_length)))) |>
+          o |> updatei(ii("Length"), toIValue(NtoValue(toAbsNum(n_length)))) |>
             update(i.toInt.toString, toDataProp(lset_nodes))
         s |> supdate(l_childNodes, o_n)
       case _ =>
@@ -707,7 +706,7 @@ trait IChrome55 extends DOMModel {
         val lset = o |> lookup(IntStr)
         val lset_n = joinValue(lset, lset_nodes)
         val o_n =
-          o |> update(ILength, toIValue(NtoValue(v_len))) |>
+          o |> updatei(ii("Length"), toIValue(NtoValue(v_len))) |>
             update(IntStr, toDataProp(lset_n))
         s |> supdate(l_childNodes, o_n)
     }
@@ -729,7 +728,7 @@ trait IChrome55 extends DOMModel {
     val dglobal = DLoc.sys("#Global")
     val s_1 =
       s |>
-        supdate(global, slookup(global)(s) |> update(INode, toIValue(dglobal))) |>
+        supdate(global, slookup(global)(s) |> updatei(ii("Node"), toIValue(dglobal))) |>
         dupdate(dglobal, newDObject |> dupdate("obj", LtoValue(global)))
 
     val documentID: String = getID(node, docName)
@@ -776,7 +775,7 @@ trait IChrome55 extends DOMModel {
 
   lazy val emptyNodeList: AAbsObj = {
     val l_proto = sysLoc(s"#NodeList.prototype")
-    newObject(l_proto, "NodeList") |> update(ILength, toIValue(NtoValue(toAbsNum(0))))
+    newObject(l_proto, "NodeList") |> updatei(ii("Length"), toIValue(NtoValue(toAbsNum(0))))
   }
 
   lazy val o_style_default: AAbsObj = {
@@ -837,9 +836,9 @@ trait IChrome55 extends DOMModel {
   def ddlookupD(s: String, v: AAbsValue)(o: DNode.T): AAbsValue
   def dlookup(l: DLoc.T)(s: AAbsState): DNode.T
   def lookup(s: AAbsStr)(o: AAbsObj): AAbsValue
-  def lookupi(n: IName)(o: AAbsObj): AAbsIValue
+  def lookupi(n: AIName)(o: AAbsObj): AAbsIValue
   def dupdate(name: String, v: AAbsValue)(o: DNode.T): DNode.T
-  def update(name: IName, v: AAbsIValue)(o: AAbsObj): AAbsObj
+  def updatei(name: AIName, v: AAbsIValue)(o: AAbsObj): AAbsObj
   def update(name: String, v: AAbsDataProp)(o: AAbsObj): AAbsObj
   def update(name: AAbsStr, v: AAbsDataProp)(o: AAbsObj): AAbsObj
   def toAbsStr(s: String): AAbsStr
@@ -874,7 +873,7 @@ trait IChrome55 extends DOMModel {
   def remove(l: ALoc)(v: AAbsValue): AAbsValue
 
   def sdomIn(l: ALoc)(s: AAbsState): Boolean
-  def domIni(l: IName)(o: AAbsObj): AAbsBool
+  def domIni(l: AIName)(o: AAbsObj): AAbsBool
   def slookup(l: ALoc)(s: AAbsState): AAbsObj
   def dupdate(dl: DLoc.T, od: DNode.T)(s: AAbsState): AAbsState
   def supdate(l: ALoc, o: AAbsObj)(s: AAbsState): AAbsState
@@ -906,16 +905,16 @@ trait IChrome55 extends DOMModel {
   val emptyObject: AAbsObj
 
   lazy val newDObject: DNode.T = {
-    DNode.bottom.
-      update("firstChild", AbsValue(DLoc.nullv)).
-      update("nextSibling", AbsValue(DLoc.nullv)).
-      update("parentNode", AbsValue(DLoc.nullv))
+    DNode.bottom |>
+      dupdate("firstChild", DLoc.nullv |> DtoValue) |>
+      dupdate("nextSibling", DLoc.nullv |> DtoValue) |>
+      dupdate("parentNode", DLoc.nullv |> DtoValue)
   }
   lazy val newDocument: DNode.T = {
-    DNode.bottom.
-      update("firstChild", AbsValue(DLoc.nullv)).
-      update("nextSibling", AbsValue(DLoc.nullv)).
-      update("parentNode", AbsValue(DLoc.nullv))
+    DNode.bottom |>
+      dupdate("firstChild", DLoc.nullv |> DtoValue) |>
+      dupdate("nextSibling", DLoc.nullv |> DtoValue) |>
+      dupdate("parentNode", DLoc.nullv |> DtoValue)
   }
 
   def has(b: Boolean)(a: AAbsBool): Boolean
@@ -927,8 +926,8 @@ trait IChrome55 extends DOMModel {
     lsetFoldLeftL(lset)((DLocSet.bottom, false)) {
       (ll_i, l) =>
         val o = s |> slookup(l)
-        val d = o |> domIni(INode)
-        val lset1 = if (orderBool(BoolTrue, d)) ll_i._1 + (o |> lookupi(INode) |> ItoValue |> dlocset) else ll_i._1
+        val d = o |> domIni(ii("Node"))
+        val lset1 = if (orderBool(BoolTrue, d)) ll_i._1 + (o |> lookupi(ii("Node")) |> ItoValue |> dlocset) else ll_i._1
         val lset2 = if (orderBool(BoolFalse, d)) true else ll_i._2
         (lset1, lset2)
     }
@@ -947,7 +946,7 @@ trait IChrome55 extends DOMModel {
     val cls = "HTMLCollection"
     val l_proto = sysLoc(s"#$cls.prototype")
     newObject(l_proto, cls, bExt = BoolTrue) |>
-      update(ILength, UInt |> NtoValue |> toIValue) |>
+      updatei(ii("Length"), UInt |> NtoValue |> toIValue) |>
       update(IntStr, toDataProp(lset |> LStoValue, BoolTrue, BoolTrue, BoolTrue))
   }
 
@@ -957,7 +956,7 @@ trait IChrome55 extends DOMModel {
     // links between DOM node and JS obj.
     val o =
       newObject(l_proto, cls, bExt = BoolTrue) |>
-        update(ILength, toIValue(NtoValue(toAbsNum(v.length))))
+        updatei(ii("Length"), toIValue(NtoValue(toAbsNum(v.length))))
 
     (o /: v.indices)((o_i, i) => {
       val k = v(i)
@@ -986,8 +985,8 @@ trait IChrome55 extends DOMModel {
             val l_proto = sysLoc(s"#$cls.prototype")
             val o =
               newObject(l_proto, cls) |>
-                update(INode, dl |> DtoValue |> toIValue) |>
-                update(IChildNodes, l_childNodes |> LtoValue |> toIValue)
+                updatei(ii("Node"), dl |> DtoValue |> toIValue) |>
+                updatei(ii("ChildNodes"), l_childNodes |> LtoValue |> toIValue)
             val d = newDObject |> dupdate("obj", l |> LtoValue)
             val (on, dn) = updateProps(cls, node, AAbsValueNull)(o, d)
             (joinObj(od._1, on), od._2 + dn)
@@ -999,8 +998,8 @@ trait IChrome55 extends DOMModel {
           val l_proto = sysLoc(s"#$cls.prototype")
           val o =
             newObject(l_proto, cls) |>
-              update(INode, dl |> DtoValue |> toIValue) |>
-              update(IChildNodes, l_childNodes |> LtoValue |> toIValue)
+              updatei(ii("Node"), dl |> DtoValue |> toIValue) |>
+              updatei(ii("ChildNodes"), l_childNodes |> LtoValue |> toIValue)
           val d = newDObject |> dupdate("obj", l |> LtoValue)
           updateProps(cls, node, AAbsValueNull)(o, d)
       }
@@ -1026,8 +1025,8 @@ trait IChrome55 extends DOMModel {
             val l_proto = sysLoc(s"#$cls.prototype")
             val o =
               newObject(l_proto, cls) |>
-                update(INode, dl |> DtoValue |> toIValue) |>
-                update(IChildNodes, l_childNodes |> LtoValue |> toIValue)
+                updatei(ii("Node"), dl |> DtoValue |> toIValue) |>
+                updatei(ii("ChildNodes"), l_childNodes |> LtoValue |> toIValue)
             val d = newDObject |> dupdate("obj", l |> LtoValue)
             val (on, dn) = updateProps(cls, node, AAbsValueNull)(o, d)
             (joinObj(od._1, on), od._2 + dn)
@@ -1039,8 +1038,8 @@ trait IChrome55 extends DOMModel {
           val l_proto = sysLoc(s"#$cls.prototype")
           val o =
             newObject(l_proto, cls) |>
-              update(INode, dl |> DtoValue |> toIValue) |>
-              update(IChildNodes, l_childNodes |> LtoValue |> toIValue)
+              updatei(ii("Node"), dl |> DtoValue |> toIValue) |>
+              updatei(ii("ChildNodes"), l_childNodes |> LtoValue |> toIValue)
           val d = newDObject |> dupdate("obj", l |> LtoValue)
           updateProps(cls, node, AAbsValueNull)(o, d)
       }
@@ -1106,7 +1105,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
 
     try {
@@ -1214,12 +1213,12 @@ trait IChrome55 extends DOMModel {
     val l_r = addr
 
     val s_0 = s |> oldify(l_r)
-    val s_1 = s_0 |> supdate(l_r, emptyObject |> update(IInterval, toIValue(handlers)))
+    val s_1 = s_0 |> supdate(l_r, emptyObject |> updatei(ii("Interval"), toIValue(handlers)))
     val s_n =
       lsetFoldLeft(ctxs)(StateBot)((s_i, l) => {
         val o = s_0 |> slookup(l)
-        val old = o |> lookupi(IInterval)
-        val s_2 = s_1 |> supdate(l, o |> update(IInterval, joinIValue(old, toIValue(LtoValue(l_r)))))
+        val old = o |> lookupi(ii("Interval"))
+        val s_2 = s_1 |> supdate(l, o |> updatei(ii("Interval"), joinIValue(old, toIValue(LtoValue(l_r)))))
         joinState(s_i, s_2)
       })
     (LtoValue(l_r), s_n)
@@ -1228,17 +1227,17 @@ trait IChrome55 extends DOMModel {
   def clearInterval(l: ALoc)(s: AAbsState): AAbsState = {
     if (l |> isSingleton) {
       val o = s |> slookup(l)
-      val v = (o |> lookupi(IInterval)) |> ItoValue |> remove(l) |> toIValue
-      s |> supdate(l, o |> update(IInterval, v))
+      val v = (o |> lookupi(ii("Interval"))) |> ItoValue |> remove(l) |> toIValue
+      s |> supdate(l, o |> updatei(ii("Interval"), v))
     } else s
   }
 
   def getComputedStyle(lset_elems: AAbsValue, pseudoElt: String, l_r: ALoc)(s: AAbsState): AAbsState = {
     assert(pseudoElt == null)
     val lset_style = lsetFoldLeft(lset_elems)(ValueBot)((lset_i, l) => {
-      joinValue(lset_i, s |> slookup(l) |> lookupi(IStyle) |> ItoValue)
+      joinValue(lset_i, s |> slookup(l) |> lookupi(ii("Style")) |> ItoValue)
     })
-    val o = o_style_computed_default |> update(IStyle, toIValue(lset_style))
+    val o = o_style_computed_default |> updatei(ii("Style"), toIValue(lset_style))
     s |> oldify(l_r) |> supdate(l_r, o)
   }
 
@@ -1295,7 +1294,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
 
     try {
@@ -1414,7 +1413,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
 
     try {
@@ -1558,7 +1557,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
 
     try {
@@ -1635,7 +1634,7 @@ trait IChrome55 extends DOMModel {
 
   def getElementsByTagNameA(l_node: ALoc, atagName: AAbsStr, l_r: ALoc)(s: AAbsState): AAbsState = {
     // consider all the possible elements.
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
     val dlset = collectDecendants(fs, _ => true)(s)
     val lset = (LocSetBot /: dlset)((lset_i, dl) => joinLocSet(lset_i, s |> dlookup(dl) |> ddlookup("obj") |> locset))
@@ -1714,7 +1713,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
     assert(fs.isSingleton)
 
@@ -1731,7 +1730,7 @@ trait IChrome55 extends DOMModel {
 
     val o = {
       // consider all the possible elements.
-      val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+      val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
       val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
       val dlset = collectDecendants(fs, hasName)(s)
       val lset = (LocSetBot /: dlset)((lset_i, dl) => joinLocSet(lset_i, s |> dlookup(dl) |> ddlookup("obj") |> locset))
@@ -1798,7 +1797,7 @@ trait IChrome55 extends DOMModel {
       }
     }
 
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
 
     (ValueBot /: fs)((v_i, first) => joinValue(v_i, dfs(first)))
@@ -1806,7 +1805,7 @@ trait IChrome55 extends DOMModel {
 
   def querySelectorAllA(l_node: ALoc, aselector: AAbsStr, l_r: ALoc)(s: AAbsState): (AAbsState, Set[AException]) = {
     // consider all the possible elements.
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
     val dlset = collectDecendants(fs, _ => true)(s)
     val lset = (LocSetBot /: dlset)((lset_i, dl) => joinLocSet(lset_i, s |> dlookup(dl) |> ddlookup("obj") |> locset))
@@ -1943,7 +1942,7 @@ trait IChrome55 extends DOMModel {
     //
     //          case _ =>
     System.err.println(s"* Warning: querySelectorAll: TODO '$selector'")
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
     val dlset = collectDecendants(fs, _ => true)(s)
     val v_n = (ValueBot /: dlset)((lset_i, dl) => joinValue(lset_i, s |> dlookup(dl) |> ddlookup("obj")))
@@ -1959,7 +1958,7 @@ trait IChrome55 extends DOMModel {
 
   def querySelectorA(l_node: ALoc, aselector: AAbsStr)(s: AAbsState): (AAbsValue, Set[AException]) = {
     // consider all the possible elements.
-    val inodes = s |> slookup(l_node) |> lookupi(INode) |> ItoValue |> dlocset
+    val inodes = s |> slookup(l_node) |> lookupi(ii("Node")) |> ItoValue |> dlocset
     val fs = (DLocSet.bottom /: inodes)((dlocs_i, inode) => dlocs_i + firstChilds(inode)(s))
     val dlset = collectDecendants(fs, _ => true)(s)
     val lset = (ValueBot /: dlset)((lset_i, dl) => joinValue(lset_i, s |> dlookup(dl) |> ddlookup("obj")))
@@ -2057,7 +2056,7 @@ trait IChrome55 extends DOMModel {
   def XMLHttpRequestSend: SemanticsFun = genAPI(si => throw new InternalError("TODO"))
 
   def getPropertyValue(lset_elems: AAbsLoc, name: String, i: Long)(s: AAbsState): AAbsValue = {
-    val lset_style = lsetFoldLeftL(lset_elems)(ValueBot)((lset_i, l) => joinValue(lset_i, s |> slookup(l) |> lookupi(IStyle) |> ItoValue))
+    val lset_style = lsetFoldLeftL(lset_elems)(ValueBot)((lset_i, l) => joinValue(lset_i, s |> slookup(l) |> lookupi(ii("Style")) |> ItoValue))
 
     val rtn = name match {
       case "display" =>
@@ -2107,7 +2106,7 @@ trait IChrome55 extends DOMModel {
 
     val lset_attr =
       lsetFoldLeftL(lset_this)(ValueBot)((lset_i, l) => {
-        joinValue(lset_i, s |> slookup(l) |> lookupi(IAttributes) |> ItoValue)
+        joinValue(lset_i, s |> slookup(l) |> lookupi(ii("Attributes")) |> ItoValue)
       })
 
     val s_3 =
@@ -2127,7 +2126,7 @@ trait IChrome55 extends DOMModel {
     assignDProp(prop, makeString)(si)
   }
 
-  def assignIProp(prop: IName)(si: SFInput): (AAbsState, AAbsState, AAbsValue) = {
+  def assignIProp(prop: AIName)(si: SFInput): (AAbsState, AAbsState, AAbsValue) = {
     val s = si.state
     val v = si.getArg(0)
 
@@ -2138,7 +2137,7 @@ trait IChrome55 extends DOMModel {
       (lset, b)
     })
 
-    val s_n = (s /: lset_ok)((s_i, l) => joinState(s_i, s |> supdate(l, s |> slookup(l) |> update(prop, v |> toIValue))))
+    val s_n = (s /: lset_ok)((s_i, l) => joinState(s_i, s |> supdate(l, s |> slookup(l) |> updatei(prop, v |> toIValue))))
 
     val es =
       if (bnotok) exception(AExceptionBot + AError)(si.state)
@@ -2162,7 +2161,7 @@ trait IChrome55 extends DOMModel {
     (s_2, es)
   }
 
-  def getIProp(prop: IName)(s: SFInput): (AAbsValue, Set[AException]) = {
+  def getIProp(prop: AIName)(s: SFInput): (AAbsValue, Set[AException]) = {
     val (lset_ok, lset_notok) = lsetFoldLeftL(s.lset_this)((HashSet.empty[ALoc], HashSet.empty[ALoc])) {
       (ll_i, l) =>
         val d = s.state |> slookup(l) |> domIni(prop)
@@ -2228,7 +2227,7 @@ trait IChrome55 extends DOMModel {
     })
   }
 
-  def returnInternalProp(prop: IName): SemanticsFun = {
+  def returnInternalProp(prop: AIName): SemanticsFun = {
     genAPI(si => {
       val (v, es) = getIProp(prop)(si)
       val ess = exception(es)(si.state)
@@ -2566,7 +2565,7 @@ trait IChrome55 extends DOMModel {
         returnValueD(s, ess)(si)
       }),
       "Element.prototype.querySelectorAll" -> querySelectorAll,
-      "Element.prototype.attributes$get" -> returnInternalProp(IAttributes),
+      "Element.prototype.attributes$get" -> returnInternalProp(ii("Attributes")),
       "Element.prototype.hasAttribute" -> genAPI(si => {
         val names = callToString(si)(si.getArg(0))
         val (b, es) =
@@ -2675,7 +2674,7 @@ trait IChrome55 extends DOMModel {
 
         returnValueC(lastChilds)(si)
       }),
-      "Node.prototype.childNodes$get" -> returnInternalProp(IChildNodes),
+      "Node.prototype.childNodes$get" -> returnInternalProp(ii("ChildNodes")),
       "Node.prototype.insertBefore" -> genAPI(si => {
         val arg = si.getArg(0)
         val befores = si.getArg(1)
@@ -2726,8 +2725,8 @@ trait IChrome55 extends DOMModel {
         returnValueD(childs, ess)(si.copyi(state = s_n))
       }),
 
-      "HTMLCollection.prototype.length$get" -> returnInternalProp(ILength),
-      "NodeList.prototype.length$get" -> returnInternalProp(ILength),
+      "HTMLCollection.prototype.length$get" -> returnInternalProp(ii("Length")),
+      "NodeList.prototype.length$get" -> returnInternalProp(ii("Length")),
 
       "HTMLElement.prototype.oninput$set" -> DOM2EventAdd("input"),
       "HTMLElement.prototype.oninput$get" -> returnValueAPI(AAbsValueNull), //returnDOMProp("input"),
@@ -2759,7 +2758,7 @@ trait IChrome55 extends DOMModel {
       "HTMLElement.prototype.onerror$get" -> returnValueAPI(AAbsValueNull), //returnDOMProp("mousewheel"),
       "HTMLElement.prototype.style$set" -> warning("Ignored attempts to update the value of 'style' property"),
       "HTMLElement.prototype.style$get" -> genAPI(si => {
-        val (v, es) = getIProp(IStyle)(si)
+        val (v, es) = getIProp(ii("Style"))(si)
         val ess = exception(es)(si.state)
         returnValueD(v, ess)(si)
       }),
@@ -2827,49 +2826,49 @@ trait IChrome55 extends DOMModel {
 
       "HTMLFormElement.prototype.enctype$get" -> returnDOMProp("enctype"),
 
-      "Event.prototype.type$get" -> returnInternalProp(IType),
-      "Event.prototype.bubbles$get" -> returnInternalProp(IBubbles),
-      "Event.prototype.cancelable$get" -> returnInternalProp(ICancelable),
-      "Event.prototype.currentTarget$get" -> returnInternalProp(ICurrentTarget),
-      "Event.prototype.eventPhase$get" -> returnInternalProp(IEventPhase),
-      "Event.prototype.srcElement$get" -> returnInternalProp(ISrcElement),
-      "Event.prototype.target$get" -> returnInternalProp(ITarget),
+      "Event.prototype.type$get" -> returnInternalProp(ii("Type")),
+      "Event.prototype.bubbles$get" -> returnInternalProp(ii("Bubbles")),
+      "Event.prototype.cancelable$get" -> returnInternalProp(ii("Cancelable")),
+      "Event.prototype.currentTarget$get" -> returnInternalProp(ii("CurrentTarget")),
+      "Event.prototype.eventPhase$get" -> returnInternalProp(ii("EventPhase")),
+      "Event.prototype.srcElement$get" -> returnInternalProp(ii("SrcElement")),
+      "Event.prototype.target$get" -> returnInternalProp(ii("Target")),
       "Event.prototype.defaultPrevented$get" -> returnValueAPI(BoolFalse |> BtoValue),
       "Event.prototype.returnValue$get" -> returnValueAPI(BoolTop |> BtoValue),
       "Event.prototype.timeStamp$get" -> returnValueAPI(UInt |> NtoValue),
 
-      "UIEvent.prototype.detail$get" -> returnInternalProp(IDetail),
-      "UIEvent.prototype.which$get" -> returnInternalProp(IWhich),
+      "UIEvent.prototype.detail$get" -> returnInternalProp(ii("Detail")),
+      "UIEvent.prototype.which$get" -> returnInternalProp(ii("Which")),
       "UIEvent.prototype.view$get" -> genAPI(si => {
         returnValueC(GlobalLoc |> LtoValue)(si)
       }),
 
-      "KeyboardEvent.prototype.keyCode$get" -> returnInternalProp(IKeyCode),
+      "KeyboardEvent.prototype.keyCode$get" -> returnInternalProp(ii("KeyCode")),
 
-      "MouseEvent.prototype.screenX$get" -> returnInternalProp(IScreenX),
-      "MouseEvent.prototype.screenY$get" -> returnInternalProp(IScreenY),
-      "MouseEvent.prototype.clientX$get" -> returnInternalProp(IClientX),
-      "MouseEvent.prototype.clientY$get" -> returnInternalProp(IClientY),
-      "MouseEvent.prototype.ctrlKey$get" -> returnInternalProp(ICtrlKey),
-      "MouseEvent.prototype.shiftKey$get" -> returnInternalProp(IShiftKey),
-      "MouseEvent.prototype.altKey$get" -> returnInternalProp(IAltKey),
-      "MouseEvent.prototype.metaKey$get" -> returnInternalProp(IMetaKey),
-      "MouseEvent.prototype.button$get" -> returnInternalProp(IButton),
-      "MouseEvent.prototype.buttons$get" -> returnInternalProp(IButtons),
-      "MouseEvent.prototype.relatedTarget$get" -> returnInternalProp(IRelatedTarget),
-      "MouseEvent.prototype.pageX$get" -> returnInternalProp(IPageX),
-      "MouseEvent.prototype.pageY$get" -> returnInternalProp(IPageY),
-      "MouseEvent.prototype.x$get" -> returnInternalProp(IX),
-      "MouseEvent.prototype.y$get" -> returnInternalProp(IY),
-      "MouseEvent.prototype.offsetX$get" -> returnInternalProp(IOffsetX),
-      "MouseEvent.prototype.offsetY$get" -> returnInternalProp(IOffsetY),
-      "MouseEvent.prototype.movementX$get" -> returnInternalProp(IMovementX),
-      "MouseEvent.prototype.movementY$get" -> returnInternalProp(IMovementY),
-      "MouseEvent.prototype.which$get" -> returnInternalProp(IWhich),
-      "MouseEvent.prototype.layerX$get" -> returnInternalProp(ILayerX),
-      "MouseEvent.prototype.layerY$get" -> returnInternalProp(ILayerY),
-      "MouseEvent.prototype.fromElement$get" -> returnInternalProp(ITarget),
-      "MouseEvent.prototype.toElement$get" -> returnInternalProp(ITarget),
+      "MouseEvent.prototype.screenX$get" -> returnInternalProp(ii("ScreenX")),
+      "MouseEvent.prototype.screenY$get" -> returnInternalProp(ii("ScreenY")),
+      "MouseEvent.prototype.clientX$get" -> returnInternalProp(ii("ClientX")),
+      "MouseEvent.prototype.clientY$get" -> returnInternalProp(ii("ClientY")),
+      "MouseEvent.prototype.ctrlKey$get" -> returnInternalProp(ii("CtrlKey")),
+      "MouseEvent.prototype.shiftKey$get" -> returnInternalProp(ii("ShiftKey")),
+      "MouseEvent.prototype.altKey$get" -> returnInternalProp(ii("AltKey")),
+      "MouseEvent.prototype.metaKey$get" -> returnInternalProp(ii("MetaKey")),
+      "MouseEvent.prototype.button$get" -> returnInternalProp(ii("Button")),
+      "MouseEvent.prototype.buttons$get" -> returnInternalProp(ii("Buttons")),
+      "MouseEvent.prototype.relatedTarget$get" -> returnInternalProp(ii("RelatedTarget")),
+      "MouseEvent.prototype.pageX$get" -> returnInternalProp(ii("PageX")),
+      "MouseEvent.prototype.pageY$get" -> returnInternalProp(ii("PageY")),
+      "MouseEvent.prototype.x$get" -> returnInternalProp(ii("X")),
+      "MouseEvent.prototype.y$get" -> returnInternalProp(ii("Y")),
+      "MouseEvent.prototype.offsetX$get" -> returnInternalProp(ii("OffsetX")),
+      "MouseEvent.prototype.offsetY$get" -> returnInternalProp(ii("OffsetY")),
+      "MouseEvent.prototype.movementX$get" -> returnInternalProp(ii("MovementX")),
+      "MouseEvent.prototype.movementY$get" -> returnInternalProp(ii("MovementY")),
+      "MouseEvent.prototype.which$get" -> returnInternalProp(ii("Which")),
+      "MouseEvent.prototype.layerX$get" -> returnInternalProp(ii("LayerX")),
+      "MouseEvent.prototype.layerY$get" -> returnInternalProp(ii("LayerY")),
+      "MouseEvent.prototype.fromElement$get" -> returnInternalProp(ii("Target")),
+      "MouseEvent.prototype.toElement$get" -> returnInternalProp(ii("Target")),
 
       "DocumentType.prototype.name$get" -> returnDOMProp("name"),
 
@@ -2897,8 +2896,8 @@ trait IChrome55 extends DOMModel {
         val si_0 =
           si |>
             genObject(l_r, "XMLHttpRequest", sysLoc("#XMLHttpRequest.prototype"), (o: AAbsObj) => {
-              o |> update(IReadystatechange, AAbsValueNull |> toIValue) |>
-                update(IReadyState, toAbsNum(0) |> NtoValue |> toIValue)
+              o |> updatei(ii("Readystatechange"), AAbsValueNull |> toIValue) |>
+                updatei(ii("ReadyState"), toAbsNum(0) |> NtoValue |> toIValue)
             })
         returnValueC(l_r |> LtoValue)(si_0)
       }),
@@ -2909,13 +2908,13 @@ trait IChrome55 extends DOMModel {
 
       "XMLHttpRequest.prototype.status$get" -> returnValueAPI(joinValue(toAbsNum(200) |> NtoValue, toAbsNum(404) |> NtoValue)),
       "XMLHttpRequest.prototype.statusText$get" -> returnValueAPI(joinValue(toAbsStr("") |> StoValue, toAbsStr("OK") |> StoValue)),
-      "XMLHttpRequest.prototype.readyState$get" -> returnInternalProp(IReadyState),
+      "XMLHttpRequest.prototype.readyState$get" -> returnInternalProp(ii("ReadyState")),
       "XMLHttpRequest.prototype.open" -> genAPI(si => {
         val s_n =
           lsetFoldLeftL(si.lset_this)(StateBot)((s_i, l) => {
             val o = si.state |> slookup(l) |>
-              update(IReadyState, toAbsNum(1) |> NtoValue |> toIValue) |>
-              update(IResponseURL, si.getArg(1) |> toIValue)
+              updatei(ii("ReadyState"), toAbsNum(1) |> NtoValue |> toIValue) |>
+              updatei(ii("ResponseURL"), si.getArg(1) |> toIValue)
             joinState(s_i, si.state |> supdate(l, o))
           })
         returnUndef(si.copyi(state = s_n))
@@ -2925,7 +2924,7 @@ trait IChrome55 extends DOMModel {
       "XMLHttpRequest.prototype.onreadystatechange$get" -> genAPI(si => {
         val v =
           lsetFoldLeftL(si.lset_this)(ValueBot)((v_i, l) => {
-            joinValue(v_i, si.state |> slookup(l) |> lookupi(IReadystatechange) |> ItoValue)
+            joinValue(v_i, si.state |> slookup(l) |> lookupi(ii("Readystatechange")) |> ItoValue)
           })
         returnValueC(v)(si)
       }),
@@ -2933,7 +2932,7 @@ trait IChrome55 extends DOMModel {
         val cb = si.getArg(0)
         val lset_f = filterCallable(si.state, cb)
         // need to consider exceptional cases.
-        val s_n = lsetFoldLeftL(si.lset_this)(StateBot)((s_i, l) => si.state |> supdate(l, si.state |> slookup(l) |> update(IReadystatechange, lset_f |> toIValue)))
+        val s_n = lsetFoldLeftL(si.lset_this)(StateBot)((s_i, l) => si.state |> supdate(l, si.state |> slookup(l) |> updatei(ii("Readystatechange"), lset_f |> toIValue)))
         val dglobal = DLoc.sys("#Global")
         val o = s_n |> dlookup(dglobal)
         val o_n = lsetFoldLeft(lset_f)(o)((o_i, l) => o_i |> addEventListener("xml_readystatechange", l, bubble = false))
@@ -2961,7 +2960,7 @@ trait IChrome55 extends DOMModel {
         val lset = si.lset_this |> LStoValue |> remove(GlobalLoc)
         val cls = "Audio"
         val l_proto = sysLoc(s"#$cls.prototype")
-        val o_new = newObject(l_proto, cls) |> update(ISrc, toAbsStr("") |> StoValue |> toIValue)
+        val o_new = newObject(l_proto, cls) |> updatei(ii("Src"), toAbsStr("") |> StoValue |> toIValue)
         val s_n = lsetFoldLeft(lset)(si.state)((s_i, l) => s_i |> supdate(l, o_new))
 
         returnValueC(lset)(si.copyi(state = s_n))
@@ -2971,10 +2970,10 @@ trait IChrome55 extends DOMModel {
         System.err.println("Warning: play should return Promise object.")
         returnUndef(si)
       }),
-      "HTMLMediaElement.prototype.src$set" -> genAPI(si => assignIProp(ISrc)(si)),
-      "HTMLMediaElement.prototype.src$get" -> returnInternalProp(ISrc)
+      "HTMLMediaElement.prototype.src$set" -> genAPI(si => assignIProp(ii("Src"))(si)),
+      "HTMLMediaElement.prototype.src$get" -> returnInternalProp(ii("Src"))
     )
-    System.out.println(s"* The number of semantics: ${ssSemantics.size} / 246")
+    System.out.println(s"* The number of semantics: ${ssSemantics.size}") // 246
     name: String => ssSemantics.getOrElse(name.substring(1), nnAPI(name))
   }
 }
