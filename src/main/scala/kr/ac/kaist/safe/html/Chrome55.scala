@@ -39,10 +39,7 @@ object Chrome55 extends IChrome55 {
   type AException = Exception
   type AAbsDataProp = AbsDataProp
   type AIName = IName
-  def ii(s: String): AIName = s match {
-
-    case _ => IKeyCode
-  }
+  def ii(s: String): AIName = IName.fromName(s)
   // wrapper type
   override type SemanticsFun = (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
 
