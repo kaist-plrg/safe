@@ -24,6 +24,7 @@ sealed abstract class Exception {
       case SyntaxError => "SyntaxErr"
       case TypeError => "TypeErr"
       case URIError => "URIErr"
+      case DOMError => "DOMErr"
     }
   }
 
@@ -36,6 +37,7 @@ sealed abstract class Exception {
       case SyntaxError => BuiltinSyntaxError
       case TypeError => BuiltinTypeError
       case URIError => BuiltinURIError
+      case DOMError => BuiltinError // TODO
     }
   }
 }
@@ -47,3 +49,4 @@ case object ReferenceError extends Exception
 case object SyntaxError extends Exception
 case object TypeError extends Exception
 case object URIError extends Exception
+case object DOMError extends Exception

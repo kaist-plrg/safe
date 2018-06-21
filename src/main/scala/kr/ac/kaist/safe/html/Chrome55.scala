@@ -28,6 +28,7 @@ object Chrome55 extends IChrome55 {
 
   type AAbsState = AbsState
   type AAbsValue = AbsValue
+  type AAbsPValue = AbsPValue
   type AAbsBool = AbsBool
   type AAbsStr = AbsStr
   type AAbsNum = AbsNum
@@ -36,31 +37,25 @@ object Chrome55 extends IChrome55 {
   type AAbsObj = AbsObj
   type AAbsIValue = AbsIValue
   type AException = Exception
-  type AAbsDObject = DNode.T
   type AAbsDataProp = AbsDataProp
   // wrapper type
   override type SemanticsFun = (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
 
+  lazy val AError: Exception = Error
+  lazy val ATypeError: AException = TypeError
+  lazy val ADOMError: AException = Error
   lazy val AAbsValueNull: AAbsValue = AbsValue(AbsNull.Top)
   lazy val BoolTrue: AAbsBool = AbsBool.True
   lazy val BoolFalse: AAbsBool = AbsBool.False
+  lazy val BoolTop: AAbsBool = AbsBool.Top
+  lazy val BoolBot: AAbsBool = AbsBool.Bot
   lazy val ValueBot: AAbsValue = AbsValue.Bot
   lazy val StateBot: AAbsState = AbsState.Bot
   lazy val LocSetBot: AbsLoc = AbsLoc.Bot
-  lazy val newDObject: AAbsDObject = {
-    DNode.bottom.
-      update("firstChild", AbsValue(DLoc.nullv)).
-      update("nextSibling", AbsValue(DLoc.nullv)).
-      update("parentNode", AbsValue(DLoc.nullv))
-  }
-  lazy val newDocument: AAbsDObject = {
-    DNode.bottom.
-      update("firstChild", AbsValue(DLoc.nullv)).
-      update("nextSibling", AbsValue(DLoc.nullv)).
-      update("parentNode", AbsValue(DLoc.nullv))
-  }
+  lazy val AbsObjBot: AAbsObj = AbsObj.Bot
   lazy val UInt: AbsNum = AbsNum.UInt
   lazy val IntStr: AAbsStr = AbsStr.Number
+  lazy val StrTop: AAbsStr = AbsStr.Top
   lazy val OtherStr: AAbsStr = AbsStr.Other
   lazy val GlobalLoc: Loc = BuiltinGlobal.loc
 
@@ -68,12 +63,10 @@ object Chrome55 extends IChrome55 {
     val state: AbsState = st
     def getArg(i: Int): AbsValue = Helper.propLoad(args, Set(AbsStr("0")), st.heap)
     def lenArg: AbsNum = Helper.propLoad(args, Set(AbsStr("length")), st.heap).pvalue.numval
-    // TODO
     def newAlloc(i: Long): ALoc = UserAllocSite((id + i).toInt)
     def newRecentAlloc(i: Long): ALoc = newAlloc(i)
     def newDAlloc(i: Long): DLoc.T = DLoc.recent(id + i)
 
-    // TODO
     val id: Long = 10000
     lazy val lset_this: AAbsLoc = v_this.locset
     lazy val v_this: AAbsValue = st.context.thisBinding
@@ -116,7 +109,13 @@ object Chrome55 extends IChrome55 {
 
   def isNonEmpty(v: AAbsValue): Boolean = !v.locset.isBottom
   def newAddr(): ALoc = UserAllocSite(0)
+  def toPBot(v: AAbsValue): AAbsValue = v.copy(pvalue = AbsPValue.Bot)
+  def filter(v: AAbsValue): (AAbsValue, AAbsValue) = {
+    val v_1 = v.copy(pvalue = v.pvalue.copy(undefval = AbsUndef.Bot, nullval = AbsNull.Bot))
+    val v_2 = AbsValue(v.pvalue.nullval) ⊔ AbsValue(v.pvalue.undefval)
 
+    (v_1, v_2)
+  }
   def toDOMString(v: AAbsValue): HashSet[String] = {
     val empty = HashSet.empty[String]
     val s_1 = if (v.pvalue.nullval.isTop) empty + null else empty
@@ -136,9 +135,9 @@ object Chrome55 extends IChrome55 {
     }
   }
 
-  override def exception(es: Set[Exception])(s: SFInput): AAbsState = {
+  override def exception(es: Set[AException])(s: AAbsState): AAbsState = {
     if (es.isEmpty) AbsState.Bot
-    else s.st.raiseException(es)
+    else s.raiseException(es)
   }
 
   def callToString(s: SFInput)(v: AAbsValue): Set[AAbsStr] = {
@@ -152,46 +151,30 @@ object Chrome55 extends IChrome55 {
     }
   }
 
-  def setInterval(handlers: AAbsValue, addr: ALoc)(s: AAbsState): (AAbsValue, AAbsState) = {
-    val ctxs = getNamedNode(DocumentElementNode).locset
-    val l_r = addr
-
-    val s_0 = s.oldify(l_r)
-    val s_1 = s_0.copy(heap = s_0.heap.update(l_r, AbsObj.Bot.update(IInterval, handlers)))
-    val s_n =
-      ctxs.foldLeft(AbsState.Bot)((s_i, l) => {
-        val old = s_0.heap.get(l)(IInterval).value.pvalue.locset
-        val h = s_1.heap
-        s_1.copy(heap = h.update(l, h.get(l).update(IInterval, AbsValue(old + l_r))))
-      })
-    (AbsValue(l_r), s_n)
-  }
-
   def oldify(l: ALoc)(s: AAbsState): AAbsState = s.oldify(l)
   def doldify(l: Long)(s: AAbsState): AAbsState = s.doldify(l)
   def sysLoc(name: String): ALoc = Loc.apply(name.substring(1))
+  def isSingleton(l: ALoc): Boolean = l.isSingleton
+  def isSingleStr(s: AAbsStr): Boolean = s.getSingle match { case ConOne(_) => true case _ => false }
+  def remove(l: ALoc)(v: AAbsValue): AAbsValue = AbsValue(v.locset - l)
+  def isSingleLoc(v: AAbsValue): Boolean = v.locset.isConcrete
+  def getSingleLoc(v: AAbsValue): ALoc = v.locset.foldLeft(List.empty[ALoc])((l_i, l) => l :: l_i).head
 
   def newObject(l_proto: Loc, cls: String, bExt: AAbsBool): AAbsObj = AbsObj.newObject(l_proto)
+  lazy val emptyObject: AAbsObj = AbsObj.newObject
   def newArrayObject(v: AAbsNum): AAbsObj = AbsObj.newArrayObject(v)
   def newFuncObject: AAbsObj = AbsObj.newObject
   def toAbsNum(i: Double): AAbsNum = AbsNum.alpha(Num(i))
 
-  def updateIProp(name: String, value: CValue)(od: (AAbsObj, AAbsDObject)): (AAbsObj, AAbsDObject) = {
+  def updateIProp(name: String, value: CValue)(od: (AAbsObj, DNode.T)): (AAbsObj, DNode.T) = {
     (od._1, od._2.update(name, AbsValue.alpha(Initialize.convToV(value))))
   }
 
-  def updateIProp(name: String, value: AbsValue)(od: (AAbsObj, AAbsDObject)): (AAbsObj, AAbsDObject) =
-    (od._1, od._2.update(name, value))
-
-  def updateProp(name: String, value: CValue)(od: (AAbsObj, AAbsDObject)): (AAbsObj, AAbsDObject) = {
+  def updateProp(name: String, value: CValue)(od: (AAbsObj, DNode.T)): (AAbsObj, DNode.T) = {
     (od._1.update(name, AbsDataProp(AbsValue.alpha(Initialize.convToV(value)), BoolTrue, BoolFalse, BoolTrue)), od._2)
   }
 
-  def updateProp(name: String, value: AbsValue)(od: (AAbsObj, AAbsDObject)): (AAbsObj, AAbsDObject) = {
-    (od._1.update(name, AbsDataProp(value, BoolTrue, BoolFalse, BoolTrue)), od._2)
-  }
-
-  def updateProps(name: String, node: Node, v_doc: AAbsValue)(o: AAbsObj, d: AAbsDObject): (AAbsObj, AAbsDObject) = {
+  def updateProps(name: String, node: Node, v_doc: AAbsValue)(o: AAbsObj, d: DNode.T): (AAbsObj, DNode.T) = {
     val nattr: String => String = attr(node)
     name match {
       case "Document" =>
@@ -748,6 +731,7 @@ object Chrome55 extends IChrome55 {
   }
 
   def toDataProp(v: AAbsValue): AAbsDataProp = AbsDataProp(v)
+  def toDataProp(v: AAbsValue, w: AAbsBool, e: AAbsBool, c: AAbsBool): AAbsDataProp = AbsDataProp(v, w, e, c)
   def update(name: IName, v: AAbsIValue)(o: AAbsObj): AAbsObj = o.update(name, v)
   def update(name: String, v: AAbsDataProp)(o: AAbsObj): AAbsObj = o.update(name, v)
   def update(name: AbsStr, v: AAbsDataProp)(o: AAbsObj): AAbsObj = o.weakUpdate(name, v)
@@ -755,38 +739,70 @@ object Chrome55 extends IChrome55 {
   def slookup(l: ALoc)(s: AAbsState): AAbsObj = s.heap.get(l)
   def lookupi(n: IName)(o: AAbsObj): AAbsIValue = o(n)
   def lookup(s: AAbsStr)(o: AAbsObj): AAbsValue = o(s).value
-  def dupdate(name: String, v: AAbsValue)(o: AAbsDObject): AAbsDObject = o.update(name, v)
-  def dlookup(l: DLoc.T)(s: AAbsState): AAbsDObject = s.dom.lookup(l)
-  def ddlookup(s: String)(o: AAbsDObject): AAbsValue = o.lookup(s)
+  def dupdate(name: String, v: AAbsValue)(o: DNode.T): DNode.T = o.update(name, v)
+  def dlookup(l: DLoc.T)(s: AAbsState): DNode.T = s.dom.lookup(l)
+  def ddlookup(s: String)(o: DNode.T): AAbsValue = o.lookup(s)
+  def ddlookupD(s: String, v: AAbsValue)(o: DNode.T): AAbsValue = o.lookupD(s, v)
   def toAbsStr(s: String): AAbsStr = AbsStr(s)
+  def addEventListener(cname: String, h: ALoc, bubble: Boolean)(o: DNode.T): DNode.T = o.addEventListener(cname, h, bubble)
+  def removeEventListener(cname: String, h: ALoc, bubble: Boolean)(o: DNode.T): DNode.T = o.removeEventListener(cname, h, bubble)
+  def joinObj(v1: AAbsObj, v2: AAbsObj): AAbsObj = v1 ⊔ v2
   def joinValue(v1: AAbsValue, v2: AAbsValue): AAbsValue = v1 ⊔ v2
+  def joinIValue(v1: AAbsIValue, v2: AAbsIValue): AAbsIValue = v1 ⊔ v2
   def joinState(v1: AAbsState, v2: AAbsState): AAbsState = v1 ⊔ v2
+  def joinLocSet(v1: AAbsLoc, v2: AAbsLoc): AAbsLoc = v1 ⊔ v2
+  def joinBool(v1: AAbsBool, v2: AAbsBool): AAbsBool = v1 ⊔ v2
+
   def NgetSingle(v: AAbsValue): Option[Double] = v.pvalue.numval.getSingle match {
     case ConOne(i) => Some(i)
     case _ => None
   }
 
-  override def sdomIn(l: ALoc)(s: AAbsState): Boolean = s.heap.domIn(l)
+  def isRelated(s: String)(v: AAbsStr): Boolean = v isRelated s
+  def isARelated(s: AAbsStr)(v: AAbsStr): Boolean = v isRelated s
+  def sdomIn(l: ALoc)(s: AAbsState): Boolean = s.heap.domIn(l)
+  def domIni(l: IName)(o: AAbsObj): AbsBool = o contains l
+  def has(b: Boolean)(a: AAbsBool): Boolean = AbsBool.alpha(b) ⊑ a
+  def orderBool(b0: AAbsBool, b1: AAbsBool): Boolean = b0 ⊑ b1
+  def dupdate(dl: DLoc.T, od: DNode.T)(s: AbsState): AbsState = s.copy(dom = s.dom.update(dl, od))
+  def isBottom(v: AAbsValue): Boolean = v.isBottom
+  def isPBottom(v: AAbsPValue): Boolean = v.isBottom
+  def isBBottom(v: AAbsBool): Boolean = v.isBottom
+  def hasNull(v: AAbsValue): Boolean = v.pvalue.nullval !⊑ AbsNull.Bot
+  def isNonZero(v: AAbsNum): Boolean = orderBool(BoolFalse, v.StrictEquals(AbsNum.alpha(Num(0))))
+  def strval(v: AAbsValue): AAbsStr = v.pvalue.strval
+  def pvalue(v: AAbsValue): AAbsPValue = v.pvalue
+  def StrictEquals(v: AAbsStr)(v2: AAbsStr): AAbsBool = v.StrictEquals(v2)
 
-  override def dupdate(dl: DLoc.T, od: AAbsDObject)(s: AbsState): AbsState = s.copy(dom = s.dom.update(dl, od))
-  override def toIValue(dl: DLoc.T): AAbsIValue = AbsIValue(AbsValue(DLocSet.bottom + dl))
-  override def toIValue(l: AbsValue): AbsIValue = AbsIValue(l)
+  def toBoolean(v: AAbsValue): AAbsBool = TypeConversionHelper.ToBoolean(v)
 
-  override def DtoValue(dl: DLoc.T): AAbsValue = AbsValue(dl)
-  override def LtoValue(l: ALoc): AAbsValue = AbsValue(l)
-  override def StoValue(s: AAbsStr): AAbsValue = AbsValue(s)
-  override def NtoValue(n: AbsNum): AbsValue = AbsValue(n)
-  override def ItoValue(i: AAbsIValue): AAbsValue = i.value
+  def toIValue(dl: DLoc.T): AAbsIValue = AbsIValue(AbsValue(DLocSet.bottom + dl))
+  def toIValue(l: AbsValue): AbsIValue = AbsIValue(l)
+
+  def DtoValue(dl: DLoc.T): AAbsValue = AbsValue(dl)
+  def DStoValue(dl: DLocSet.T): AAbsValue = AbsValue(dl)
+  def LtoValue(l: ALoc): AAbsValue = AbsValue(l)
+  def LStoValue(l: AbsLoc): AAbsValue = AbsValue(l)
+  def StoValue(s: AAbsStr): AAbsValue = AbsValue(s)
+  def NtoValue(n: AbsNum): AbsValue = AbsValue(n)
+  def ItoValue(i: AAbsIValue): AAbsValue = i.value
+  def BtoValue(i: AAbsBool): AAbsValue = AbsValue(i)
 
   def dlocset(v: AAbsValue): DLocSet.T = v.dlocset
-  def locset(v: AAbsIValue): AbsLoc = v.value.locset
+  def locset(v: AAbsValue): AbsLoc = v.locset
+
   def lsetFoldLeft[T](v: AAbsValue)(i: T)(f: (T, ALoc) => T): T = v.locset.foldLeft[T](i)(f)
+  def lsetFoldLeftL[T](v: AAbsLoc)(i: T)(f: (T, ALoc) => T): T = v.foldLeft[T](i)(f)
 
   def init(t: T, s: AAbsState): AAbsState = {
     val document = toDOM(t)
     def span(n: Node): Option[(String, Int, Int)] = None
+    // TODO parse a given code and create a new function
     def ff(s: String, o: Option[(String, Int, Int)]): AAbsObj = newFuncObject
     val pf: (String, Option[(String, Int, Int)]) => AAbsObj = ff // Helper.parseFunction(t.js.cfg)
     genInitialDOMTree(document, span, s, pf)
   }
+
+  // TODO
+  override def XMLHttpRequestSend: SemanticsFun = genAPI(si => throw new InternalError("TODO"))
 }

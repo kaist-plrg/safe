@@ -18,10 +18,10 @@ trait DOMModel {
   type AAbsValue
   type AAbsBool
   type AAbsStr
+  type AAbsPValue
   type AAbsLoc
   type ALoc
   type AAbsIValue
-  type AAbsDObject
   type AAbsObj
   type AAbsDataProp
   type AAbsNum
