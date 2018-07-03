@@ -46,7 +46,7 @@ object BuiltinNumberHelper {
       val loc = Loc(instanceASite)
       val state = st.oldify(loc)
       val heap = state.heap.update(loc, AbsObj.newNumberObj(num))
-      (AbsState(heap, state.context), AbsState.Bot, AbsValue(loc))
+      (state.copy(heap), AbsState.Bot, AbsValue(loc))
     }
   )
 

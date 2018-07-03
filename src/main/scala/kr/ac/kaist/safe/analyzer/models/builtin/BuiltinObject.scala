@@ -293,7 +293,7 @@ object BuiltinObjectHelper {
       val state = st.oldify(descLoc)
       val retH = state.heap.update(descLoc, descObj.oldify(descLoc))
       val retV = AbsValue(undef, AbsLoc(descLoc))
-      (AbsState(retH, state.context), retV, excSet)
+      (state.copy(heap = retH), retV, excSet)
     } else (st, AbsValue(undef), ExcSetEmpty)
 
     val excSt = st.raiseException(excSet1 ++ excSet2)
@@ -358,7 +358,7 @@ object BuiltinObjectHelper {
         val retHeap = state.heap.update(arrLoc, retObj.oldify(arrLoc))
         val excSt = state.raiseException(retExcSet)
 
-        (AbsState(retHeap, state.context), excSt, AbsValue(arrLoc))
+        (state.copy(heap = retHeap), excSt, AbsValue(arrLoc))
       }
     }
   }
@@ -384,8 +384,8 @@ object BuiltinObjectHelper {
     val newH = state.heap.update(loc, newObj.oldify(loc))
     val retV = AbsLoc(loc)
     val (retSt, e) =
-      if (propsV ⊑ AbsUndef.Top) (AbsState(newH, state.context), ExcSetEmpty)
-      else defProps(retV, propsV, AbsState(newH, state.context))
+      if (propsV ⊑ AbsUndef.Top) (state.copy(heap = newH), ExcSetEmpty)
+      else defProps(retV, propsV, state.copy(heap = newH))
     // 5. Return obj.
     val excSt = state.raiseException(excSet ++ e)
 
@@ -421,7 +421,7 @@ object BuiltinObjectHelper {
 
     val excSt = st.raiseException(retExcSet)
 
-    (AbsState(retH, st.context), excSt, objV.locset)
+    (st.copy(heap = retH), excSt, objV.locset)
   }
 
   def defineProperties(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -464,7 +464,7 @@ object BuiltinObjectHelper {
 
     val excSt = st.raiseException(retExcSet)
 
-    (AbsState(retH, st.context), excSt, objV.locset)
+    (st.copy(heap = retH), excSt, objV.locset)
   }
 
   def freeze(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -501,7 +501,7 @@ object BuiltinObjectHelper {
 
     val excSt = st.raiseException(retExcSet)
 
-    (AbsState(retH, st.context), excSt, objV.locset)
+    (st.copy(heap = retH), excSt, objV.locset)
   }
 
   def preventExtensions(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -522,7 +522,7 @@ object BuiltinObjectHelper {
 
     val excSt = st.raiseException(excSet)
 
-    (AbsState(retH, st.context), excSt, objV.locset)
+    (st.copy(heap = retH), excSt, objV.locset)
   }
 
   def isSealed(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -638,7 +638,7 @@ object BuiltinObjectHelper {
     val retHeap = state.heap.update(arrLoc, retObj.oldify(arrLoc))
     val excSt = st.raiseException(retExcSet)
 
-    (AbsState(retHeap, state.context), excSt, AbsValue(arrLoc))
+    (state.copy(heap = retHeap), excSt, AbsValue(arrLoc))
   }
 
   ////////////////////////////////////////////////////////////////
@@ -765,7 +765,7 @@ object BuiltinObjectHelper {
     val state = st.oldify(loc)
     val obj = AbsObj.newObject
     val heap = state.heap.update(loc, obj)
-    (AbsValue(loc), AbsState(heap, state.context))
+    (AbsValue(loc), state.copy(heap))
   }
 
   private def changeProps(h: AbsHeap, obj: AbsObj, f: AbsDesc => AbsDesc): (AbsObj, Set[Exception]) = {
@@ -813,7 +813,6 @@ object BuiltinObjectHelper {
     val asite = definePropsObjASite
     val (loc1, st1, toExcSet) = TypeConversionHelper.ToObject(propsV, st, asite)
     val h1 = st1.heap
-    val ctx1 = st1.context
     val props = h1.get(loc1)
     // 4. For each enumerable property of props whose name String is P
     val keyStrSet = props.abstractKeySet((key, dp) => {
@@ -851,6 +850,6 @@ object BuiltinObjectHelper {
         (retH, excSet)
       }
     }
-    (AbsState(retH, ctx1), retExcSet)
+    (st1.copy(heap = retH), retExcSet)
   }
 }

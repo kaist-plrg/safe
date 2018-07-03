@@ -322,7 +322,7 @@ object BuiltinArrayHelper {
     val state = st.oldify(arrLoc)
     val retH = state.heap.update(arrLoc, retObj.oldify(arrLoc))
     val excSt = state.raiseException(retExcSet)
-    (AbsState(retH, state.context), excSt, AbsLoc(arrLoc))
+    (state.copy(heap = retH), excSt, AbsLoc(arrLoc))
   }
 
   def isArray(args: AbsValue, st: AbsState): AbsValue = {
@@ -358,7 +358,7 @@ object BuiltinArrayHelper {
     val tempLoc = Loc(tempASite)
     val newArgs = AbsObj.newArgObject()
     val tempH = h.update(tempLoc, newArgs)
-    val tempSt = AbsState(tempH, state.context)
+    val tempSt = state.copy(heap = tempH)
     val (joinSt, joinExcSt, joinV) = join(AbsLoc(tempLoc), tempSt)
     val excSt = st.raiseException(excSet)
     (joinSt, excSt ⊔ joinExcSt, joinV)
@@ -453,7 +453,7 @@ object BuiltinArrayHelper {
     val arrLoc = Loc(concatArrASite)
     val state = st.oldify(arrLoc)
     val retH = state.heap.update(arrLoc, retObj.oldify(arrLoc))
-    (AbsState(retH, state.context), AbsState.Bot, AbsLoc(arrLoc))
+    (state.copy(heap = retH), AbsState.Bot, AbsLoc(arrLoc))
   }
 
   def join(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -568,7 +568,7 @@ object BuiltinArrayHelper {
       }
     }
     val excSt = st.raiseException(excSet)
-    (AbsState(retH, state.context), excSt, retV)
+    (state.copy(heap = retH), excSt, retV)
   }
 
   def push(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -621,7 +621,7 @@ object BuiltinArrayHelper {
       }
     }
     val excSt = st.raiseException(excSet)
-    (AbsState(retH, state.context), excSt, retV)
+    (state.copy(heap = retH), excSt, retV)
   }
 
   def reverse(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -672,7 +672,7 @@ object BuiltinArrayHelper {
       }
     }
     val excSt = st.raiseException(excSet)
-    (AbsState(retH, state.context), excSt, thisLoc)
+    (state.copy(heap = retH), excSt, thisLoc)
   }
 
   def shift(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -745,7 +745,7 @@ object BuiltinArrayHelper {
       }
     }
     val excSt = st.raiseException(excSet)
-    (AbsState(retH, state.context), excSt, retV)
+    (state.copy(heap = retH), excSt, retV)
   }
 
   def slice(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -827,7 +827,7 @@ object BuiltinArrayHelper {
     val st1 = state.oldify(arrLoc)
     val retH = st1.heap.update(arrLoc, retObj.oldify(arrLoc))
     val excSt = st1.raiseException(retExcSet)
-    (AbsState(retH, st1.context), excSt, AbsLoc(arrLoc))
+    (st1.copy(heap = retH), excSt, AbsLoc(arrLoc))
   }
 
   def splice(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -915,11 +915,11 @@ object BuiltinArrayHelper {
       }
     }
     val arrLoc = Loc(spliceArrASite)
-    val newSt = AbsState(retH, st.context)
+    val newSt = st.copy(heap = retH)
     val state = newSt.oldify(arrLoc)
     val finalH = state.heap.update(arrLoc, retArr.oldify(arrLoc))
     val excSt = state.raiseException(retExcSet)
-    (AbsState(finalH, state.context), excSt, AbsLoc(arrLoc))
+    (state.copy(heap = finalH), excSt, AbsLoc(arrLoc))
   }
 
   def unshift(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {
@@ -970,7 +970,7 @@ object BuiltinArrayHelper {
       }
     }
     val excSt = st.raiseException(retExcSet)
-    (AbsState(retH, st.context), excSt, retV)
+    (st.copy(heap = retH), excSt, retV)
   }
 
   def indexOf(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {

@@ -69,7 +69,7 @@ object Initialize {
           }
       }
 
-    AbsState(modeledHeap, initCtx)
+    AbsState.Bot.copy(heap = modeledHeap, context = initCtx)
   }
 
   private val IValueMap = HashMap(
@@ -256,7 +256,7 @@ object Initialize {
   def addSnapshot(st: AbsState, snapshot: String): AbsState = {
     val concreteHeap = Heap.parse(snapshot)
     val abstractHeap = AbsHeap.alpha(concreteHeap)
-    AbsState(st.heap ⊔ abstractHeap, st.context)
+    st.copy(heap = st.heap ⊔ abstractHeap)
   }
 }
 

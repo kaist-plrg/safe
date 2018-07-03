@@ -262,8 +262,8 @@ object ModelParser extends RegexParsers with JavaTokenParsers {
 
         // cfg build
         val cfgBuildConfig = CFGBuildConfig()
-        var funCFG = CFGBuild(ir, safeConfig, cfgBuildConfig).get
-        var func = funCFG.getFunc(1).get
+        val funCFG = CFGBuild(ir, safeConfig, cfgBuildConfig).get
+        val func = funCFG.getFunc(1).get
 
         Succ((fun, func))
       }

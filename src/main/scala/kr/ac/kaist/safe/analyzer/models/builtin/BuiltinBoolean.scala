@@ -47,7 +47,7 @@ object BuiltinBooleanHelper {
       val state = st.oldify(loc)
       val heap = state.heap.update(loc, AbsObj.newBooleanObj(bool))
 
-      (AbsState(heap, state.context), AbsState.Bot, AbsValue(loc))
+      (state.copy(heap), AbsState.Bot, AbsValue(loc))
     }
   )
 

@@ -87,7 +87,7 @@ trait HTMLParser {
     "timeout" -> Timer
   )
 
-  val events_sets = events ++ events_set2 ++ events_set3 ++ events_set4 ++ events_timer
+  val events_sets: Map[String, EventType] = events ++ events_set2 ++ events_set3 ++ events_set4 ++ events_timer
 
   private val tagToClassMap: HashMap[String, String] = HashMap(
     "A" -> "HTMLAnchorElement",

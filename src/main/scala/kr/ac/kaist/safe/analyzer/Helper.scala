@@ -11,12 +11,18 @@
 
 package kr.ac.kaist.safe.analyzer
 
+import kr.ac.kaist.safe.{ CmdCFGBuild, SafeConfig }
 import kr.ac.kaist.safe.analyzer.domain.DefaultNumber.{ NegInf, PosInf }
 
 import scala.collection.immutable.{ HashMap, HashSet }
 import kr.ac.kaist.safe.analyzer.domain._
-import kr.ac.kaist.safe.nodes.cfg.CFGId
+import kr.ac.kaist.safe.errors.error.ModelParseError
+import kr.ac.kaist.safe.nodes.cfg.{ CFG, CFGFunction, CFGId, FunctionId }
+import kr.ac.kaist.safe.parser.Parser
+import kr.ac.kaist.safe.phase._
 import kr.ac.kaist.safe.util._
+
+import scala.util.{ Failure, Success }
 
 ////////////////////////////////////////////////////////////////
 // Collection of Semantics helper functions
@@ -578,5 +584,36 @@ object Helper {
   def propPrune(st: AbsState, id: CFGId, v: AbsPValue): AbsState = {
 
     throw new InternalError("TODO")
+  }
+
+  def parseFunction(cfg: CFG, code: String): FunctionId = {
+    val fid =
+      Parser.stringToAST(code) match {
+        case Success((pgm, log)) =>
+          if (log.hasError) println(log)
+          val safeConfig = SafeConfig(CmdCFGBuild, silent = true)
+
+          // rewrite AST
+          val astRewriteConfig = ASTRewriteConfig()
+          val rPgm = ASTRewrite(pgm, safeConfig, astRewriteConfig).get
+
+          // compile
+          val compileConfig = CompileConfig()
+          val ir = Compile(rPgm, safeConfig, compileConfig).get
+
+          // cfg build
+          val cfgBuildConfig = CFGBuildConfig()
+          val funCFG = CFGBuild(ir, safeConfig, cfgBuildConfig).get
+          val func = funCFG.getFunc(1).get
+
+          // TODO should mutate the initial allocation sites.
+
+          cfg.addFunction(func)
+          func.id
+        case Failure(e) =>
+          throw e
+      }
+
+    fid
   }
 }

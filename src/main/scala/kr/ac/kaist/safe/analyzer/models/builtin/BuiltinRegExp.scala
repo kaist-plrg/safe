@@ -146,7 +146,7 @@ private object BuiltinRegExpHelper {
         val loc = Loc(instanceASite)
         val st1 = st.oldify(loc)
         val h2 = st1.heap.update(loc, obj)
-        (AbsState(h2, st1.context), AbsValue(loc))
+        (st1.copy(heap = h2), AbsValue(loc))
       case None => (st, AbsValue.Bot)
     }
 
@@ -232,7 +232,7 @@ private object BuiltinRegExpHelper {
         val loc = Loc(instanceASite)
         val st1 = st.oldify(loc)
         val h2 = st1.heap.update(loc, obj)
-        (AbsState(h2, st1.context), AbsValue(loc))
+        (st1.copy(heap = h2), AbsValue(loc))
       case None => (st, AbsValue.Bot)
     }
 

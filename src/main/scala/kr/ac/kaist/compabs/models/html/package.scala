@@ -11,7 +11,7 @@
 package kr.ac.kaist.compabs.models
 
 import kr.ac.kaist.safe.analyzer.domain.{ AbsLexEnv, AbsState, AbsValue }
-import kr.ac.kaist.safe.analyzer.models.{ Code, SemanticFun }
+import kr.ac.kaist.safe.analyzer.models.{ SemanticFun }
 import kr.ac.kaist.safe.nodes.ast.{ ASTNodeInfo, ModelFunc }
 import kr.ac.kaist.safe.nodes.cfg.{ CFG, CFGEdgeExc, CFGFunction, ModelBlock }
 import kr.ac.kaist.safe.nodes.ir.IRModelFunc
@@ -60,7 +60,7 @@ package object html {
       val (retSt, retSte, retV) = code(argV, st)
       val (retObj, _) = localEnv.SetMutableBinding("@return", retV)
       val retCtx = retSt.context.subsPureLocal(AbsLexEnv(retObj))
-      (AbsState(retSt.heap, retCtx), retSte)
+      (retSt.copy(context = retCtx), retSte)
     }
   }
 

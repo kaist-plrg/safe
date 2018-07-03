@@ -243,7 +243,7 @@ object TypeConversionHelper {
       if (!obj.isBottom) {
         val loc = Loc(asite)
         val state = st.oldify(loc)
-        (AbsLoc(loc), AbsState(state.heap.update(loc, obj), state.context))
+        (AbsLoc(loc), state.copy(heap = state.heap.update(loc, obj)))
       } else (AbsLoc.Bot, AbsState.Bot)
     val (locSet2, st2) =
       if (!locSet.isBottom) (locSet, st)

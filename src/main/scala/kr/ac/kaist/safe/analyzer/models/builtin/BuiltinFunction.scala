@@ -163,7 +163,7 @@ private object BuiltinFunctionProtoHelper {
     val st1 = st.oldify(argsLoc)
     val h3 = st1.heap.update(argsLoc, argList1 ⊔ argList2)
     val newState =
-      AbsState(h3, st1.context)
+      st1.copy(heap = h3)
         .varStore(funcId, callableFunc)
         .varStore(thisId, thisArg)
         .varStore(argsId, AbsValue(argsLoc))
@@ -215,7 +215,7 @@ private object BuiltinFunctionProtoHelper {
     val st1 = st.oldify(argsLoc)
     val h3 = st1.heap.update(argsLoc, argList)
     val newState =
-      AbsState(h3, st1.context)
+      st1.copy(heap = h3)
         .varStore(funcId, callableFunc)
         .varStore(thisId, thisArg)
         .varStore(argsId, AbsValue(argsLoc))

@@ -18,6 +18,8 @@ import kr.ac.kaist.compabs.models.shape.Host
 import kr.ac.kaist.compabs.models.shape.Host.ModelError
 import kr.ac.kaist.compabs.models._
 import kr.ac.kaist.compabs.models.cdomain.CValue
+import kr.ac.kaist.compabs.models.html.EventTypeEnum._
+import kr.ac.kaist.safe.analyzer.domain.{ IScreenX, Loc }
 
 trait IChrome55 extends DOMModel {
   val name: String
@@ -238,12 +240,156 @@ trait IChrome55 extends DOMModel {
 
   def isSupported: String => Boolean = Parser.isSupported
 
+  def domObjs(s: AAbsState): AAbsLoc
+  private def eventObject(s: AAbsState, name: String, lset_elems: AAbsLoc): AAbsObj = {
+    // TODO target can be one of all the children nodes of the given lset_elems.
+    //    lazy val domObjs: LocSet = keySet.filter(l => BoolTrue <= this(l).domIni("@node"))
+    val lset_targets = s |> domObjs |> LStoValue
+    val etype = eventType(name)
+    def IRange(l: Int, u: Int): AAbsValue = (ValueBot /: (l to u))((v_i, i) => joinValue(v_i, toAbsNum(i) |> NtoValue))
+    val o =
+      etype match {
+        case Mouse =>
+          val l_proto = sysLoc("#MouseEvent.prototype")
+          // isTrusted should be getter.
+          newObject(l_proto, "MouseEvent") |>
+            update(toAbsStr("isTrusted"), toDataProp(BoolTop |> BtoValue, BoolFalse, BoolTrue, BoolFalse)) |>
+            updatei(ii("ScreenX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("ScreenY"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("ClientX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("ClientY"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("CtrlKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("ShiftKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("AltKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("MetaKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("Button"), IRange(0, 2) |> toIValue) |>
+            updatei(ii("Buttons"), IRange(0, 4) |> toIValue) |>
+            updatei(ii("RelatedTarget"), AAbsValueNull |> toIValue) |> // TODO
+            updatei(ii("PageX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("PageY"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("X"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("Y"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("OffsetX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("OffsetY"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("MovementX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("MovementY"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("Which"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("LayerX"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("LayerY"), UInt |> NtoValue |> toIValue)
+        case Keyboard =>
+          // TODO
+          val l_proto = sysLoc("#KeyboardEvent.prototype")
+          // isTrusted should be getter.
+          newObject(l_proto, "KeyboardEvent") |>
+            update(toAbsStr("isTrusted"), toDataProp(BoolTrue |> BtoValue, BoolFalse, BoolTrue, BoolFalse)) |>
+            updatei(ii("CtrlKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("ShiftKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("AltKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("MetaKey"), BoolTop |> BtoValue |> toIValue) |>
+            updatei(ii("KeyCode"), UInt |> NtoValue |> toIValue) |>
+            updatei(ii("Which"), UInt |> NtoValue |> toIValue)
+        case Focus =>
+          val l_proto = sysLoc("#Event.prototype")
+          newObject(l_proto, "Event")
+        case DOMLoaded =>
+          val l_proto = sysLoc("#Event.prototype")
+          newObject(l_proto, "Event")
+        case ReadyStateChange =>
+          val l_proto = sysLoc("#Event.prototype")
+          newObject(l_proto, "Event")
+        case Load =>
+          val l_proto = sysLoc("#Event.prototype")
+          newObject(l_proto, "Event")
+        case Timer =>
+          // TODO Timer does not need an argument.
+          val l_proto = sysLoc("#Event.prototype")
+          newObject(l_proto, "Event")
+
+        case _ => throw new ModelError(s"TODO: $name")
+      }
+    o |> updatei(ii("Type"), toAbsStr(name) |> StoValue |> toIValue) |>
+      updatei(ii("Target"), lset_targets |> toIValue) |>
+      updatei(ii("CurrentTarget"), lset_elems |> LStoValue |> toIValue) |>
+      updatei(ii("EventPhase"), IRange(0, 10) |> toIValue) |> // TODO
+      updatei(ii("Bubbles"), BoolTop |> BtoValue |> toIValue) |>
+      updatei(ii("Cancelable"), BoolTop |> BtoValue |> toIValue) |>
+      updatei(ii("DefaultPrevented"), BoolTop |> BtoValue |> toIValue) |>
+      updatei(ii("TimeStamp"), IntTop |> NtoValue |> toIValue) |>
+      updatei(ii("SrcElement"), lset_elems |> LStoValue |> toIValue) |>
+      updatei(ii("Detail"), IRange(0, 10) |> toIValue) |> // TODO
+      updatei(ii("Which"), IRange(0, 10) |> toIValue) |> // TODO
+      updatei(ii("ReturnValue"), BoolTop |> BtoValue |> toIValue)
+  }
+
+  def eventObject(state: AAbsState, names: Set[String], elems: AAbsLoc): AAbsObj = {
+    (AbsObjBot /: names)((o_i, s) => joinObj(o_i, try {
+      eventObject(state, s, elems)
+    } catch {
+      case e: Throwable =>
+        e.printStackTrace()
+        AbsObjBot
+    }))
+
+  }
+
   def joinObj(v1: AAbsObj, v2: AAbsObj): AAbsObj
   def joinValue(v1: AAbsValue, v2: AAbsValue): AAbsValue
   def joinIValue(v1: AAbsIValue, v2: AAbsIValue): AAbsIValue
   def joinState(v1: AAbsState, v2: AAbsState): AAbsState
   def joinLocSet(v1: AAbsLoc, v2: AAbsLoc): AAbsLoc
   def joinBool(v1: AAbsBool, v2: AAbsBool): AAbsBool
+
+  private def getTimers(s: AAbsState): AAbsValue = {
+    val ctxs = getNamedNode(DocumentElementNode)
+    lsetFoldLeft(ctxs)(ValueBot)((lset_i, l) => {
+      val lset = s |> slookup(l) |> lookupi(ii("Interval")) |> ItoValue
+      joinValue(lset_i, lset)
+    })
+  }
+
+  def elemsListen(dl: DLoc.T, s: AAbsState): HashMap[String, AAbsValue] = {
+    val empty = HashMap.empty[String, AAbsValue]
+    var visited = DLocSet.bottom
+
+    def dfs(l: DLoc.T, aa: HashMap[String, AAbsValue]): HashMap[String, AAbsValue] = {
+      if (l == DLoc.nullv) aa
+      else if (visited.contains(l)) aa
+      else {
+        visited = visited + l
+        lazy val dn = s |> dlookup(l)
+
+        // TODO need to consider capturing and bubbling.
+        val map = dn.eventHandlers
+        val lset = dn |> ddlookup("obj")
+        val aa_n = (aa /: map)((aa_i, kv) => {
+          aa_i + (kv._1._1 -> joinValue(aa_i.getOrElse(kv._1._1, ValueBot), lset))
+        })
+
+        val firsts = firstChilds(l)(s)
+        val nexts = nextSiblings(l)(s)
+
+        val aa_2 = (aa_n /: firsts)((aa_i, first) => dfs(first, aa_i))
+        val aa_3 = (aa_2 /: nexts)((aa_i, next) => dfs(next, aa_i))
+        aa_3
+      }
+
+    }
+
+    dfs(dl, empty)
+  }
+
+  def allEventListeners(s: AAbsState): HashMap[String, AAbsValue] = {
+    val lset_doc = getNamedNode(DocumentNode)
+    val dlset = lsetFoldLeft(lset_doc)(DLocSet.bottom)((dset_i, l) => dset_i + (s |> slookup(l) |> lookupi(ii("Node")) |> ItoValue |> dlocset))
+    assert(dlset.isSingleton)
+    val dl = dlset.head
+
+    val lset_timers = getTimers(s)
+    val map_0 = elemsListen(dl, s)
+    val map = if (lset_timers |> isNonEmpty) map_0 + ("TIMERS" -> lset_timers) else map_0
+
+    map
+  }
 
   def createElement(name: String, v_doc: AAbsValue)(s: SFInput): (AAbsValue, AAbsState) = {
     val tagName = name.toLowerCase
@@ -399,11 +545,15 @@ trait IChrome55 extends DOMModel {
           d_i
         } else d_i
       })
-    val s_2 = (s_1 /: list)((s_i, nlo) => {
-      mustNew(s_i, nlo._2)
-      s_i |> supdate(nlo._2, nlo._3)
-    })
-    val d_3 = (d_2 /: list)((d_i, nlo) => d_i |> addEventListener(nlo._1, nlo._2, bubble = false))
+    val s_2 = (s_1 /: list) {
+      case (s_i, (_, aloc, aobj)) =>
+        mustNew(s_i, aloc)
+        s_i |> supdate(aloc, aobj)
+    }
+    val d_3 = (d_2 /: list) {
+      case (d_i, (ename, aloc, _)) =>
+        d_i |> addEventListener(ename, aloc, bubble = false)
+    }
 
     val o_style = o_style_default |> updatei(ii("Style"), toIValue(LtoValue(l_style)))
     val style = attr(node)("style")
@@ -893,6 +1043,7 @@ trait IChrome55 extends DOMModel {
   val BoolFalse: AAbsBool
   val BoolTop: AAbsBool
   val BoolBot: AAbsBool
+  val IntTop: AAbsNum
   val StrTop: AAbsStr
   val OtherStr: AAbsStr
   val IntStr: AAbsStr

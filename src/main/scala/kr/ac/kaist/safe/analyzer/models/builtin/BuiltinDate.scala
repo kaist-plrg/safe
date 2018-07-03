@@ -89,7 +89,7 @@ object BuiltinDateHelper {
         .update(IClass, AbsIValue(AbsStr("Date")))
         .update(IPrimitiveValue, AbsIValue(absNum))
       val heap = state.heap.update(loc, newObj2)
-      (AbsState(heap, state.context), AbsState.Bot, AbsValue(loc))
+      (state.copy(heap), AbsState.Bot, AbsValue(loc))
     }
   )
 
@@ -130,7 +130,7 @@ object BuiltinDateHelper {
       // Set the [[PrimitiveValue]] internal property of this Date object to v.
       val v = AbsNum.Top
       val retH = h.update(loc, h.get(loc).update(IPrimitiveValue, AbsIValue(v)))
-      (AbsState(retH, state.context), state.raiseException(excSet), AbsValue(v))
+      (state.copy(heap = retH), state.raiseException(excSet), AbsValue(v))
     }
   )
 }

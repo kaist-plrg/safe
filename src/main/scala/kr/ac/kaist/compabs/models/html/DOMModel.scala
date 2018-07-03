@@ -7,6 +7,7 @@
  */
 package kr.ac.kaist.compabs.models.html
 
+import kr.ac.kaist.compabs.models.html.EventTypeEnum.EventType
 import kr.ac.kaist.compabs.models.html.parser.HTMLParser
 import kr.ac.kaist.compabs.models.shape.Host
 import org.w3c.dom.{ Document, Node }
@@ -37,6 +38,16 @@ trait DOMModel {
   def getProgram(t: T): List[CodeFragment]
   def isSupported: String => Boolean
   def loadModel: Host
-  def init(t: T, s: AAbsState): AAbsState
+  def init(t: T, s: AAbsState, parseFunc: FuncParser): AAbsState
   def genSemantics(): String => (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
+
+  protected[this] def eventType(name: String): EventType = {
+    Parser.events_sets.get(name) match {
+      case Some(s) => s
+      case None =>
+        System.err.println(s"* Warning: unknown event type: $name")
+        throw new InternalError(s"unknown event type: $name")
+    }
+  }
+
 }

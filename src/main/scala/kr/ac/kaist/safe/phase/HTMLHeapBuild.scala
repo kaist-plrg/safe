@@ -11,15 +11,16 @@
 
 package kr.ac.kaist.safe.phase
 
-import scala.util.{ Try, Success, Failure }
+import scala.util.{ Failure, Success, Try }
 import kr.ac.kaist.safe.{ LINE_SEP, SafeConfig }
 import kr.ac.kaist.safe.cfg_builder.DotWriter
-import kr.ac.kaist.safe.nodes.cfg.CFG
+import kr.ac.kaist.safe.nodes.cfg.{ CFG, FunctionId }
 import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.analyzer._
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.models.JSModel
 import kr.ac.kaist.safe.errors.error.NoChoiceError
+import kr.ac.kaist.safe.html.Chrome55.toAbsNum
 import kr.ac.kaist.safe.html.HTMLModel
 
 // HeapBuild phase
@@ -46,7 +47,12 @@ case object HTMLHeapBuild extends PhaseObj[(HTMLModel.T, CFG), HeapBuildConfig, 
 
     // Note: jsModel must be true. We do not support the case that jsModel is not true so far.
     var initSt = Initialize(cfg, jsModel = true, Some(HTMLModel))
-    initSt = HTMLModel.init(html, initSt)
+    def parseFunction(code: String, pos: Option[(String, Int, Int)]): AbsObj = {
+      // TODO pos: filename, start line, start column.
+      AbsObj.newFunctionObject(Some(Helper.parseFunction(cfg, code)), None, AbsValue(Null), None, AT, AF, AF, toAbsNum(1))
+    }
+
+    initSt = HTMLModel.init(html, initSt, parseFunction)
 
     // handling snapshot mode
     config.snapshot.foreach(str =>

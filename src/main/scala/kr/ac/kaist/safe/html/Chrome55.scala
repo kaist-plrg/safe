@@ -19,7 +19,7 @@ import kr.ac.kaist.safe.BASE_DIR
 import kr.ac.kaist.safe.analyzer.{ Helper, Initialize, TypeConversionHelper }
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.models.builtin.BuiltinGlobal
-import kr.ac.kaist.safe.util.NodeUtil.{ INTERNAL_BOOL_TOP, INTERNAL_CALL, INTERNAL_EVENT_FUNC }
+import kr.ac.kaist.safe.util.NodeUtil.{ INTERNAL_BOOL_TOP, INTERNAL_CALL, INTERNAL_CALL_EVENTS, INTERNAL_EVENT_FUNC }
 import kr.ac.kaist.safe.util.UserAllocSite
 
 object Chrome55 extends IChrome55 {
@@ -39,6 +39,7 @@ object Chrome55 extends IChrome55 {
   type AException = Exception
   type AAbsDataProp = AbsDataProp
   type AIName = IName
+
   def ii(s: String): AIName = IName.fromName(s)
   // wrapper type
   override type SemanticsFun = (AAbsValue, AAbsState) => (AAbsState, AAbsState, AAbsValue)
@@ -56,6 +57,7 @@ object Chrome55 extends IChrome55 {
   lazy val LocSetBot: AbsLoc = AbsLoc.Bot
   lazy val AbsObjBot: AAbsObj = AbsObj.Bot
   lazy val UInt: AbsNum = AbsNum.UInt
+  lazy val IntTop: AbsNum = AbsNum.Top
   lazy val IntStr: AAbsStr = AbsStr.Number
   lazy val StrTop: AAbsStr = AbsStr.Top
   lazy val OtherStr: AAbsStr = AbsStr.Other
@@ -83,15 +85,26 @@ object Chrome55 extends IChrome55 {
   def nnAPI(name: String): SemanticsFun = genAPI(si => throw new InternalError(s"TODO: $name"))
 
   override def getProgram(t: T): List[CodeFragment] = {
+    // TODO needs to be improved for precise analysis of a event loop.
     // Extract JavaScript code from HTML. Not event handlers.
     val codes = super.getProgram(t)
 
     val evt = INTERNAL_EVENT_FUNC
     // Build a CFG that includes an event handling loop.
-    val event_body = CodeFragment("#event#loop", 0, 0, s"while($INTERNAL_BOOL_TOP) { $INTERNAL_CALL($evt.func, $evt.elem, []); }")
+    val event_body = CodeFragment("#event#loop", 0, 0, s"while($INTERNAL_BOOL_TOP) { $INTERNAL_CALL_EVENTS($evt); $INTERNAL_CALL($evt.func, this, [$evt.event]); }")
     codes :+ event_body
   }
 
+  def domObjs(s: AAbsState): AAbsLoc = {
+    s.heap.getMap match {
+      case Some(map) =>
+        (AbsLoc.Bot /: map.keys)((lset_i, l) => {
+          if (AT ⊑ s.heap.get(l).contains(INode)) lset_i + l
+          else lset_i
+        })
+      case None => AbsLoc.Bot
+    }
+  }
   // utilities
   def returnValueA(v: AbsBool)(s: SFInput): (AbsState, AbsState, AbsValue) = returnValueC(AbsValue(v))(s)
   def returnValueB(v: AbsStr)(s: SFInput): (AbsState, AbsState, AbsValue) = returnValueC(AbsValue(v))(s)
@@ -165,7 +178,6 @@ object Chrome55 extends IChrome55 {
   def newObject(l_proto: Loc, cls: String, bExt: AAbsBool): AAbsObj = AbsObj.newObject(l_proto)
   lazy val emptyObject: AAbsObj = AbsObj.newObject
   def newArrayObject(v: AAbsNum): AAbsObj = AbsObj.newArrayObject(v)
-  def newFuncObject: AAbsObj = AbsObj.newObject
   def toAbsNum(i: Double): AAbsNum = AbsNum.alpha(Num(i))
 
   def updateIProp(name: String, value: CValue)(od: (AAbsObj, DNode.T)): (AAbsObj, DNode.T) = {
@@ -796,13 +808,11 @@ object Chrome55 extends IChrome55 {
   def lsetFoldLeft[T](v: AAbsValue)(i: T)(f: (T, ALoc) => T): T = v.locset.foldLeft[T](i)(f)
   def lsetFoldLeftL[T](v: AAbsLoc)(i: T)(f: (T, ALoc) => T): T = v.foldLeft[T](i)(f)
 
-  def init(t: T, s: AAbsState): AAbsState = {
+  def init(t: T, s: AAbsState, parseFunc: FuncParser): AAbsState = {
     val document = toDOM(t)
     def span(n: Node): Option[(String, Int, Int)] = None
-    // TODO parse a given code and create a new function
-    def ff(s: String, o: Option[(String, Int, Int)]): AAbsObj = newFuncObject
-    val pf: (String, Option[(String, Int, Int)]) => AAbsObj = ff // Helper.parseFunction(t.js.cfg)
-    genInitialDOMTree(document, span, s, pf)
+
+    genInitialDOMTree(document, span, s, parseFunc)
   }
 
   // TODO

@@ -73,7 +73,7 @@ class BasicCode(
     val (retSt, retSte, retV) = code(argV, st)
     val (retObj, _) = localEnv.SetMutableBinding("@return", retV)
     val retCtx = retSt.context.subsPureLocal(AbsLexEnv(retObj))
-    (AbsState(retSt.heap, retCtx), retSte)
+    (retSt.copy(context = retCtx), retSte)
   }
 }
 object BasicCode {
@@ -130,7 +130,7 @@ class CallCode(
     val (newSt, newExcSt, retV) = afterCallCode(argV, st)
     val (retObj, _) = localEnv.SetMutableBinding("@return", retV)
     val retCtx = newSt.context.subsPureLocal(AbsLexEnv(retObj))
-    (AbsState(newSt.heap, retCtx), newExcSt)
+    (newSt.copy(context = retCtx), newExcSt)
   }
 }
 

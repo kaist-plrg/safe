@@ -53,13 +53,12 @@ object Obj {
 }
 
 // internal property names
-sealed abstract class IName(name: String) {
-  IName.names += name -> this
+sealed abstract class IName(_name: String) {
+  val name: String = _name
   override def toString: String = s"[[$name]]"
   def toJson: JsValue = JsString(name)
 }
 object IName {
-  var names = HashMap.empty[String, IName]
   val all: List[IName] = List(
     IPrototype,
     IClass,
@@ -77,9 +76,49 @@ object IName {
     IStyle,
     IChildNodes,
     IAttributes,
-    ILength, IType, IBubbles, ICancelable, ICurrentTarget, IEventPhase, ISrcElement, ITarget, IDetail, IWhich,
-    IKeyCode, IReadystatechange, IReadyState, IResponseURL, ISrc
+    ILength,
+    IType,
+    IBubbles,
+    ICancelable,
+    ICurrentTarget,
+    IEventPhase,
+    ISrcElement,
+    ITarget,
+    IDetail,
+    IWhich,
+    IKeyCode,
+    IScreenX,
+    IScreenY,
+    IClientX,
+    IClientY,
+    ICtrlKey,
+    IShiftKey,
+    IAltKey,
+    IMetaKey,
+    IButton,
+    IButtons,
+    IRelatedTarget,
+    IPageX,
+    IPageY,
+    IX,
+    IY,
+    IOffsetX,
+    IOffsetY,
+    IMovementX,
+    IMovementY,
+    ILayerX,
+    ILayerY,
+    IReadystatechange,
+    IReadyState,
+    IResponseURL,
+    ISrc,
+    IDefaultPrevented,
+    ITimeStamp,
+    IReturnValue
   )
+  var names: HashMap[String, IName] = (HashMap.empty[String, IName] /: all) {
+    case (m_i, e) => m_i + (e.name -> e)
+  }
   def makeMap[V](value: V): Map[IName, V] = all.foldLeft(HashMap[IName, V]()) {
     case (map, iname) => map + (iname -> value)
   }
@@ -114,7 +153,7 @@ case object IBoundArgs extends IName("BoundArgs")
 case object IInterval extends IName("Interval")
 case object INode extends IName("Node")
 case object IStyle extends IName("Style")
-case object IChildNodes extends IName("StyleNodes")
+case object IChildNodes extends IName("ChildNodes")
 case object IAttributes extends IName("Attributes")
 case object ILength extends IName("Length")
 
@@ -127,32 +166,35 @@ case object ISrcElement extends IName("SrcElement")
 case object ITarget extends IName("Target")
 case object IDetail extends IName("Detail")
 case object IWhich extends IName("Which")
-case object IKeyCode extends IName("keyCode")
+case object IKeyCode extends IName("KeyCode")
 
-case object IScreenX extends IName("screenX")
-case object IScreenY extends IName("screenY")
-case object IClientX extends IName("clientX")
-case object IClientY extends IName("clientY")
-case object ICtrlKey extends IName("ctrlKey")
-case object IShiftKey extends IName("shiftKey")
-case object IAltKey extends IName("altKey")
-case object IMetaKey extends IName("metaKey")
-case object IButton extends IName("button")
-case object IButtons extends IName("buttons")
-case object IRelatedTarget extends IName("relatedTarget")
-case object IPageX extends IName("pageX")
-case object IPageY extends IName("pageY")
-case object IX extends IName("x")
-case object IY extends IName("y")
-case object IOffsetX extends IName("offsetX")
-case object IOffsetY extends IName("offsetY")
-case object IMovementX extends IName("movementX")
-case object IMovementY extends IName("movementY")
-case object ILayerX extends IName("layerX")
-case object ILayerY extends IName("layerY")
+case object IScreenX extends IName("ScreenX")
+case object IScreenY extends IName("ScreenY")
+case object IClientX extends IName("ClientX")
+case object IClientY extends IName("ClientY")
+case object ICtrlKey extends IName("CtrlKey")
+case object IShiftKey extends IName("ShiftKey")
+case object IAltKey extends IName("AltKey")
+case object IMetaKey extends IName("MetaKey")
+case object IButton extends IName("Button")
+case object IButtons extends IName("Buttons")
+case object IRelatedTarget extends IName("RelatedTarget")
+case object IPageX extends IName("PageX")
+case object IPageY extends IName("PageY")
+case object IX extends IName("X")
+case object IY extends IName("Y")
+case object IOffsetX extends IName("OffsetX")
+case object IOffsetY extends IName("OffsetY")
+case object IMovementX extends IName("MovementX")
+case object IMovementY extends IName("MovementY")
+case object ILayerX extends IName("LayerX")
+case object ILayerY extends IName("LayerY")
 
-case object IReadystatechange extends IName("readystatechange")
-case object IReadyState extends IName("readyState")
-case object IResponseURL extends IName("responseURL")
+case object IReadystatechange extends IName("Readystatechange")
+case object IReadyState extends IName("ReadyState")
+case object IResponseURL extends IName("ResponseURL")
 
-case object ISrc extends IName("src")
+case object ISrc extends IName("Src")
+case object IDefaultPrevented extends IName("DefaultPrevented")
+case object ITimeStamp extends IName("TimeStamp")
+case object IReturnValue extends IName("ReturnValue")

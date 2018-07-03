@@ -47,7 +47,7 @@ object BuiltinStringHelper {
       val loc = Loc(instanceASite)
       val state = st.oldify(loc)
       val heap = state.heap.update(loc, AbsObj.newStringObj(num))
-      (AbsState(heap, state.context), AbsState.Bot, AbsValue(loc))
+      (state.copy(heap), AbsState.Bot, AbsValue(loc))
     }
   )
 
@@ -58,7 +58,7 @@ object BuiltinStringHelper {
       val loc = Loc(matchObjASite)
       val state = st.oldify(loc)
       val heap = state.heap.update(loc, AbsObj.Top)
-      (AbsState(heap, state.context), AbsState.Bot, AbsValue(Null, loc))
+      (state.copy(heap), AbsState.Bot, AbsValue(Null, loc))
     }
   )
 

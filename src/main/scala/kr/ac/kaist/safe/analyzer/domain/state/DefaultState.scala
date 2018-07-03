@@ -28,7 +28,7 @@ object DefaultState extends StateDomain {
 
   def alpha(st: State): Elem = Top // TODO more precise
 
-  def apply(heap: AbsHeap, context: AbsContext): Elem = Bot.copy(heap, context)
+  //  def apply(heap: AbsHeap, context: AbsContext): Elem = Bot.copy(heap, context)
 
   def fromJson(v: JsValue): Elem = v match {
     case JsObject(m) => (
@@ -272,6 +272,9 @@ object DefaultState extends StateDomain {
         LINE_SEP +
         "** context **" + LINE_SEP +
         context.toString + LINE_SEP +
+        LINE_SEP +
+        "** dom **" + LINE_SEP +
+        dom.toString(2) + LINE_SEP +
         LINE_SEP +
         "** old allocation site set **" + LINE_SEP +
         context.old.toString

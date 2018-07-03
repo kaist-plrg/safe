@@ -84,7 +84,7 @@ private object BuiltinErrorHelper {
     val st1 = st.oldify(errorLoc)
     val h2 = st1.heap.update(errorLoc, errorObj)
 
-    (AbsState(h2, st1.context), AbsState.Bot, AbsValue(errorLoc))
+    (st1.copy(heap = h2), AbsState.Bot, AbsValue(errorLoc))
   }
 
   def toString(args: AbsValue, st: AbsState): (AbsState, AbsState, AbsValue) = {

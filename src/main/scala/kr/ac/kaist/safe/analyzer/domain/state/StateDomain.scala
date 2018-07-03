@@ -15,7 +15,7 @@ import kr.ac.kaist.safe.nodes.cfg._
 
 // state abstract domain
 trait StateDomain extends AbsDomain[State] {
-  def apply(heap: AbsHeap, context: AbsContext): Elem
+  //  def apply(heap: AbsHeap, context: AbsContext): Elem
 
   // abstract state element
   type Elem <: ElemTrait
