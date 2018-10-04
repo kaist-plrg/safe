@@ -13,26 +13,25 @@ package kr.ac.kaist.safe.analyzer.domain
 
 import scala.collection.immutable.HashSet
 
-// symbolic binding abstract domain
-object SymBinding extends BindingDomain {
-  lazy val Bot: Elem = Elem(AbsValue.Bot, SymSet.Bot, AbsAbsent.Bot, AbsBool.Bot)
-  lazy val Top: Elem = Elem(AbsValue.Top, SymSet.Top, AbsAbsent.Top, AbsBool.Top)
+// default binding abstract domain
+object DefaultBinding extends BindingDomain {
+  lazy val Bot: Elem = Elem(AbsValue.Bot, AbsAbsent.Bot, AbsBool.Bot)
+  lazy val Top: Elem = Elem(AbsValue.Top, AbsAbsent.Top, AbsBool.Top)
 
   def alpha(bind: Binding): Elem = bind match {
-    case MBinding(value) => Elem(AbsValue(value), SymSet.Bot, AbsAbsent.Bot, AbsBool.True)
-    case IBinding(None) => Elem(AbsValue.Bot, SymSet.Bot, AbsAbsent.Top, AbsBool.False)
-    case IBinding(Some(value)) => Elem(AbsValue(value), SymSet.Bot, AbsAbsent.Bot, AbsBool.False)
+    case MBinding(value) => Elem(AbsValue(value), AbsAbsent.Bot, AbsBool.True)
+    case IBinding(None) => Elem(AbsValue.Bot, AbsAbsent.Top, AbsBool.False)
+    case IBinding(Some(value)) => Elem(AbsValue(value), AbsAbsent.Bot, AbsBool.False)
   }
 
   def apply(
     value: AbsValue,
     uninit: AbsAbsent,
     mutable: AbsBool
-  ): Elem = Elem(value, SymSet.Bot, uninit, mutable)
+  ): Elem = Elem(value, uninit, mutable)
 
   case class Elem(
       value: AbsValue,
-      symset: SymSet,
       uninit: AbsAbsent,
       mutable: AbsBool
   ) extends ElemTrait {
@@ -73,7 +72,6 @@ object SymBinding extends BindingDomain {
       val right = that
       Elem(
         this.value ⊔ right.value,
-        this.symset ⊔ right.symset,
         this.uninit ⊔ right.uninit,
         this.mutable ⊔ right.mutable
       )
@@ -84,7 +82,6 @@ object SymBinding extends BindingDomain {
       val right = that
       Elem(
         this.value ⊓ right.value,
-        this.symset ⊓ right.symset,
         this.uninit ⊓ right.uninit,
         this.mutable ⊓ right.mutable
       )
@@ -103,22 +100,9 @@ object SymBinding extends BindingDomain {
     }
 
     def copy(
-      value: AbsValue,
-      symset: SymSet,
-      uninit: AbsAbsent,
-      mutable: AbsBool
-    ): Elem = Elem(value, symset, uninit, mutable)
-
-    def copy(
-      value: AbsValue,
-      uninit: AbsAbsent,
-      mutable: AbsBool
-    ): Elem = Elem(value, SymSet.Bot, uninit, mutable)
-
-    def this(
-      value: AbsValue,
-      uninit: AbsAbsent,
-      mutable: AbsBool
-    ) = this(value, SymSet.Bot, uninit, mutable)
+      value: AbsValue = this.value,
+      uninit: AbsAbsent = this.uninit,
+      mutable: AbsBool = this.mutable
+    ): Elem = Elem(value, uninit, mutable)
   }
 }

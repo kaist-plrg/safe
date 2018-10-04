@@ -173,9 +173,6 @@ package object domain {
   // location set
   type LocSet = LocSet.Elem
 
-  // symbol set
-  type SymSet = SymSet.Elem
-
   // value
   val AbsValue: DefaultValue.type = DefaultValue
   type AbsValue = DefaultValue.Elem
@@ -189,8 +186,8 @@ package object domain {
   type AbsIValue = DefaultIValue.Elem
 
   // data property
-  val AbsDataProp: SymDataProp.type = SymDataProp
-  type AbsDataProp = SymDataProp.Elem
+  val AbsDataProp: DefaultDataProp.type = DefaultDataProp
+  type AbsDataProp = DefaultDataProp.Elem
 
   // descriptor
   val AbsDesc: DefaultDesc.type = DefaultDesc
@@ -201,8 +198,8 @@ package object domain {
   type AbsAbsent = AbsAbsent.Elem
 
   // execution context
-  val AbsBinding: SymBinding.type = SymBinding
-  type AbsBinding = SymBinding.Elem
+  val AbsBinding: DefaultBinding.type = DefaultBinding
+  type AbsBinding = DefaultBinding.Elem
 
   val AbsDecEnvRec: DefaultDecEnvRec.type = DefaultDecEnvRec
   type AbsDecEnvRec = DefaultDecEnvRec.Elem
@@ -220,8 +217,8 @@ package object domain {
   type AbsContext = DefaultContext.Elem
 
   // object
-  val AbsObj: SymObject.type = SymObject
-  type AbsObj = SymObject.Elem
+  val AbsObj: CKeyObject.type = CKeyObject
+  type AbsObj = CKeyObject.Elem
 
   // heap
   val AbsHeap: DefaultHeap.type = DefaultHeap

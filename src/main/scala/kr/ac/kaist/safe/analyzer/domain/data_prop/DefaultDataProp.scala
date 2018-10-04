@@ -11,14 +11,13 @@
 
 package kr.ac.kaist.safe.analyzer.domain
 
-// symbolic data property abstract domain
-object SymDataProp extends DataPropDomain {
-  lazy val Bot: Elem = Elem(AbsValue.Bot, SymSet.Bot, AbsBool.Bot, AbsBool.Bot, AbsBool.Bot)
-  lazy val Top: Elem = Elem(AbsValue.Top, SymSet.Top, AbsBool.Top, AbsBool.Top, AbsBool.Top)
+// default data property abstract domain
+object DefaultDataProp extends DataPropDomain {
+  lazy val Bot: Elem = Elem(AbsValue.Bot, AbsBool.Bot, AbsBool.Bot, AbsBool.Bot)
+  lazy val Top: Elem = Elem(AbsValue.Top, AbsBool.Top, AbsBool.Top, AbsBool.Top)
 
   def alpha(prop: DataProp): Elem = Elem(
     AbsValue(prop.value),
-    SymSet.Bot,
     AbsBool(prop.writable),
     AbsBool(prop.enumerable),
     AbsBool(prop.configurable)
@@ -29,7 +28,7 @@ object SymDataProp extends DataPropDomain {
     writable: AbsBool,
     enumerable: AbsBool,
     configurable: AbsBool
-  ): Elem = Elem(value, SymSet.Bot, writable, enumerable, configurable)
+  ): Elem = Elem(value, writable, enumerable, configurable)
 
   def apply(desc: AbsDesc): Elem = {
     val (v, va) = desc.value
@@ -49,12 +48,11 @@ object SymDataProp extends DataPropDomain {
     val configurable =
       if (ca.isTop) c ⊔ AbsBool.False
       else c
-    Elem(value, SymSet.Bot, writable, enumerable, configurable)
+    Elem(value, writable, enumerable, configurable)
   }
 
   case class Elem(
       value: AbsValue,
-      symset: SymSet,
       writable: AbsBool,
       enumerable: AbsBool,
       configurable: AbsBool
@@ -75,7 +73,6 @@ object SymDataProp extends DataPropDomain {
       val (left, right) = (this, that)
       Elem(
         left.value ⊔ right.value,
-        SymSet.Bot,
         left.writable ⊔ right.writable,
         left.enumerable ⊔ right.enumerable,
         left.configurable ⊔ right.configurable
@@ -86,7 +83,6 @@ object SymDataProp extends DataPropDomain {
       val (left, right) = (this, that)
       Elem(
         left.value ⊓ right.value,
-        SymSet.Bot,
         left.writable ⊓ right.writable,
         left.enumerable ⊓ right.enumerable,
         left.configurable ⊓ right.configurable
@@ -108,6 +104,6 @@ object SymDataProp extends DataPropDomain {
       writable: AbsBool,
       enumerable: AbsBool,
       configurable: AbsBool
-    ): Elem = Elem(value, SymSet.Bot, writable, enumerable, configurable)
+    ): Elem = Elem(value, writable, enumerable, configurable)
   }
 }
