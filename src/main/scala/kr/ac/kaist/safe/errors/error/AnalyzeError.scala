@@ -58,6 +58,10 @@ case object LocTopGammaError extends AnalyzeError(
   "LocSet.Top.gamma is impossible"
 )
 
+case object SymTopGammaError extends AnalyzeError(
+  "SymSet.Top.gamma is impossible"
+)
+
 case class LocParseError(msg: String) extends AnalyzeError(
   s"[LocParseError] $msg"
 )

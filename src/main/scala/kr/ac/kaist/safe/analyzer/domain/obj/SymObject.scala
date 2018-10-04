@@ -20,9 +20,9 @@ import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.util.{ HashMap => Map }
 
 ////////////////////////////////////////////////////////////////////////////////
-// object abstract domain with concrete keys
+// object abstract domain with concrete keys and symbols
 ////////////////////////////////////////////////////////////////////////////////
-object CKeyObject extends ObjDomain {
+object SymObject extends ObjDomain {
   val NMap = PMapDomain[String, DataProp, AbsDataProp.type](AbsDataProp)
   type NMap = NMap.Elem
   val NVOpt: NMap.AbsVOpt.type = NMap.AbsVOpt
