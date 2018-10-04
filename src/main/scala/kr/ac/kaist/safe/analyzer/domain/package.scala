@@ -173,6 +173,9 @@ package object domain {
   // location set
   type LocSet = LocSet.Elem
 
+  // symbol set
+  type SymSet = SymSet.Elem
+
   // value
   val AbsValue: DefaultValue.type = DefaultValue
   type AbsValue = DefaultValue.Elem
