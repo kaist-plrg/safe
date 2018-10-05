@@ -41,7 +41,8 @@ case object HeapBuild extends PhaseObj[CFG, HeapBuildConfig, (CFG, Semantics, Tr
       config.heapClone,
       config.acs,
       config.callsiteSensitivity *
-        config.loopSensitivity
+        config.loopSensitivity,
+      config.symbolic
     )
 
     // trace sensitivity
@@ -83,7 +84,9 @@ case object HeapBuild extends PhaseObj[CFG, HeapBuildConfig, (CFG, Semantics, Tr
     ("loopDepth", NumOption((c, n) => if (n >= 0) c.loopSensitivity = c.loopSensitivity.copy(maxDepth = n)),
       "{number}-depth loop-sensitive analysis will be executed."),
     ("snapshot", StrOption((c, s) => c.snapshot = Some(s)),
-      "analysis with an initial heap generated from a dynamic snapshot(*.json).")
+      "analysis with an initial heap generated from a dynamic snapshot(*.json)."),
+    ("symbolic", BoolOption(c => c.symbolic = true),
+      "analysis with symbolic heap abstraction.")
   )
 
   // cache for JS model
@@ -103,5 +106,6 @@ case class HeapBuildConfig(
   var snapshot: Option[String] = None,
   var recencyMode: Boolean = false,
   var heapClone: Boolean = false,
-  var acs: Int = 0
+  var acs: Int = 0,
+  var symbolic: Boolean = false
 ) extends Config

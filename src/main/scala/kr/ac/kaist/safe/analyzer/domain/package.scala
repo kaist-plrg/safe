@@ -117,7 +117,8 @@ package object domain {
     recencyMode: Boolean,
     heapClone: Boolean,
     acs: Int,
-    sensitivity: Sensitivity
+    sensitivity: Sensitivity,
+    symbolic: Boolean
   ): Unit = {
     this.absUndef = Some(absUndef)
     this.absNull = Some(absNull)
@@ -128,6 +129,7 @@ package object domain {
     this.heapClone = Some(heapClone)
     this.acs = Some(acs)
     this.sensitivity = Some(sensitivity)
+    this.symbolic = Some(symbolic)
   }
 
   // primitive values
@@ -173,12 +175,14 @@ package object domain {
   // location set
   type LocSet = LocSet.Elem
 
-  // symbol set
+  // symbolic abstraction
+  private var symbolic: Option[Boolean] = None
+  lazy val Symbolic: Boolean = get("Symbolic", symbolic)
   type SymSet = SymSet.Elem
 
   // value
-  val AbsValue: DefaultValue.type = DefaultValue
-  type AbsValue = DefaultValue.Elem
+  lazy val AbsValue: ValueDomain = if (Symbolic) SymValue(DefaultValue) else DefaultValue
+  type AbsValue = AbsValue.Elem
 
   // function id
   val AbsFId: DefaultFId.type = DefaultFId
