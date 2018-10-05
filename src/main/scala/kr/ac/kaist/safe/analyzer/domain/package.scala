@@ -11,7 +11,7 @@
 
 package kr.ac.kaist.safe.analyzer
 
-import kr.ac.kaist.safe.nodes.cfg.{ CFG, FunctionId }
+import kr.ac.kaist.safe.nodes.cfg.{ CFG, FunctionId, CFGId }
 import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.util.PredAllocSite
 import scala.collection.immutable.{ HashMap, HashSet }
@@ -178,7 +178,9 @@ package object domain {
   // symbolic abstraction
   private var symbolic: Option[Boolean] = None
   lazy val Symbolic: Boolean = get("Symbolic", symbolic)
-  type SymSet = SymSet.Elem
+  type Sym = CFGId
+  type SymSet = Set[Sym]
+  val SymSetEmpty: SymSet = Set()
 
   // value
   lazy val AbsValue: ValueDomain = if (Symbolic) SymValue(DefaultValue) else DefaultValue

@@ -50,7 +50,7 @@ case class SymValue(BaseValue: ValueDomain) extends ValueDomain {
         case (INone, INone) => INone
         case (INone, ISome(v, s)) => ISome(this.value ⊔ v, s)
         case (ISome(v, s), INone) => ISome(v ⊔ that.value, s)
-        case (ISome(lv, ls), ISome(rv, rs)) => ISome(lv ⊔ rv, ls ⊔ rs)
+        case (ISome(lv, ls), ISome(rv, rs)) => ISome(lv ⊔ rv, ls ++ rs)
       }
     )
 
