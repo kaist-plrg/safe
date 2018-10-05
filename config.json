@@ -10,11 +10,12 @@
   "heapBuilder": {
     "maxStrSetSize": 10,
     "recency": false,
-    "heap-clone": true,
+    "heap-clone": false,
     "acs": 0,
-    "callsiteSensitivity": 20,
-    "loopIter": 100,
-    "loopDepth": 10,
-    "snapshot": ""
+    "callsiteSensitivity": 0,
+    "loopIter": 0,
+    "loopDepth": 0,
+    "snapshot": "",
+    "symbolic": true
   }
 }
