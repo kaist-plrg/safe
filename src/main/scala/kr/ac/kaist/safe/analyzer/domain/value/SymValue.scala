@@ -65,5 +65,7 @@ case class SymValue(BaseValue: ValueDomain) extends ValueDomain {
     def remove(locs: Set[Loc]): Elem = Elem(value.remove(locs))
     def typeCount: Int = value.typeCount
     def getThis(h: AbsHeap): LocSet = value.getThis(h)
+
+    override def attachSymbol(sym: Sym): Elem = Elem(value, ISome(BaseValue.Bot, Set(sym)))
   }
 }

@@ -37,5 +37,7 @@ trait ValueDomain extends AbsDomain[Value] {
     def getThis(h: AbsHeap): LocSet
 
     def typeCount: Int
+
+    def attachSymbol(sym: Sym): Elem = this
   }
 }
