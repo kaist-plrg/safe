@@ -35,6 +35,9 @@ trait HeapDomain extends AbsDomain[Heap] {
     // substitute from by to
     def subsLoc(from: Loc, to: Loc): Elem
 
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
+
     def remove(locs: Set[Loc]): Elem
 
     def alloc(loc: Loc): Elem

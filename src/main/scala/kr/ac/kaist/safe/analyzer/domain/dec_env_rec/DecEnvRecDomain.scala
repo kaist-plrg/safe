@@ -75,5 +75,8 @@ trait DecEnvRecDomain extends AbsDomain[DecEnvRec] {
 
     // remove locations
     def remove(locs: Set[Loc]): Elem
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
   }
 }

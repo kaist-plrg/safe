@@ -14,7 +14,6 @@ package kr.ac.kaist.safe.analyzer
 import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.console.Interactive
 import kr.ac.kaist.safe.nodes.cfg._
-import scala.collection.immutable.HashSet
 
 class Fixpoint(
     semantics: Semantics,
@@ -32,7 +31,7 @@ class Fixpoint(
     iters
   }
 
-  var cpSet: Set[CFGBlock] = HashSet()
+  var cpSet: Set[CFGBlock] = Set()
 
   def computeOneStep(): Unit = {
     consoleOpt.foreach(_.runFixpoint)

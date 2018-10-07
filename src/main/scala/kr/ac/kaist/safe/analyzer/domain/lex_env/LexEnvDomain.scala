@@ -78,5 +78,8 @@ trait LexEnvDomain extends AbsDomain[LexEnv] {
 
     // remove locations
     def remove(locs: Set[Loc]): Elem
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
   }
 }

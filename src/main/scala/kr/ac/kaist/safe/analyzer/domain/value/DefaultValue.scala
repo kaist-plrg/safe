@@ -84,6 +84,9 @@ object DefaultValue extends ValueDomain {
     def remove(locs: Set[Loc]): Elem =
       Elem(this.pvalue, this.locset.remove(locs))
 
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = this
+    def cleanSymbols: Elem = this
+
     def typeCount: Int = {
       if (this.locset.isBottom)
         pvalue.typeCount

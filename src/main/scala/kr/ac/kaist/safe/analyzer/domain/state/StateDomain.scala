@@ -27,10 +27,12 @@ trait StateDomain extends AbsDomain[State] {
 
     def remove(locs: Set[Loc]): Elem
     def subsLoc(from: Loc, to: Loc): Elem
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
     def raiseException(excSet: Set[Exception]): Elem
     def oldify(loc: Loc): Elem
     def alloc(loc: Loc): Elem
-    def afterCall(call: Call, locSet: LocSet): Elem
+    def afterCall(call: Call, locSet: LocSet, params: List[CFGId], argObj: AbsObj): Elem
     def setAllocLocSet(allocs: AllocLocSet): Elem
     def allocs: AllocLocSet
     def getLocSet: LocSet

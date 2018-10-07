@@ -11,8 +11,6 @@
 
 package kr.ac.kaist.safe.analyzer.domain
 
-import scala.collection.immutable.HashSet
-
 // default primitive value abstract domain
 object DefaultPValue extends PValueDomain {
   lazy val Bot: Elem =
@@ -126,7 +124,7 @@ object DefaultPValue extends PValueDomain {
     }
 
     def toStringSet: Set[AbsStr] = {
-      var set = HashSet[AbsStr]()
+      var set = Set[AbsStr]()
 
       this.undefval.foldUnit(set += AbsStr("undefined"))
       this.nullval.foldUnit(set += AbsStr("null"))

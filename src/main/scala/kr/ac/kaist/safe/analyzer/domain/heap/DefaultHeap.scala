@@ -17,12 +17,12 @@ import kr.ac.kaist.safe.util._
 
 // default heap abstract domain
 object DefaultHeap extends HeapDomain {
-  private val EmptyMap: HashMap[Loc, AbsObj] = HashMap()
+  private val EmptyMap: Map[Loc, AbsObj] = Map()
 
   case object Top extends Elem
   case object Bot extends Elem
-  val Empty: Elem = HeapMap(HashMap(), LocSet.Bot)
-  case class HeapMap(map: HashMap[Loc, AbsObj], merged: LocSet) extends Elem
+  val Empty: Elem = HeapMap(Map(), LocSet.Bot)
+  case class HeapMap(map: Map[Loc, AbsObj], merged: LocSet) extends Elem
 
   def alpha(heap: Heap): Elem = {
     val map = heap.map.foldLeft(EmptyMap) {
@@ -31,7 +31,7 @@ object DefaultHeap extends HeapDomain {
     HeapMap(map, LocSet.Bot)
   }
 
-  def apply(map: Map[Loc, AbsObj], merged: LocSet): Elem = HeapMap(HashMap(map.toSeq: _*), merged)
+  def apply(map: Map[Loc, AbsObj], merged: LocSet): Elem = HeapMap(Map(map.toSeq: _*), merged)
 
   sealed abstract class Elem extends ElemTrait {
     def gamma: ConSet[Heap] = ConInf // TODO more precise
@@ -99,7 +99,7 @@ object DefaultHeap extends HeapDomain {
       case (obj, loc) => obj ⊔ get(loc)
     }
 
-    private def weakUpdated(m: HashMap[Loc, AbsObj], loc: Loc, newObj: AbsObj): HashMap[Loc, AbsObj] = m.get(loc) match {
+    private def weakUpdated(m: Map[Loc, AbsObj], loc: Loc, newObj: AbsObj): Map[Loc, AbsObj] = m.get(loc) match {
       case Some(oldObj) => m.updated(loc, oldObj ⊔ newObj)
       case None => m.updated(loc, newObj)
     }
@@ -142,6 +142,24 @@ object DefaultHeap extends HeapDomain {
           newMerged.subsLoc(from, to)
         )
       }
+    }
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case HeapMap(map, merged) => HeapMap(
+        map.map { case (k, v) => k -> v.symbolicPruned(argMap) },
+        merged
+      )
+    }
+
+    def cleanSymbols: Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case HeapMap(map, merged) => HeapMap(
+        map.map { case (k, v) => k -> v.cleanSymbols },
+        merged
+      )
     }
 
     def remove(locs: Set[Loc]): Elem = this match {

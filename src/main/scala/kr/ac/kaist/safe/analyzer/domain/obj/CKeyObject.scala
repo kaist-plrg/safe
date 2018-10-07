@@ -17,7 +17,6 @@ import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.util._
-import kr.ac.kaist.safe.util.{ HashMap => Map }
 
 ////////////////////////////////////////////////////////////////////////////////
 // object abstract domain with concrete keys
@@ -104,6 +103,16 @@ object CKeyObject extends ObjDomain {
     def remove(locs: Set[Loc]): Elem = Elem(
       nmap = nmap.mapCValues { dp => dp.copy(dp.value.remove(locs)) },
       imap = imap.mapCValues { iv => iv.copy(iv.value.remove(locs)) }
+    )
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = Elem(
+      nmap = nmap.mapCValues { dp => dp.copy(dp.value.symbolicPruned(argMap)) },
+      imap = imap.mapCValues { iv => iv.copy(iv.value.symbolicPruned(argMap)) }
+    )
+
+    def cleanSymbols: Elem = Elem(
+      nmap = nmap.mapCValues { dp => dp.copy(dp.value.cleanSymbols) },
+      imap = imap.mapCValues { iv => iv.copy(iv.value.cleanSymbols) }
     )
 
     // lookup

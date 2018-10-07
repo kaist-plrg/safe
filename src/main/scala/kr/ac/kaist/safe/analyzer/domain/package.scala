@@ -13,8 +13,7 @@ package kr.ac.kaist.safe.analyzer
 
 import kr.ac.kaist.safe.nodes.cfg.{ CFG, FunctionId, CFGId }
 import kr.ac.kaist.safe.errors.error._
-import kr.ac.kaist.safe.util.PredAllocSite
-import scala.collection.immutable.{ HashMap, HashSet }
+import kr.ac.kaist.safe.util.{ PredAllocSite, HashMap }
 
 package object domain {
   ////////////////////////////////////////////////////////////////
@@ -28,10 +27,10 @@ package object domain {
   ////////////////////////////////////////////////////////////////
   // value constructors
   ////////////////////////////////////////////////////////////////
-  val ExcSetEmpty: Set[Exception] = HashSet[Exception]()
+  val ExcSetEmpty: Set[Exception] = Set[Exception]()
   val ExcSetTop: Set[Exception] = null // TODO refactoring
 
-  val FidSetEmpty: Set[FunctionId] = HashSet[FunctionId]()
+  val FidSetEmpty: Set[FunctionId] = Set[FunctionId]()
 
   ////////////////////////////////////////////////////////////////
   // constant values
@@ -153,7 +152,7 @@ package object domain {
   lazy val AbsStr: StrDomain = get("StrDomain", absStr)
   type AbsStr = AbsStr.Elem
 
-  val AbsPValue: DefaultPValue.type = DefaultPValue
+  lazy val AbsPValue: DefaultPValue.type = DefaultPValue
   type AbsPValue = DefaultPValue.Elem
 
   // recency mode
@@ -183,23 +182,24 @@ package object domain {
   val SymSetEmpty: SymSet = Set()
 
   // value
-  lazy val AbsValue: ValueDomain = if (Symbolic) SymValue(DefaultValue) else DefaultValue
-  type AbsValue = AbsValue.Elem
+  // XXX lazy val AbsValue: ValueDomain = if (Symbolic) SymValue(DefaultValue) else DefaultValue
+  lazy val AbsValue: SymValue.type = SymValue
+  type AbsValue = SymValue.Elem
 
   // function id
-  val AbsFId: DefaultFId.type = DefaultFId
+  lazy val AbsFId: DefaultFId.type = DefaultFId
   type AbsFId = DefaultFId.Elem
 
   // internal value
-  val AbsIValue: DefaultIValue.type = DefaultIValue
+  lazy val AbsIValue: DefaultIValue.type = DefaultIValue
   type AbsIValue = DefaultIValue.Elem
 
   // data property
-  val AbsDataProp: DefaultDataProp.type = DefaultDataProp
+  lazy val AbsDataProp: DefaultDataProp.type = DefaultDataProp
   type AbsDataProp = DefaultDataProp.Elem
 
   // descriptor
-  val AbsDesc: DefaultDesc.type = DefaultDesc
+  lazy val AbsDesc: DefaultDesc.type = DefaultDesc
   type AbsDesc = DefaultDesc.Elem
 
   // absent value for parital map
@@ -207,38 +207,41 @@ package object domain {
   type AbsAbsent = AbsAbsent.Elem
 
   // execution context
-  val AbsBinding: DefaultBinding.type = DefaultBinding
+  lazy val AbsBinding: DefaultBinding.type = DefaultBinding
   type AbsBinding = DefaultBinding.Elem
 
-  val AbsDecEnvRec: DefaultDecEnvRec.type = DefaultDecEnvRec
+  lazy val AbsDecEnvRec: DefaultDecEnvRec.type = DefaultDecEnvRec
   type AbsDecEnvRec = DefaultDecEnvRec.Elem
 
-  val AbsGlobalEnvRec: DefaultGlobalEnvRec.type = DefaultGlobalEnvRec
+  lazy val AbsGlobalEnvRec: DefaultGlobalEnvRec.type = DefaultGlobalEnvRec
   type AbsGlobalEnvRec = DefaultGlobalEnvRec.Elem
 
-  val AbsEnvRec: DefaultEnvRec.type = DefaultEnvRec
+  lazy val AbsEnvRec: DefaultEnvRec.type = DefaultEnvRec
   type AbsEnvRec = DefaultEnvRec.Elem
 
-  val AbsLexEnv: DefaultLexEnv.type = DefaultLexEnv
+  lazy val AbsLexEnv: DefaultLexEnv.type = DefaultLexEnv
   type AbsLexEnv = DefaultLexEnv.Elem
 
-  val AbsContext: DefaultContext.type = DefaultContext
+  lazy val AbsContext: DefaultContext.type = DefaultContext
   type AbsContext = DefaultContext.Elem
 
   // object
-  val AbsObj: CKeyObject.type = CKeyObject
+  lazy val AbsObj: CKeyObject.type = CKeyObject
   type AbsObj = CKeyObject.Elem
 
   // heap
-  val AbsHeap: DefaultHeap.type = DefaultHeap
+  lazy val AbsHeap: DefaultHeap.type = DefaultHeap
   type AbsHeap = DefaultHeap.Elem
 
   // state
-  val AbsState: DefaultState.type = DefaultState
+  lazy val AbsState: DefaultState.type = DefaultState
   type AbsState = DefaultState.Elem
 
   private def get[T](name: String, opt: Option[T]): T = opt match {
     case Some(choice) => choice
     case None => throw NotYetDefined(name)
   }
+
+  type Map[K, V] = HashMap[K, V]
+  val Map = HashMap
 }

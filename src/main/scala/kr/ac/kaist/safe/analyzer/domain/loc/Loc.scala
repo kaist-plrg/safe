@@ -16,7 +16,6 @@ import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.nodes.cfg.{ CFG, Call }
 import kr.ac.kaist.safe.util.PipeOps._
 import kr.ac.kaist.safe.util._
-import scala.collection.immutable.HashSet
 import scala.util.parsing.combinator._
 import scala.util.{ Try, Success, Failure }
 

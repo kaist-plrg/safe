@@ -59,6 +59,9 @@ trait ObjDomain extends AbsDomain[Obj] {
     def alloc(loc: Loc): Elem
     def remove(locs: Set[Loc]): Elem
 
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
+
     def apply(str: String): AbsDataProp
     def apply(astr: AbsStr): AbsDataProp
     def apply(in: IName): AbsIValue

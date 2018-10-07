@@ -33,6 +33,10 @@ trait ValueDomain extends AbsDomain[Value] {
     def weakSubsLoc(from: Loc, to: Loc): Elem
     /* remove locations */
     def remove(locs: Set[Loc]): Elem
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
+    def cleanSymbols: Elem
+
     // TODO working but a more simple way exists with modifying getBase
     def getThis(h: AbsHeap): LocSet
 

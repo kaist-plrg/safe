@@ -11,7 +11,6 @@
 
 package kr.ac.kaist.safe.cfg_builder
 
-import scala.collection.immutable.HashSet
 import kr.ac.kaist.safe.errors.ExcLog
 import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.errors.warning._
@@ -39,7 +38,7 @@ class CapturedVariableCollector(
 
   private type LocalNames = Set[String]
   private type CapturedNames = Set[String]
-  private val EMPTY: Set[String] = HashSet()
+  private val EMPTY: Set[String] = Set()
 
   ////////////////////////////////////////////////////////////////
   // helper function
@@ -183,7 +182,7 @@ class CapturedVariableCollector(
     // IRId
     def walk(id: IRId, locals: LocalNames): CapturedNames = id match {
       case IRUserId(_, _, name, false, _) if (!locals.contains(name)) =>
-        HashSet(name)
+        Set(name)
       case _ => EMPTY
     }
 

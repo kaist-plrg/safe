@@ -19,7 +19,6 @@ import kr.ac.kaist.safe.nodes.ir.IRRoot
 import kr.ac.kaist.safe.phase._
 import kr.ac.kaist.safe.util.ArgParser
 
-import scala.collection.immutable.HashMap
 import scala.util.Try
 
 sealed trait Command {
@@ -30,7 +29,7 @@ sealed trait Command {
 class CommandObj[Result](
     override val name: String,
     pList: PhaseList[Result],
-    modeMap: Map[String, PhaseList[Result]] = HashMap[String, PhaseList[Result]]()
+    modeMap: Map[String, PhaseList[Result]] = Map[String, PhaseList[Result]]()
 ) extends Command {
   def apply(
     args: List[String],
@@ -95,7 +94,7 @@ case object CmdHeapBuild extends CommandObj("heapBuild", CmdCFGBuild >> HeapBuil
 }
 
 // analyze
-case object CmdAnalyze extends CommandObj("analyze", CmdHeapBuild >> Analyze, HashMap( // TODO "load" -> (CmdAnalysisLoad >> Analyze)
+case object CmdAnalyze extends CommandObj("analyze", CmdHeapBuild >> Analyze, Map( // TODO "load" -> (CmdAnalysisLoad >> Analyze)
 )) {
   override def display(result: (CFG, Int, TracePartition, Semantics)): Unit = {
     val (cfg, iters, _, sem) = result

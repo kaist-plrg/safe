@@ -14,11 +14,10 @@ package kr.ac.kaist.safe.analyzer.domain
 import kr.ac.kaist.safe.errors.error.ContextAssertionError
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.util._
-import scala.collection.immutable.{ HashMap, HashSet }
 
 // default declarative environment record abstract domain
 object DefaultDecEnvRec extends DecEnvRecDomain {
-  private val EmptyMap: EnvMap = HashMap()
+  private val EmptyMap: EnvMap = Map()
 
   case object Bot extends Elem
   case class LBindMap(map: EnvMap) extends Elem
@@ -96,7 +95,7 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
         case (UBindMap(_), _) => right ⊔ this
         case (LBindMap(lmap), _) => {
           val nameSet = (right match {
-            case Bot => HashSet() // XXX: not fisible
+            case Bot => Set() // XXX: not fisible
             case LBindMap(rmap) => rmap.keySet
             case UBindMap(rmap) => rmap.keySet
           }) ++ lmap.keySet
@@ -354,6 +353,36 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
         case Bot => Bot
         case LBindMap(map) => LBindMap(rm(map))
         case UBindMap(map) => UBindMap(rm(map))
+      }
+    }
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = {
+      def pruned(map: EnvMap): EnvMap = map.foldLeft(EmptyMap) {
+        case (m, (key, (bind, abs))) => {
+          val newV = bind.value.symbolicPruned(argMap)
+          val newBind = bind.copy(value = newV)
+          m + (key -> (newBind, abs))
+        }
+      }
+      this match {
+        case Bot => Bot
+        case LBindMap(map) => LBindMap(pruned(map))
+        case UBindMap(map) => UBindMap(pruned(map))
+      }
+    }
+
+    def cleanSymbols: Elem = {
+      def clean(map: EnvMap): EnvMap = map.foldLeft(EmptyMap) {
+        case (m, (key, (bind, abs))) => {
+          val newV = bind.value.cleanSymbols
+          val newBind = bind.copy(value = newV)
+          m + (key -> (newBind, abs))
+        }
+      }
+      this match {
+        case Bot => Bot
+        case LBindMap(map) => LBindMap(clean(map))
+        case UBindMap(map) => UBindMap(clean(map))
       }
     }
 

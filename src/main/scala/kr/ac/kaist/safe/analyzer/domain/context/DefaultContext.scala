@@ -15,17 +15,16 @@ import kr.ac.kaist.safe.analyzer.model._
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.nodes.cfg._
-import scala.collection.immutable.HashSet
 
 // default execution context abstract domain
 object DefaultContext extends ContextDomain {
-  private val EmptyMap: HashMap[Loc, AbsLexEnv] = HashMap()
+  private val EmptyMap: Map[Loc, AbsLexEnv] = Map()
 
   case object Bot extends Elem
   case object Top extends Elem
   case class CtxMap(
     // TODO val varEnv: LexEnv // VariableEnvironment
-    val map: HashMap[Loc, AbsLexEnv],
+    val map: Map[Loc, AbsLexEnv],
     val merged: LocSet,
     override val thisBinding: AbsValue // ThisBinding
   ) extends Elem
@@ -38,7 +37,7 @@ object DefaultContext extends ContextDomain {
     map: Map[Loc, AbsLexEnv],
     merged: LocSet,
     thisBinding: AbsValue
-  ): Elem = CtxMap(HashMap(map.toSeq: _*), merged, thisBinding)
+  ): Elem = CtxMap(Map(map.toSeq: _*), merged, thisBinding)
 
   sealed abstract class Elem extends ElemTrait {
     def gamma: ConSet[Context] = ConInf // TODO more precise
@@ -119,7 +118,7 @@ object DefaultContext extends ContextDomain {
       }
     }
 
-    private def weakUpdated(m: HashMap[Loc, AbsLexEnv], loc: Loc, newEnv: AbsLexEnv): HashMap[Loc, AbsLexEnv] =
+    private def weakUpdated(m: Map[Loc, AbsLexEnv], loc: Loc, newEnv: AbsLexEnv): Map[Loc, AbsLexEnv] =
       m.get(loc) match {
         case Some(oldEnv) => m.updated(loc, oldEnv ⊔ newEnv)
         case None => m.updated(loc, newEnv)
@@ -166,6 +165,26 @@ object DefaultContext extends ContextDomain {
       }
     }
 
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case CtxMap(map, merged, thisBinding) => CtxMap(
+        map.map { case (k, v) => k -> v.symbolicPruned(argMap) },
+        merged,
+        thisBinding.symbolicPruned(argMap)
+      )
+    }
+
+    def cleanSymbols: Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case CtxMap(map, merged, thisBinding) => CtxMap(
+        map.map { case (k, v) => k -> v.cleanSymbols },
+        merged,
+        thisBinding.cleanSymbols
+      )
+    }
+
     def remove(locs: Set[Loc]): Elem = this match {
       case Top => Top
       case Bot => Bot
@@ -206,8 +225,8 @@ object DefaultContext extends ContextDomain {
     }
 
     def getMap: Map[Loc, AbsLexEnv] = this match {
-      case Bot => HashMap()
-      case Top => HashMap() // TODO it is not sound
+      case Bot => Map()
+      case Top => Map() // TODO it is not sound
       case CtxMap(map, _, _) => map
     }
 

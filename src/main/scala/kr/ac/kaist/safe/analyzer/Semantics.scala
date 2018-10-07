@@ -17,11 +17,10 @@ import kr.ac.kaist.safe.analyzer.domain._
 import kr.ac.kaist.safe.analyzer.model._
 import kr.ac.kaist.safe.nodes.ir._
 import kr.ac.kaist.safe.nodes.cfg._
-import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.util.{ NodeUtil, EJSNumber, EJSString, EJSBool, EJSNull, EJSUndef, AllocSite, Recency, Recent, Old }
 import kr.ac.kaist.safe.LINE_SEP
 
-import scala.collection.immutable.{ HashMap, HashSet }
-import scala.collection.mutable.{ HashMap => MHashMap, Map => MMap }
+import scala.collection.mutable.{ Map => MMap }
 
 case class Semantics(
     cfg: CFG,
@@ -40,30 +39,31 @@ case class Semantics(
 
   private val AB = AbsBool.Bot
 
-  // ControlPoint
-  private val ccpToLocSet: MMap[Call, MMap[TracePartition, LocSet]] = MHashMap()
-  def setBeforeCallLocSet(call: Call, tp: TracePartition, locs: LocSet): Unit = {
-    val map = ccpToLocSet.getOrElse(call, {
-      val newMap = MHashMap[TracePartition, LocSet]()
-      ccpToLocSet(call) = newMap
+  // CFG functions, arguments, and location sets for each call control point
+  case class CallInfo(argObj: AbsObj, locs: LocSet)
+  private val ccpToCallInfo: MMap[Call, MMap[TracePartition, CallInfo]] = MMap()
+  def setCallInfo(call: Call, tp: TracePartition, info: CallInfo): Unit = {
+    val map = ccpToCallInfo.getOrElse(call, {
+      val newMap = MMap[TracePartition, CallInfo]()
+      ccpToCallInfo(call) = newMap
       newMap
     })
-    map(tp) = locs
+    map(tp) = info
   }
-  def getBeforeCallLocSet(call: Call, tp: TracePartition): LocSet = {
-    ccpToLocSet.getOrElse(call, MHashMap()).getOrElse(tp, LocSet.Bot)
+  def getCallInfo(call: Call, tp: TracePartition): CallInfo = {
+    ccpToCallInfo
+      .getOrElse(call, MMap())
+      .getOrElse(tp, CallInfo(AbsObj.Bot, LocSet.Bot))
   }
 
   // control point maps to state
-  private val cpToState: MMap[CFGBlock, MMap[TracePartition, AbsState]] = MHashMap()
-  def getAllState: Map[CFGBlock, Map[TracePartition, AbsState]] =
-    cpToState.toMap map { case (block, mmap) => block -> mmap.toMap }
+  private val cpToState: MMap[CFGBlock, MMap[TracePartition, AbsState]] = MMap()
   def getState(block: CFGBlock): Map[TracePartition, AbsState] =
     cpToState.getOrElse(block, {
-      val newMap = MHashMap[TracePartition, AbsState]()
+      val newMap = MMap[TracePartition, AbsState]()
       cpToState(block) = newMap
       newMap
-    }).toMap
+    }).foldLeft(Map[TracePartition, AbsState]())(_ + _)
   def getState(cp: ControlPoint): AbsState = {
     val block = cp.block
     val tp = cp.tracePartition
@@ -73,7 +73,7 @@ case class Semantics(
     val block = cp.block
     val tp = cp.tracePartition
     val map = cpToState.getOrElse(block, {
-      val newMap = MHashMap[TracePartition, AbsState]()
+      val newMap = MMap[TracePartition, AbsState]()
       cpToState(block) = newMap
       newMap
     })
@@ -82,15 +82,15 @@ case class Semantics(
   }
 
   type OutCtxtMap = Map[CFGBlock, Set[LoopContext]]
-  private var outCtxtMap: OutCtxtMap = HashMap()
+  private var outCtxtMap: OutCtxtMap = Map()
   def addOutCtxt(block: CFGBlock, ctxt: LoopContext): Unit =
     outCtxtMap += block -> (getOutCtxtSet(block) + ctxt)
   def getOutCtxtSet(block: CFGBlock): Set[LoopContext] =
-    outCtxtMap.getOrElse(block, HashSet())
+    outCtxtMap.getOrElse(block, Set())
 
   type IPSucc = Map[ControlPoint, EdgeData]
   type IPSuccMap = Map[ControlPoint, IPSucc]
-  private var ipSuccMap: IPSuccMap = HashMap()
+  private var ipSuccMap: IPSuccMap = Map()
   def getAllIPSucc: IPSuccMap = ipSuccMap
   def setAllIPSucc(newMap: IPSuccMap): Unit = { ipSuccMap = newMap }
   def getInterProcSucc(cp: ControlPoint): Option[IPSucc] = ipSuccMap.get(cp)
@@ -99,7 +99,7 @@ case class Semantics(
   // Edge label ctx records callee context, which is joined if the edge existed already.
   def addIPEdge(cp1: ControlPoint, cp2: ControlPoint, data: EdgeData): Unit = {
     val updatedSuccMap = ipSuccMap.get(cp1) match {
-      case None => HashMap(cp2 -> data)
+      case None => Map(cp2 -> data)
       case Some(map2) => map2.get(cp2) match {
         case None =>
           map2 + (cp2 -> data)
@@ -130,16 +130,19 @@ case class Semantics(
       case (Exit(_), _) if st.context.isBottom => AbsState.Bot
       case (Exit(f1), acall @ AfterCall(f2, retVar, call)) =>
         val call = acall.call
-        val callLocSet = getBeforeCallLocSet(call, cp2.tracePartition)
+        val argVars = f1.argVars
+        val CallInfo(argObj, locs) = getCallInfo(call, cp2.tracePartition)
         val state =
-          if (RecencyMode || ACS > 0) st.afterCall(call, callLocSet)
+          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, locs, argVars, argObj)
           else st
         val (ctx1, allocs1) = (state.context, state.allocs)
         val EdgeData(allocs2, env1, thisBinding) = data.fix(allocs1)
+
         if (allocs2.isBottom) AbsState.Bot
         else {
           val localEnv = ctx1.pureLocal
           val (returnV, _) = localEnv.record.decEnvRec.GetBindingValue("@return")
+
           val ctx2 = ctx1.subsPureLocal(env1)
           val newSt = state.copy(context = ctx2.setThisBinding(thisBinding))
             .setAllocLocSet(allocs2)
@@ -147,10 +150,13 @@ case class Semantics(
         }
       case (ExitExc(_), _) if st.context.isBottom => AbsState.Bot
       case (ExitExc(_), _) if st.allocs.isBottom => AbsState.Bot
-      case (ExitExc(_), acatch @ AfterCatch(_, _)) =>
+      case (ExitExc(f1), acatch @ AfterCatch(_, _)) =>
         val call = acatch.call
-        val callLocSet = getBeforeCallLocSet(call, cp2.tracePartition)
-        val state = st.afterCall(call, callLocSet)
+        val argVars = f1.argVars
+        val CallInfo(argObj, locs) = getCallInfo(call, cp2.tracePartition)
+        val state =
+          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, locs, argVars, argObj)
+          else st
         val (ctx1, c1) = (state.context, state.allocs)
         val EdgeData(c2, envL, thisBinding) = data.fix(c1)
         val env1 = envL.record.decEnvRec
@@ -196,9 +202,10 @@ case class Semantics(
           (newSt, AbsState.Bot)
         }
         case (call: Call) =>
-          val (resSt, resExcSt) = CI(cp, call.callInst, st, AbsState.Bot)
-          setBeforeCallLocSet(call, cp.tracePartition, resSt.getLocSet)
-          (resSt, resExcSt)
+          val (argVal, resSt, resExcSt) = internalCI(cp, call.callInst, st, AbsState.Bot)
+          val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
+          setCallInfo(call, cp.tracePartition, CallInfo(argObj, resSt.getLocSet))
+          (resSt.cleanSymbols, resExcSt.cleanSymbols)
         case block: NormalBlock =>
           block.getInsts.foldRight((st, AbsState.Bot))((inst, states) => {
             val (oldSt, oldExcSt) = states
@@ -294,7 +301,7 @@ case class Semantics(
         val locSet = value.locset
         val (v, excSet) = V(index, st)
         val absStrSet =
-          if (v.isBottom) HashSet[AbsStr]()
+          if (v.isBottom) Set[AbsStr]()
           else TypeConversionHelper.ToPrimitive(v, st.heap).toStringSet
         val (h1, b) = locSet.foldLeft[(AbsHeap, AbsBool)](AbsHeap.Bot, AB)((res1, l) => {
           val (tmpHeap1, tmpB1) = res1
@@ -642,7 +649,7 @@ case class Semantics(
         // 1. If Type(Obj) is not Object throw a TypeError exception.
         val excSet =
           if (attrV.pvalue.isBottom) ExcSetEmpty
-          else HashSet(TypeError)
+          else Set(TypeError)
         val attr = h.get(attrV.locset)
         val desc = AbsDesc.ToPropertyDescriptor(attr, h)
         val (retH, retExcSet) = objV.locset.foldLeft((h, excSet ++ excSetO ++ excSetP ++ excSetA)) {
@@ -762,7 +769,7 @@ case class Semantics(
         // 1. If Type(O) is not Object throw a TypeError exception.
         val excSet2: Set[Exception] =
           if (objV.pvalue.isBottom) ExcSetEmpty
-          else HashSet(TypeError)
+          else Set(TypeError)
 
         // 2. Let array be the result of creating a new Array object.
         // (XXX: we assign the length of the Array object as the number of properties)
@@ -1370,6 +1377,10 @@ case class Semantics(
   }
 
   def CI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsState, AbsState) = {
+    val (_, s, e) = internalCI(cp, i, st, excSt)
+    (s, e)
+  }
+  def internalCI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsValue, AbsState, AbsState) = {
     // cons, thisArg and arguments must not be bottom
     val tp = cp.tracePartition
     val loc = Loc(i.asite, tp)
@@ -1385,7 +1396,7 @@ case class Semantics(
 
     // XXX: stop if thisArg or arguments is LocSetBot(ValueBot)
     if (thisVal.isBottom || argVal.isBottom) {
-      (st, excSt)
+      (AbsValue.Bot, st, excSt)
     } else {
       val oldLocalEnv = st1.context.pureLocal
       val tp = cp.tracePartition
@@ -1421,7 +1432,7 @@ case class Semantics(
                   AllocLocSet.Empty,
                   newEnv.copy(record = newRec2),
                   thisVal
-                ))
+                ).cleanSymbols)
                 addIPEdge(exitCP, cpAfterCall, EdgeData(
                   st1.allocs,
                   oldLocalEnv,
@@ -1446,12 +1457,12 @@ case class Semantics(
 
       // exception handling
       val typeExcSet1 = i match {
-        case _: CFGConstruct if funVal.locset.exists(l => AF ⊑ st1.heap.hasConstruct(l)) => HashSet(TypeError)
-        case _: CFGCall if funVal.locset.exists(l => AF ⊑ TypeConversionHelper.IsCallable(l, st1.heap)) => HashSet(TypeError)
+        case _: CFGConstruct if funVal.locset.exists(l => AF ⊑ st1.heap.hasConstruct(l)) => Set(TypeError)
+        case _: CFGCall if funVal.locset.exists(l => AF ⊑ TypeConversionHelper.IsCallable(l, st1.heap)) => Set(TypeError)
         case _ => ExcSetEmpty
       }
       val typeExcSet2 =
-        if (!funVal.pvalue.isBottom) HashSet(TypeError)
+        if (!funVal.pvalue.isBottom) Set(TypeError)
         else ExcSetEmpty
 
       val totalExcSet = funExcSet ++ typeExcSet1 ++ typeExcSet2
@@ -1462,7 +1473,7 @@ case class Semantics(
         else AbsHeap.Bot
 
       val newSt = st1.copy(heap = h3)
-      (newSt, excSt ⊔ newExcSt)
+      (argVal, newSt, excSt ⊔ newExcSt)
     }
   }
 
@@ -1473,7 +1484,7 @@ case class Semantics(
       val (idxV, idxExcSet) = V(index, st)
       val absStrSet =
         if (!idxV.isBottom) TypeConversionHelper.ToPrimitive(idxV, st.heap).toStringSet
-        else HashSet[AbsStr]()
+        else Set[AbsStr]()
       val v1 = Helper.propLoad(objV, absStrSet, st.heap)
       (v1, idxExcSet)
     }
@@ -1524,7 +1535,7 @@ case class Semantics(
                 if (!v1.pvalue.isBottom && !locSet4.isBottom) AbsValue(AF)
                 else AbsValue.Bot
               val excSet3 =
-                if (!v2.pvalue.isBottom || !locSet5.isBottom || !protoVal.pvalue.isBottom) HashSet(TypeError)
+                if (!v2.pvalue.isBottom || !locSet5.isBottom || !protoVal.pvalue.isBottom) Set(TypeError)
                 else ExcSetEmpty
               val b = b1 ⊔ b2
               val excSet = excSet1 ++ excSet2 ++ excSet3
@@ -1536,7 +1547,7 @@ case class Semantics(
               })
               val b = AbsValue(absB)
               val excSet3 =
-                if (!v2.pvalue.isBottom) HashSet(TypeError)
+                if (!v2.pvalue.isBottom) Set(TypeError)
                 else ExcSetEmpty
               val excSet = excSet1 ++ excSet2 ++ excSet3
               (b, excSet)
@@ -1638,6 +1649,9 @@ case class EdgeData(allocs: AllocLocSet, env: AbsLexEnv, thisBinding: AbsValue) 
       EdgeData(newAllocs, env, thisBinding)
     }
   }
+
+  def cleanSymbols: EdgeData =
+    EdgeData(allocs, env.cleanSymbols, thisBinding.cleanSymbols)
 }
 object EdgeData {
   val Bot: EdgeData = EdgeData(AllocLocSet.Bot, AbsLexEnv.Bot, AbsValue.Bot)

@@ -9,9 +9,11 @@
  * ****************************************************************************
  */
 
-package kr.ac.kaist.safe.analyzer.domain
+package kr.ac.kaist.safe.analyzer
 
-import kr.ac.kaist.safe.nodes.cfg.CFGId
+import kr.ac.kaist.safe.util.HashMap
 
-// concrete symbol type
-case class Sym(id: CFGId)
+package object analyzer {
+  type Map[K, V] = HashMap[K, V]
+  val Map = HashMap
+}

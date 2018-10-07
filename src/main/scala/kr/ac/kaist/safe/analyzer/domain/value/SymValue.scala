@@ -15,7 +15,9 @@ import kr.ac.kaist.safe.analyzer.model.GLOBAL_LOC
 import kr.ac.kaist.safe.util._
 
 // symbolic value abstract domain
-case class SymValue(BaseValue: ValueDomain) extends ValueDomain {
+// XXX case class SymValue(BaseValue: ValueDomain) extends ValueDomain {
+object SymValue extends ValueDomain {
+  val BaseValue: ValueDomain = DefaultValue
   type BaseValue = BaseValue.Elem
 
   // symbolic information
@@ -67,5 +69,19 @@ case class SymValue(BaseValue: ValueDomain) extends ValueDomain {
     def getThis(h: AbsHeap): LocSet = value.getThis(h)
 
     override def attachSymbol(sym: Sym): Elem = Elem(value, ISome(BaseValue.Bot, Set(sym)))
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem = info match {
+      case INone => this
+      case ISome(base, set) =>
+        val common = argMap.keySet intersect set
+        (Elem(base, INone) /: common) {
+          case (v, sym) => argMap.get(sym) match {
+            case Some(av) => v ⊔ av
+            case _ => v
+          }
+        }
+    }
+
+    def cleanSymbols: Elem = Elem(value, INone)
   }
 }

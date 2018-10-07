@@ -11,7 +11,7 @@
 
 package kr.ac.kaist.safe.nodes.cfg
 
-import scala.collection.mutable.{ HashMap => MHashMap, Map => MMap }
+import scala.collection.mutable.{ Map => MMap }
 import kr.ac.kaist.safe.{ LINE_SEP, SIGNIFICANT_BITS }
 import kr.ac.kaist.safe.nodes.ir.IRNode
 import kr.ac.kaist.safe.util._
@@ -35,7 +35,7 @@ case class CFGFunction(
 
   // all blocks in this function
   private var blocks: List[CFGBlock] = List(exitExc, exit, entry)
-  private var blockMap: MMap[BlockId, CFGBlock] = MHashMap(
+  private var blockMap: MMap[BlockId, CFGBlock] = MMap(
     -1 -> entry,
     -2 -> exit,
     -3 -> exitExc

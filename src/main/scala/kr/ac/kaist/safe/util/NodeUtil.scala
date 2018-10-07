@@ -19,16 +19,17 @@ import kr.ac.kaist.safe.BASE_DIR
 import kr.ac.kaist.safe.LINE_SEP
 import java.io.BufferedWriter
 import java.io.IOException
-import scala.collection.immutable.HashSet
 
 object NodeUtil {
+  // hash map
+  type Map[K, V] = HashMap[K, V]
+
   ////////////////////////////////////////////////////////////////
   // local mutable (TODO have to handle)
   ////////////////////////////////////////////////////////////////
-
   var iid = 0
   var nodesPrintId = 0
-  var nodesPrintIdEnv: Map[String, String] = HashMap()
+  var nodesPrintIdEnv: Map[String, String] = Map()
   var keepComments = false
   private var comment: Option[Comment] = None
 
@@ -162,7 +163,7 @@ object NodeUtil {
   val INTERNAL_ADD_EVENT_FUNC = internalAPIName("addEventFunc")
   val INTERNAL_GET_LOC = internalAPIName("getLoc")
   val INTERNAL_HAS_CONST = internalAPIName("HasConstruct")
-  val internalCallSet: Set[String] = HashSet(
+  val internalCallSet: Set[String] = Set(
     INTERNAL_PRINT,
     INTERNAL_CHAR_CODE,
     INTERNAL_CLASS,
@@ -249,7 +250,7 @@ object NodeUtil {
   val INTERNAL_ERR_PROTO = internalAPIName("ErrProto")
   val INTERNAL_OBJ_CONST = internalAPIName("ObjConst")
   val INTERNAL_ARRAY_CONST = internalAPIName("ArrayConst")
-  val internalValueSet: Set[String] = HashSet(
+  val internalValueSet: Set[String] = Set(
     INTERNAL_TOP,
     INTERNAL_BOT,
     INTERNAL_UINT,
@@ -278,7 +279,7 @@ object NodeUtil {
 
   // internal API variable
   val INTERNAL_EVENT_FUNC = internalAPIName("EventFunc")
-  val internalVarSet: Set[String] = HashSet(
+  val internalVarSet: Set[String] = Set(
     INTERNAL_EVENT_FUNC
   )
   def isInternalVar(id: String): Boolean = internalVarSet.contains(id)
@@ -385,7 +386,7 @@ object NodeUtil {
 
   def initNodesPrint: Unit = {
     nodesPrintId = 0
-    nodesPrintIdEnv = HashMap()
+    nodesPrintIdEnv = Map()
   }
 
   def getNodesE(uniq: String): String = nodesPrintIdEnv.get(uniq) match {
@@ -544,7 +545,7 @@ object NodeUtil {
     var offset = 0
     def addLines(node: Program, l: Int, o: Int): Program = {
       line = l; offset = o
-      map = new HashMap[String, Span]
+      map = new Map[String, Span]
       walk(node)
     }
 
@@ -559,7 +560,7 @@ object NodeUtil {
       } else (node, node.info.span)
     }
 
-    var map = new HashMap[String, Span]
+    var map = new Map[String, Span]
     override def walk(i: ASTNodeInfo): ASTNodeInfo = {
       val span = i.span
       val key = span.toString
@@ -620,17 +621,17 @@ object NodeUtil {
     var offset = 0
     def addLines(node: Expr, l: Int, o: Int): Expr = {
       line = l; offset = o
-      map = new HashMap[String, Span]
+      map = new Map[String, Span]
       walk(node)
     }
     def addLines(node: LHS, l: Int, o: Int): LHS = {
       line = l; offset = o
-      map = new HashMap[String, Span]
+      map = new Map[String, Span]
       walk(node)
     }
     def addLines(node: FunExpr, l: Int, o: Int): FunExpr = {
       line = l; offset = o
-      map = new HashMap[String, Span]
+      map = new Map[String, Span]
       walk(node)
     }
     var map = Map[String, Span]()

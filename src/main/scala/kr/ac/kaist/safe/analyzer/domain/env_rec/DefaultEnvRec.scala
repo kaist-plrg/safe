@@ -121,5 +121,11 @@ object DefaultEnvRec extends EnvRecDomain {
 
     def remove(locs: Set[Loc]): Elem =
       Elem(decEnvRec.remove(locs), globalEnvRec)
+
+    def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem =
+      Elem(decEnvRec.symbolicPruned(argMap), globalEnvRec)
+
+    def cleanSymbols: Elem =
+      Elem(decEnvRec.cleanSymbols, globalEnvRec)
   }
 }
