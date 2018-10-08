@@ -217,15 +217,20 @@ object CKeyObject extends ObjDomain {
       val (strSet, astr) = visit(this)
       (strSet.toList.sortBy { _.toString }, astr) // TODO for-in order
     }
-    private def ownKeySetPair: (Set[String], AbsStr) = nmap.map.keySet.foldLeft((Set[String](), AbsStr.Bot)) {
-      case ((strSet, astr), key) => {
-        val NVOpt(value, absent) = nmap(key)
-        val isEnum = value.enumerable
-        if (AT ⊑ isEnum) {
-          val isDef = absent.isBottom
-          if (isDef && (AbsBool.Top != isEnum)) (strSet + key, astr)
-          else (strSet, astr ⊔ AbsStr(key))
-        } else (strSet, astr)
+    private def ownKeySetPair: (Set[String], AbsStr) = {
+      val initial =
+        if (nmap.default.value.isBottom) AbsStr.Bot
+        else AbsStr.Top
+      nmap.map.keySet.foldLeft((Set[String](), initial)) {
+        case ((strSet, astr), key) => {
+          val NVOpt(value, absent) = nmap(key)
+          val isEnum = value.enumerable
+          if (AT ⊑ isEnum) {
+            val isDef = absent.isBottom
+            if (isDef && (AbsBool.Top != isEnum)) (strSet + key, astr)
+            else (strSet, astr ⊔ AbsStr(key))
+          } else (strSet, astr)
+        }
       }
     }
 
