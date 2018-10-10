@@ -39,8 +39,6 @@ case class Semantics(
 
   private val AB = AbsBool.Bot
 
-  // CFG functions, arguments, and location sets for each call control point
-  case class CallInfo(argObj: AbsObj, locs: LocSet)
   private val ccpToCallInfo: MMap[Call, MMap[TracePartition, CallInfo]] = MMap()
   def setCallInfo(call: Call, tp: TracePartition, info: CallInfo): Unit = {
     val map = ccpToCallInfo.getOrElse(call, {
@@ -50,10 +48,11 @@ case class Semantics(
     })
     map(tp) = info
   }
+
   def getCallInfo(call: Call, tp: TracePartition): CallInfo = {
     ccpToCallInfo
       .getOrElse(call, MMap())
-      .getOrElse(tp, CallInfo(AbsObj.Bot, LocSet.Bot))
+      .getOrElse(tp, CallInfo(AbsState.Bot, AbsValue.Bot))
   }
 
   // control point maps to state
@@ -130,10 +129,10 @@ case class Semantics(
       case (Exit(_), _) if st.context.isBottom => AbsState.Bot
       case (Exit(f1), acall @ AfterCall(f2, retVar, call)) =>
         val call = acall.call
-        val argVars = f1.argVars
-        val CallInfo(argObj, locs) = getCallInfo(call, cp2.tracePartition)
+        val params = f1.argVars
+        val info = getCallInfo(call, cp2.tracePartition)
         val state =
-          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, locs, argVars, argObj)
+          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, info, params)
           else st
         val (ctx1, allocs1) = (state.context, state.allocs)
         val EdgeData(allocs2, env1, thisBinding) = data.fix(allocs1)
@@ -142,7 +141,6 @@ case class Semantics(
         else {
           val localEnv = ctx1.pureLocal
           val (returnV, _) = localEnv.record.decEnvRec.GetBindingValue("@return")
-
           val ctx2 = ctx1.subsPureLocal(env1)
           val newSt = state.copy(context = ctx2.setThisBinding(thisBinding))
             .setAllocLocSet(allocs2)
@@ -152,10 +150,10 @@ case class Semantics(
       case (ExitExc(_), _) if st.allocs.isBottom => AbsState.Bot
       case (ExitExc(f1), acatch @ AfterCatch(_, _)) =>
         val call = acatch.call
-        val argVars = f1.argVars
-        val CallInfo(argObj, locs) = getCallInfo(call, cp2.tracePartition)
+        val params = f1.argVars
+        val info = getCallInfo(call, cp2.tracePartition)
         val state =
-          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, locs, argVars, argObj)
+          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, info, params)
           else st
         val (ctx1, c1) = (state.context, state.allocs)
         val EdgeData(c2, envL, thisBinding) = data.fix(c1)
@@ -203,9 +201,8 @@ case class Semantics(
         }
         case (call: Call) =>
           val (argVal, resSt, resExcSt) = internalCI(cp, call.callInst, st, AbsState.Bot)
-          val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
-          setCallInfo(call, cp.tracePartition, CallInfo(argObj, resSt.getLocSet))
-          (resSt.cleanSymbols, resExcSt.cleanSymbols)
+          setCallInfo(call, cp.tracePartition, CallInfo(resSt, argVal))
+          (resSt.cleanSymbols.cleanChanged, resExcSt)
         case block: NormalBlock =>
           block.getInsts.foldRight((st, AbsState.Bot))((inst, states) => {
             val (oldSt, oldExcSt) = states
@@ -1656,3 +1653,6 @@ case class EdgeData(allocs: AllocLocSet, env: AbsLexEnv, thisBinding: AbsValue) 
 object EdgeData {
   val Bot: EdgeData = EdgeData(AllocLocSet.Bot, AbsLexEnv.Bot, AbsValue.Bot)
 }
+
+// call infomation
+case class CallInfo(state: AbsState, argVal: AbsValue)

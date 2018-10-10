@@ -11,9 +11,11 @@
 
 package kr.ac.kaist.safe.analyzer.domain
 
-import kr.ac.kaist.safe.analyzer.model._
 import kr.ac.kaist.safe.LINE_SEP
+import kr.ac.kaist.safe.analyzer.CallInfo
+import kr.ac.kaist.safe.analyzer.model._
 import kr.ac.kaist.safe.nodes.cfg._
+import kr.ac.kaist.safe.util.PipeOps._
 import kr.ac.kaist.safe.util._
 
 // default state abstract domain
@@ -110,30 +112,33 @@ object DefaultState extends StateDomain {
       Elem(newHeap, newCtxt, newAllocs)
     }
 
-    def afterCall(call: Call, locSet: LocSet, params: List[CFGId], argObj: AbsObj): Elem = {
-      // pruning based on symbolic values
+    def afterCall(call: Call, info: CallInfo, params: List[CFGId]): Elem = {
+      this
+        .prunedSymbolic(info, params)
+        .prunedChanged(info.state)
+        .prunedACS(call)
+    }
+
+    // pruning based on changed locations
+    private def prunedChanged(callerSt: Elem): Elem = callerSt << this
+
+    // pruning based on symbolic values
+    private def prunedSymbolic(info: CallInfo, params: List[CFGId]): Elem = {
+      val CallInfo(st, argVal) = info
+      val h = st.heap
+      val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
       val argMap = (Map[CFGId, AbsValue]() /: params.zipWithIndex) {
         case (map, (param, idx)) =>
           val arg = argObj.Get(AbsStr(idx.toString), heap)
           map + (param -> arg)
       }
-      val prunedSym = symbolicPruned(argMap)
+      symbolicPruned(argMap)
+    }
 
-      // pruning based on predefined location set
+    // pruning based on allocation-callsite abstraction
+    private def prunedACS(call: Call): Elem = {
       val allocs = this.allocs.mayAlloc ⊔ this.allocs.mustAlloc
-      val oldified = allocs.foldLeft(locSet) {
-        case (set, locR @ Recency(l, Recent)) =>
-          val locO = Recency(l, Old)
-          set.subsLoc(locR, locO)
-        case (set, _) => set
-      }
-      val prunedLocSet = (getLocSet.gamma, (oldified ⊔ allocs).gamma) match {
-        case (ConFin(given), ConFin(wanted)) => prunedSym.remove(given -- wanted)
-        case _ => prunedSym
-      }
-
-      // pruning based on allocation-callsite abstraction
-      val prunedACS = allocs.foldLeft(prunedLocSet) {
+      allocs.foldLeft(this) {
         case (st, loc) => loc.getACS match {
           case Some(from @ AllocCallSite(l, cs)) => {
             val to = AllocCallSite(l, (call :: cs).take(ACS))
@@ -142,8 +147,10 @@ object DefaultState extends StateDomain {
           case None => st
         }
       }
-      prunedACS
     }
+
+    def <<(that: Elem): Elem =
+      Elem(this.heap << that.heap, this.context << that.context, that.allocs)
 
     def setAllocLocSet(allocs: AllocLocSet): Elem = copy(allocs = allocs)
 
@@ -280,5 +287,8 @@ object DefaultState extends StateDomain {
         "** allocated location set **" + LINE_SEP +
         allocs.toString
     }
+
+    def cleanChanged: Elem =
+      Elem(heap.cleanChanged, context.cleanChanged, allocs)
   }
 }

@@ -169,7 +169,8 @@ object HTMLWriter {
                 case _ => "heap"
               }
               val concrete = if (h isConcrete loc) "C" else "M"
-              sb.append(s"{ value: {value: '[$concrete] $loc', id: '$loc'}, parent: '$parent' },").append(LINE_SEP)
+              val changed = if (h isChanged loc) "*" else " "
+              sb.append(s"{ value: {value: '$changed [$concrete] $loc', id: '$loc'}, parent: '$parent' },").append(LINE_SEP)
               obj.toString.split(LINE_SEP).foreach(prop => {
                 val propStr = prop.replaceAll("\'", "\\\\\'")
                 sb.append(s"{ value: {value: '$propStr'}, parent: '$loc' },").append(LINE_SEP)
@@ -185,7 +186,8 @@ object HTMLWriter {
       .foreach {
         case (loc, obj) =>
           val concrete = if (ctx isConcrete loc) "C" else "M"
-          sb.append(s"{ value: {value: '[$concrete] $loc', id: '$loc'}, parent: 'ctx' },").append(LINE_SEP)
+          val changed = if (ctx isChanged loc) "*" else " "
+          sb.append(s"{ value: {value: '$changed [$concrete] $loc', id: '$loc'}, parent: 'ctx' },").append(LINE_SEP)
           obj.toString.split(LINE_SEP).foreach(prop => {
             val propStr = prop.replaceAll("\'", "\\\\\'")
             sb.append(s"{ value: {value: '$propStr'}, parent: '$loc' },").append(LINE_SEP)

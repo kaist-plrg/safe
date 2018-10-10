@@ -69,5 +69,14 @@ trait ContextDomain extends AbsDomain[Context] {
 
     // location concrete check
     def isConcrete(loc: Loc): Boolean
+
+    // location changed check
+    def isChanged(loc: Loc): Boolean
+
+    // delete changed info
+    def cleanChanged: Elem
+
+    // applied changed information
+    def <<(that: Elem): Elem
   }
 }
