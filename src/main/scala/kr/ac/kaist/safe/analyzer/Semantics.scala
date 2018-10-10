@@ -132,8 +132,9 @@ case class Semantics(
         val params = f1.argVars
         val info = getCallInfo(call, cp2.tracePartition)
         val state =
-          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, info, params)
-          else st
+          if (RecencyMode || ACS > 0 || Symbolic) {
+            st.afterCall(call, info, params, f1.getOuterVars.toList)
+          } else st
         val (ctx1, allocs1) = (state.context, state.allocs)
         val EdgeData(allocs2, env1, thisBinding) = data.fix(allocs1)
 
@@ -153,8 +154,9 @@ case class Semantics(
         val params = f1.argVars
         val info = getCallInfo(call, cp2.tracePartition)
         val state =
-          if (RecencyMode || ACS > 0 || Symbolic) st.afterCall(call, info, params)
-          else st
+          if (RecencyMode || ACS > 0 || Symbolic) {
+            st.afterCall(call, info, params, f1.getOuterVars.toList)
+          } else st
         val (ctx1, c1) = (state.context, state.allocs)
         val EdgeData(c2, envL, thisBinding) = data.fix(c1)
         val env1 = envL.record.decEnvRec
@@ -186,7 +188,10 @@ case class Semantics(
           val xLocalVars = fun.localVars
           val localEnv = ctx.pureLocal
           val (argV, _) = localEnv.record.decEnvRec.GetBindingValue(fun.argumentsName)
-          val (nSt, _) = xArgVars.foldLeft((st, 0))((res, x) => {
+          val outerSt =
+            if (cfg.globalFunc eq fun) st
+            else st.attachOuter(fun.getOuterVars)
+          val (nSt, _) = xArgVars.foldLeft((outerSt, 0))((res, x) => {
             val (iSt, i) = res
             val vi = argV.locset.foldLeft(AbsValue.Bot)((vk, lArg) => {
               vk ⊔ iSt.heap.get(lArg).Get(i.toString, iSt.heap)

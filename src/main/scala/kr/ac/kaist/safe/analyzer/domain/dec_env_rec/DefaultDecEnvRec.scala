@@ -14,6 +14,7 @@ package kr.ac.kaist.safe.analyzer.domain
 import kr.ac.kaist.safe.errors.error.ContextAssertionError
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.nodes.cfg.{ CFGId, CapturedVar }
 
 // default declarative environment record abstract domain
 object DefaultDecEnvRec extends DecEnvRecDomain {
@@ -418,5 +419,22 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
     // delete
     def -(name: String): Elem =
       update(name, (AbsBinding.Bot, AbsAbsent.Top))
+
+    // attach symbols into captured variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem = this match {
+      case Bot => Bot
+      case LBindMap(map) => LBindMap(attachOuter(map, ids))
+      case UBindMap(map) => UBindMap(attachOuter(map, ids))
+    }
+    private def attachOuter(map: EnvMap, ids: Set[CFGId]): EnvMap = {
+      (map /: ids) {
+        case (map, id) => (map.get(id.text), id.kind) match {
+          case (Some((binding, abs)), CapturedVar) => {
+            map + (id.text -> (binding.copy(value = binding.value.attachSymbol(id)), abs))
+          }
+          case _ => map
+        }
+      }
+    }
   }
 }

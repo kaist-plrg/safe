@@ -326,5 +326,26 @@ object DefaultContext extends ContextDomain {
       }
       case _ => that
     }
+
+    // attach symbols into captured variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case cmap: CtxMap => {
+        var visited: Set[Loc] = Set()
+        var map: Map[Loc, AbsLexEnv] = cmap.map
+        def sub(loc: Loc): Unit = if (!(visited contains loc) && loc != GLOBAL_LOC) {
+          visited += loc
+          val env = map(loc)
+          val newDecEnvRec = env.record.decEnvRec.attachOuter(ids)
+          val newRec = AbsEnvRec(newDecEnvRec, env.record.globalEnvRec)
+          val newEnv = env.copy(record = newRec)
+          map = map + (loc -> newEnv)
+          env.outer.foreach(sub)
+        }
+        sub(PURE_LOCAL)
+        CtxMap(map, cmap.merged, cmap.changed, cmap.thisBinding)
+      }
+    }
   }
 }

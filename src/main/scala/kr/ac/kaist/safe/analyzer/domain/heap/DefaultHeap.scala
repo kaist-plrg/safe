@@ -14,6 +14,7 @@ package kr.ac.kaist.safe.analyzer.domain
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.analyzer.model.GLOBAL_LOC
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.nodes.cfg.{ CFGId, GlobalVar }
 
 // default heap abstract domain
 object DefaultHeap extends HeapDomain {
@@ -394,6 +395,27 @@ object DefaultHeap extends HeapDomain {
         HeapMap(newMap, newMerged, newChanged)
       }
       case _ => that
+    }
+
+    // attach symbols into global variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem = this match {
+      case Top => Top
+      case Bot => Bot
+      case HeapMap(map, merged, changed) => {
+        val globalObj = get(GLOBAL_LOC)
+        val newObj = (globalObj /: ids) {
+          case (obj, id) => id.kind match {
+            case GlobalVar => {
+              val name = id.text
+              val dp = obj(name)
+              if (dp.isBottom) obj
+              else obj.update(name, dp.copy(value = dp.value.attachSymbol(id)))
+            }
+            case _ => obj
+          }
+        }
+        HeapMap(map + (GLOBAL_LOC -> newObj), merged, changed)
+      }
     }
   }
 }

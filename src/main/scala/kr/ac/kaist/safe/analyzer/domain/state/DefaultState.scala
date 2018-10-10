@@ -112,9 +112,14 @@ object DefaultState extends StateDomain {
       Elem(newHeap, newCtxt, newAllocs)
     }
 
-    def afterCall(call: Call, info: CallInfo, params: List[CFGId]): Elem = {
+    def afterCall(
+      call: Call,
+      info: CallInfo,
+      params: List[CFGId],
+      outers: List[CFGId]
+    ): Elem = {
       this
-        .prunedSymbolic(info, params)
+        .prunedSymbolic(info, params, outers)
         .prunedChanged(info.state)
         .prunedACS(call)
     }
@@ -123,16 +128,32 @@ object DefaultState extends StateDomain {
     private def prunedChanged(callerSt: Elem): Elem = callerSt << this
 
     // pruning based on symbolic values
-    private def prunedSymbolic(info: CallInfo, params: List[CFGId]): Elem = {
+    private def prunedSymbolic(
+      info: CallInfo,
+      params: List[CFGId],
+      outers: List[CFGId]
+    ): Elem = {
       val CallInfo(st, argVal) = info
       val h = st.heap
+      val empty: Map[CFGId, AbsValue] = Map()
       val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
-      val argMap = (Map[CFGId, AbsValue]() /: params.zipWithIndex) {
+      val globalObj = h.get(GLOBAL_LOC)
+
+      val map1 = (empty /: params.zipWithIndex) {
         case (map, (param, idx)) =>
-          val arg = argObj.Get(AbsStr(idx.toString), heap)
+          val arg = argObj.Get(idx.toString, h)
           map + (param -> arg)
       }
-      symbolicPruned(argMap)
+      val map2 = (map1 /: outers) {
+        case (map, id) => if (id.kind == GlobalVar) {
+          map + (id -> globalObj.Get(id.text, h))
+        } else {
+          val outer = context(context.pureLocal.outer).outer
+          val (v, _) = AbsLexEnv.getId(outer, id.text, true)(st)
+          map + (id -> v)
+        }
+      }
+      symbolicPruned(map2)
     }
 
     // pruning based on allocation-callsite abstraction
@@ -290,5 +311,8 @@ object DefaultState extends StateDomain {
 
     def cleanChanged: Elem =
       Elem(heap.cleanChanged, context.cleanChanged, allocs)
+
+    def attachOuter(ids: Set[CFGId]): Elem =
+      Elem(heap.attachOuter(ids), context.attachOuter(ids), allocs)
   }
 }

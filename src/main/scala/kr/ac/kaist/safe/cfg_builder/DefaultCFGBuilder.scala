@@ -182,7 +182,6 @@ class DefaultCFGBuilder(
 
   /* fd rule : IRFunDecl x CFGFunction x NormalBlock -> Unit */
   private def translateFunDecl(fd: IRFunDecl, func: CFGFunction, block: NormalBlock): Unit = {
-    // println ("[Func] %s".format(fd))
     fd match {
       case IRFunDecl(_, functional) =>
         val func: CFGFunction = translateFunctional(functional)
@@ -641,7 +640,7 @@ class DefaultCFGBuilder(
       /* PEI : id lookup */
       case IRUn(_, op, expr) =>
         CFGUn(expr, op.kind, ir2cfgExpr(expr))
-      case id: IRId => CFGVarRef(id, id2cfgId(id))
+      case id: IRId => id2cfgExpr(id)
       case IRThis(_) => CFGThis(expr)
       case IRInternalValue(_, n) => CFGInternalValue(expr, n)
       case IRVal(v) => CFGVal(v)
@@ -676,7 +675,14 @@ class DefaultCFGBuilder(
   }
 
   // IR id to CFG expr
-  private def id2cfgExpr(id: IRId): CFGExpr = CFGVarRef(id, id2cfgId(id))
+  private def id2cfgExpr(id: IRId): CFGExpr = {
+    val cfgId = id2cfgId(id)
+    cfgId.kind match {
+      case GlobalVar | CapturedVar => currentFunc.addOuterVar(cfgId)
+      case _ => ()
+    }
+    CFGVarRef(id, cfgId)
+  }
 
   // IR id list to CFG id list
   private def idList2cfgIdList(id: List[IRId]): List[CFGId] = id.map(id2cfgId)

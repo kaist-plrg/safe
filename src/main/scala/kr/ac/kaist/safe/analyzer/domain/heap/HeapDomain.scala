@@ -12,6 +12,7 @@
 package kr.ac.kaist.safe.analyzer.domain
 
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.nodes.cfg.CFGId
 
 // heap abstract domain
 trait HeapDomain extends AbsDomain[Heap] {
@@ -80,5 +81,8 @@ trait HeapDomain extends AbsDomain[Heap] {
 
     // applied changed information
     def <<(that: Elem): Elem
+
+    // attach symbols into global variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem
   }
 }

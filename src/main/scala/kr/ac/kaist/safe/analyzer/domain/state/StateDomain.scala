@@ -33,7 +33,12 @@ trait StateDomain extends AbsDomain[State] {
     def raiseException(excSet: Set[Exception]): Elem
     def oldify(loc: Loc): Elem
     def alloc(loc: Loc): Elem
-    def afterCall(call: Call, info: CallInfo, params: List[CFGId]): Elem
+    def afterCall(
+      call: Call,
+      info: CallInfo,
+      params: List[CFGId],
+      outers: List[CFGId]
+    ): Elem
     def setAllocLocSet(allocs: AllocLocSet): Elem
     def allocs: AllocLocSet
     def getLocSet: LocSet
@@ -60,5 +65,8 @@ trait StateDomain extends AbsDomain[State] {
 
     // applied changed information
     def <<(that: Elem): Elem
+
+    // attach symbols into global and captured variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem
   }
 }

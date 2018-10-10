@@ -33,6 +33,10 @@ case class CFGFunction(
   private var bidCount: BlockId = 0
   def getBId: BlockId = bidCount
 
+  private var outerVars: Set[CFGId] = Set()
+  def addOuterVar(id: CFGId): Unit = outerVars += id
+  def getOuterVars: Set[CFGId] = outerVars
+
   // all blocks in this function
   private var blocks: List[CFGBlock] = List(exitExc, exit, entry)
   private var blockMap: MMap[BlockId, CFGBlock] = MMap(

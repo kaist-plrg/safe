@@ -12,6 +12,7 @@
 package kr.ac.kaist.safe.analyzer.domain
 
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.nodes.cfg.CFGId
 
 // execution context abstract domain
 trait ContextDomain extends AbsDomain[Context] {
@@ -78,5 +79,8 @@ trait ContextDomain extends AbsDomain[Context] {
 
     // applied changed information
     def <<(that: Elem): Elem
+
+    // attach symbols into captured variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem
   }
 }

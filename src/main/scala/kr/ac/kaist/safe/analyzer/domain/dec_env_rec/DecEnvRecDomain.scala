@@ -12,6 +12,7 @@
 package kr.ac.kaist.safe.analyzer.domain
 
 import kr.ac.kaist.safe.util._
+import kr.ac.kaist.safe.nodes.cfg.CFGId
 
 // declarative environment record abstract domain
 trait DecEnvRecDomain extends AbsDomain[DecEnvRec] {
@@ -78,5 +79,8 @@ trait DecEnvRecDomain extends AbsDomain[DecEnvRec] {
 
     def symbolicPruned(argMap: Map[Sym, AbsValue]): Elem
     def cleanSymbols: Elem
+
+    // attach symbols into captured variables used in functions.
+    def attachOuter(ids: Set[CFGId]): Elem
   }
 }
