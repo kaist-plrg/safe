@@ -344,7 +344,7 @@ object DefaultContext extends ContextDomain {
           env.outer.foreach(sub)
         }
         sub(PURE_LOCAL)
-        CtxMap(map, cmap.merged, cmap.changed, cmap.thisBinding)
+        CtxMap(map, cmap.merged, cmap.changed, cmap.thisBinding.attachSymbol(SymThis))
       }
     }
   }

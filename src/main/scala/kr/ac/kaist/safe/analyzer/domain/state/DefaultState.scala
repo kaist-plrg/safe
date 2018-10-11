@@ -133,8 +133,9 @@ object DefaultState extends StateDomain {
       params: List[CFGId],
       outers: List[CFGId]
     ): Elem = {
-      val CallInfo(st, argVal) = info
+      val CallInfo(st, thisVal, argVal) = info
       val h = st.heap
+      val ctx = st.context
       val empty: Map[Sym, AbsValue] = Map()
       val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
       val globalObj = h.get(GLOBAL_LOC)
@@ -153,7 +154,8 @@ object DefaultState extends StateDomain {
           map + (SymId(id) -> v)
         }
       }
-      symbolicPruned(map2)
+      val map3 = map2 + (SymThis -> thisVal)
+      symbolicPruned(map3)
     }
 
     // pruning based on allocation-callsite abstraction

@@ -52,7 +52,7 @@ case class Semantics(
   def getCallInfo(call: Call, tp: TracePartition): CallInfo = {
     ccpToCallInfo
       .getOrElse(call, MMap())
-      .getOrElse(tp, CallInfo(AbsState.Bot, AbsValue.Bot))
+      .getOrElse(tp, CallInfo(AbsState.Bot, AbsValue.Bot, AbsValue.Bot))
   }
 
   // control point maps to state
@@ -205,8 +205,8 @@ case class Semantics(
           (newSt, AbsState.Bot)
         }
         case (call: Call) =>
-          val (argVal, resSt, resExcSt) = internalCI(cp, call.callInst, st, AbsState.Bot)
-          setCallInfo(call, cp.tracePartition, CallInfo(resSt, argVal))
+          val (thisVal, argVal, resSt, resExcSt) = internalCI(cp, call.callInst, st, AbsState.Bot)
+          setCallInfo(call, cp.tracePartition, CallInfo(resSt, thisVal, argVal))
           (resSt.cleanSymbols.cleanChanged, resExcSt)
         case block: NormalBlock =>
           block.getInsts.foldRight((st, AbsState.Bot))((inst, states) => {
@@ -1379,10 +1379,10 @@ case class Semantics(
   }
 
   def CI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsState, AbsState) = {
-    val (_, s, e) = internalCI(cp, i, st, excSt)
+    val (_, _, s, e) = internalCI(cp, i, st, excSt)
     (s, e)
   }
-  def internalCI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsValue, AbsState, AbsState) = {
+  def internalCI(cp: ControlPoint, i: CFGCallInst, st: AbsState, excSt: AbsState): (AbsValue, AbsValue, AbsState, AbsState) = {
     // cons, thisArg and arguments must not be bottom
     val tp = cp.tracePartition
     val loc = Loc(i.asite, tp)
@@ -1398,7 +1398,7 @@ case class Semantics(
 
     // XXX: stop if thisArg or arguments is LocSetBot(ValueBot)
     if (thisVal.isBottom || argVal.isBottom) {
-      (AbsValue.Bot, st, excSt)
+      (AbsValue.Bot, AbsValue.Bot, st, excSt)
     } else {
       val oldLocalEnv = st1.context.pureLocal
       val tp = cp.tracePartition
@@ -1475,7 +1475,7 @@ case class Semantics(
         else AbsHeap.Bot
 
       val newSt = st1.copy(heap = h3)
-      (argVal, newSt, excSt ⊔ newExcSt)
+      (thisVal, argVal, newSt, excSt ⊔ newExcSt)
     }
   }
 
@@ -1660,4 +1660,4 @@ object EdgeData {
 }
 
 // call infomation
-case class CallInfo(state: AbsState, argVal: AbsValue)
+case class CallInfo(state: AbsState, thisVal: AbsValue, argVal: AbsValue)
