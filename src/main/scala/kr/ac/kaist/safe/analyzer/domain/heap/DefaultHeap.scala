@@ -409,7 +409,7 @@ object DefaultHeap extends HeapDomain {
               val name = id.text
               val dp = obj(name)
               if (dp.isBottom) obj
-              else obj.update(name, dp.copy(value = dp.value.attachSymbol(id)))
+              else obj.update(name, dp.copy(value = dp.value.attachSymbol(SymId(id))))
             }
             case _ => obj
           }

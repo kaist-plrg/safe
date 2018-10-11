@@ -430,7 +430,7 @@ object DefaultDecEnvRec extends DecEnvRecDomain {
       (map /: ids) {
         case (map, id) => (map.get(id.text), id.kind) match {
           case (Some((binding, abs)), CapturedVar) => {
-            map + (id.text -> (binding.copy(value = binding.value.attachSymbol(id)), abs))
+            map + (id.text -> (binding.copy(value = binding.value.attachSymbol(SymId(id))), abs))
           }
           case _ => map
         }

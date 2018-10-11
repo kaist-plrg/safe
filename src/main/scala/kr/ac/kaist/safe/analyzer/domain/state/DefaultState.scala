@@ -135,22 +135,22 @@ object DefaultState extends StateDomain {
     ): Elem = {
       val CallInfo(st, argVal) = info
       val h = st.heap
-      val empty: Map[CFGId, AbsValue] = Map()
+      val empty: Map[Sym, AbsValue] = Map()
       val argObj = argVal.locset.foldLeft[AbsObj](AbsObj.Bot)((o, l) => o ⊔ h.get(l))
       val globalObj = h.get(GLOBAL_LOC)
 
       val map1 = (empty /: params.zipWithIndex) {
         case (map, (param, idx)) =>
           val arg = argObj.Get(idx.toString, h)
-          map + (param -> arg)
+          map + (SymId(param) -> arg)
       }
       val map2 = (map1 /: outers) {
         case (map, id) => if (id.kind == GlobalVar) {
-          map + (id -> globalObj.Get(id.text, h))
+          map + (SymId(id) -> globalObj.Get(id.text, h))
         } else {
           val outer = context(context.pureLocal.outer).outer
           val (v, _) = AbsLexEnv.getId(outer, id.text, true)(st)
-          map + (id -> v)
+          map + (SymId(id) -> v)
         }
       }
       symbolicPruned(map2)

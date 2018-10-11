@@ -196,7 +196,7 @@ case class Semantics(
             val vi = argV.locset.foldLeft(AbsValue.Bot)((vk, lArg) => {
               vk ⊔ iSt.heap.get(lArg).Get(i.toString, iSt.heap)
             })
-            (iSt.createMutableBinding(x, vi.attachSymbol(x)), i + 1)
+            (iSt.createMutableBinding(x, vi.attachSymbol(SymId(x))), i + 1)
           })
           val newSt = xLocalVars.foldLeft(nSt)((jSt, x) => {
             val undefV = AbsValue(Undef)
