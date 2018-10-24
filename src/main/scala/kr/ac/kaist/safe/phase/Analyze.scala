@@ -58,13 +58,13 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
     }
 
     // print html file: {htmlName}.html
+    val exitCP = ControlPoint(cfg.globalFunc.exit, initTP)
     config.htmlName.foreach(name => {
       HTMLWriter.writeHTMLFile(cfg, sem, None, s"$name.html")
     })
 
     // dump exit state
     if (config.exitDump) {
-      val exitCP = ControlPoint(cfg.globalFunc.exit, initTP)
       val state = sem.getState(exitCP)
       println(state.toString)
     }

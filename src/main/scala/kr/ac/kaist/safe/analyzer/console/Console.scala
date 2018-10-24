@@ -17,7 +17,7 @@ import jline.console.ConsoleReader
 import jline.console.completer._
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.analyzer.console.command._
-import kr.ac.kaist.safe.analyzer.{ ControlPoint, Semantics, TracePartition, Worklist }
+import kr.ac.kaist.safe.analyzer._
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.phase.HeapBuildConfig
 
@@ -142,7 +142,8 @@ class Console(
     val fid = block.func.id
     val span = block.span
     val tp = cur.tracePartition
-    s"<$fname[$fid]: $block, $tp> @${span.toString} $LINE_SEP Iter[$iter] > "
+    val tpStr = if (tp == EmptyTP) "" else s", $tp"
+    s"<$fname[$fid]: $block$tpStr> @$span $LINE_SEP Iter[$iter] > "
   }
 
   ////////////////////////////////////////////////////////////////
