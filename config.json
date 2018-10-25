@@ -11,7 +11,7 @@
     "maxStrSetSize": 10,
     "recency": false,
     "heap-clone": false,
-    "acs": 0,
+    "acs": 1,
     "callsiteSensitivity": 0,
     "loopIter": 0,
     "loopDepth": 0,

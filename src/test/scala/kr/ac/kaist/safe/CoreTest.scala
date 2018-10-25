@@ -37,6 +37,7 @@ object AnalyzeTest extends Tag("AnalyzeTest")
 object HtmlTest extends Tag("HtmlTest")
 object Test262Test extends Tag("Test262Test")
 object BenchTest extends Tag("BenchTest")
+object SHATest extends Tag("SHATest")
 
 class CoreTest extends FlatSpec with BeforeAndAfterAll {
   val SEP = File.separator
@@ -281,6 +282,10 @@ class CoreTest extends FlatSpec with BeforeAndAfterAll {
   val test262TestDir = testDir + "test262"
   for (file <- shuffle(walkTree(new File(test262TestDir))))
     analyzeHelper("[Test262]", Test262Test, file)
+
+  val shaTestDir = testDir + "sha"
+  for (file <- shuffle(walkTree(new File(shaTestDir))))
+    analyzeHelper("[SHA]", SHATest, file)
 
   val benchTestDir = testDir + "benchmarks"
   for (file <- shuffle(walkTree(new File(benchTestDir))))
