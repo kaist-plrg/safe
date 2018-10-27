@@ -34,12 +34,6 @@ abstract class Loc extends Value {
     case acs @ AllocCallSite(_, _) => Some(acs)
     case _ => None
   }
-
-  override def toString: String = this match {
-    case Recency(loc, _) => loc.toString
-    case u @ UserAllocSite(_) => throw UserAllocSiteError(u)
-    case p @ PredAllocSite(_) => p.toString
-  }
 }
 object Loc {
   def parse(str: String, cfgIn: CFG): Try[Loc] = (new LocParser { val cfg = cfgIn })(str)
