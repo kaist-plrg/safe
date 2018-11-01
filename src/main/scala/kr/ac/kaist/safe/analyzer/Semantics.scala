@@ -196,7 +196,10 @@ case class Semantics(
             val vi = argV.locset.foldLeft(AbsValue.Bot)((vk, lArg) => {
               vk ⊔ iSt.heap.get(lArg).Get(i.toString, iSt.heap)
             })
-            (iSt.createMutableBinding(x, vi.attachSymbol(SymId(x))), i + 1)
+            (iSt.createMutableBinding(
+              x,
+              if (Symbolic) vi.attachSymbol(SymId(x)) else vi
+            ), i + 1)
           })
           val newSt = xLocalVars.foldLeft(nSt)((jSt, x) => {
             val undefV = AbsValue(Undef)
@@ -207,7 +210,7 @@ case class Semantics(
         case (call: Call) =>
           val (thisVal, argVal, resSt, resExcSt) = internalCI(cp, call.callInst, st, AbsState.Bot)
           setCallInfo(call, cp.tracePartition, CallInfo(resSt, thisVal, argVal))
-          (resSt.cleanSymbols.cleanChanged, resExcSt)
+          (if (Symbolic) resSt.cleanSymbols.cleanChanged else resSt, resExcSt)
         case block: NormalBlock =>
           block.getInsts.foldRight((st, AbsState.Bot))((inst, states) => {
             val (oldSt, oldExcSt) = states
@@ -1430,11 +1433,12 @@ case class Semantics(
                 val newTP = entryCP.tracePartition
                 val exitCP = ControlPoint(funCFG.exit, newTP)
                 val exitExcCP = ControlPoint(funCFG.exitExc, newTP)
-                addIPEdge(cp, entryCP, EdgeData(
+                val data = EdgeData(
                   AllocLocSet.Empty,
                   newEnv.copy(record = newRec2),
                   thisVal
-                ).cleanSymbols)
+                )
+                addIPEdge(cp, entryCP, if (Symbolic) data.cleanSymbols else data)
                 addIPEdge(exitCP, cpAfterCall, EdgeData(
                   st1.allocs,
                   oldLocalEnv,

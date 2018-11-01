@@ -32,7 +32,7 @@ else
 fi
 
 if [ -z "$JAVA_FLAGS" ] ; then
-  JAVA_FLAGS="-Xmx30g -Xss32m -Dfile.encoding=utf8"
+  JAVA_FLAGS="-Xms16g -Xmx32g -Xss1g -Xmn512m -Dfile.encoding=utf8"
 fi
 
 # remote debugging

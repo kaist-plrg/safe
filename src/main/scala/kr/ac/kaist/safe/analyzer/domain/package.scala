@@ -181,9 +181,8 @@ package object domain {
   val SymSetEmpty: SymSet = Set()
 
   // value
-  // XXX lazy val AbsValue: ValueDomain = if (Symbolic) SymValue(DefaultValue) else DefaultValue
-  lazy val AbsValue: SymValue.type = SymValue
-  type AbsValue = SymValue.Elem
+  lazy val AbsValue: ValueDomain = if (Symbolic) SymValue else DefaultValue
+  type AbsValue = AbsValue.Elem
 
   // function id
   lazy val AbsFId: DefaultFId.type = DefaultFId

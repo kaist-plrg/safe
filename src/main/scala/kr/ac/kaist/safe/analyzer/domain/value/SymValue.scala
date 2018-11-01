@@ -76,7 +76,13 @@ object SymValue extends ValueDomain {
         val common = argMap.keySet intersect set
         (Elem(base, INone) /: common) {
           case (v, sym) => argMap.get(sym) match {
-            case Some(av) => v ⊔ av
+            case Some(av) => v ⊔ {
+              val any: Any = av
+              any match {
+                case (v: Elem) => v
+                case _ => ??? // TODO
+              }
+            }
             case _ => v
           }
         }
