@@ -1,6 +1,7 @@
 Heap: {
   #Global: {
-    "Set": <#Set, T, F, T>
+    "Set": <#Set, T, F, T>,
+    "Map": <#Map, T, F, T>
   },
   #Set: {
     [[Call]]: fun(1),
@@ -17,16 +18,70 @@ Heap: {
     [[Extensible]]: true,
     [[PrimitiveValue]]: "",
     [[Prototype]]: #Object.prototype,
-    "constructor": <#Set, T, F, T>
+    "constructor": <#Set, T, F, T>,
+    "add": <#Set.prototype.add, T, F, T>,
+    "clear": <#Set.prototype.clear, T, F, T>,
+    "forEach": <#Set.prototype.forEach, T, F, T>,
   },
-  #Set.prototype.size: {
-    [[Call]]: fun(4),
+  #Set.prototype.add: {
     [[Class]]: "Function",
     [[Extensible]]: true,
     [[Prototype]]: #Function.prototype,
     [[Scope]]: null,
-    "length": <1, F, F, F>
+    [[Call]]: fun(6),
+    "length": <1.0, F, F, F>
   },
+  #Set.prototype.clear: {
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    [[Call]]: fun(8),
+    "length": <0.0, F, F, F>
+  },
+  #Set.prototype.forEach: {
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    [[Call]]: fun(9),
+    "length": <1.0, F, F, F>
+  },
+  #Map: {
+    [[Call]]: fun(3),
+    [[Class]]: "Function",
+    [[Construct]]: fun(4),
+    [[Extensible]]: true,
+    [[HasInstance]]: null,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    "prototype": <#Map.prototype, F, F, F>
+  },
+  #Map.prototype: {
+    [[Class]]: "Map",
+    [[Extensible]]: true,
+    [[PrimitiveValue]]: "",
+    [[Prototype]]: #Object.prototype,
+    "constructor": <#Map, T, F, T>,
+    "set": <#Map.prototype.set, T, F, T>,
+    "forEach": <#Map.prototype.forEach, T, F, T>
+  },
+  #Map.prototype.set: {
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    [[Call]]: fun(5),
+    "length": <2.0, F, F, F>
+  },
+  #Map.prototype.forEach: {
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    [[Call]]: fun(7),
+    "length": <1.0, F, F, F>
+  }
 }
 
 Function: {
@@ -35,8 +90,81 @@ Function: {
   }
   \\],
   2: [\\
-  function Set () {
-    return {};
+  function Set (content) {
+    var obj = {};
+    @Prototype(obj, Set.prototype);
+    @Class(obj, "Set");
+    @Extensible(obj, true);
+    obj.content = content;
+    return obj;
+  }
+  \\],
+  3: [\\
+  function Map () {
+  }
+  \\],
+  4: [\\
+  function Map (content) {
+    var obj = {};
+    @Prototype(obj, Map.prototype);
+    @Class(obj, "Map");
+    @Extensible(obj, true);
+    obj.content = content;
+    return obj;
+  }
+  \\],
+  5: [\\
+  function set (from, to) {
+    var content = this.content;
+    var len = content.length;
+    for (var i = 0; i < len; i++) {
+      var pair = content[i];
+      if (pair[0] == from) {
+        content[i] = [from, to];
+        return this;
+      }
+    }
+    content[len] = [from, to];
+    content.length = len + 1;
+    return this;
+  }
+  \\],
+  6: [\\
+  function add (value) {
+    var content = this.content;
+    var len = content.length;
+    for (var i = 0; i < len; i++) {
+      if (content[i] == value) {
+        return this;
+      }
+    }
+    content[len] = value;
+    content.length = len + 1;
+    return this;
+  }
+  \\],
+  7: [\\
+  function forEach (f) {
+    var content = this.content;
+    var len = content.length;
+    for (var i = 0; i < len; i++) {
+      var pair = content[i];
+      f(pair[1]);
+    }
+  }
+  \\],
+  8: [\\
+  function clear () {
+    this.content = [];
+  }
+  \\],
+  9: [\\
+  function forEach (f) {
+    var content = this.content;
+    var len = content.length;
+    for (var i = 0; i < len; i++) {
+      f(content[i]);
+    }
   }
   \\]
 }

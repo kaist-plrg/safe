@@ -16,7 +16,8 @@ Heap: {
     "navigator": <#Global.clientInformation, F, T, T>,
     "HTMLElement": <#HTMLElement, T, F, T>,
     "HTMLHtmlElement": <#HTMLHtmlElement, T, F, T>,
-    "XMLHttpRequest": <#XMLHttpRequest, T, F, T>
+    "XMLHttpRequest": <#XMLHttpRequest, T, F, T>,
+    "requestAnimationFrame": <#Global.requestAnimationFrame, T, T, T>
   },
   #Element: {
     [[Call]]: fun(1),
@@ -153,6 +154,14 @@ Heap: {
   },
   #EventTarget.prototype.addEventListener: {
     [[Call]]: fun(7),
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[HasInstance]]: null,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null
+  },
+  #Global.requestAnimationFrame: {
+    [[Call]]: fun(34),
     [[Class]]: "Function",
     [[Extensible]]: true,
     [[HasInstance]]: null,
@@ -322,7 +331,7 @@ Heap: {
     [[Class]]: "Object",
     [[Extensible]]: true,
     [[Prototype]]: #Object.prototype,
-    "userAgent": <string, T, T, T>
+    "userAgent": <"", T, T, T>
   },
   #HTMLElement: {
     [[Call]]: fun(18),
@@ -504,6 +513,11 @@ Function: {
   \\],
   33: [\\
   function createEvent() {
+  }
+  \\],
+  34: [\\
+  function requestAnimationFrame(callback) {
+    callback();
   }
   \\]
 }
