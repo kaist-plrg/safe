@@ -83,7 +83,7 @@ class CmdActor() extends Actor {
     val output = console.runCmd(req.cmd) match {
       case CmdResultContinue(output) => output
       case CmdResultBreak(output) =>
-        do { fixpoint.computeOneStep() }
+        do { fixpoint.computeOneStep }
         while (!console.worklist.isEmpty && !console.prepareToRunFixpoint)
         output
       case CmdResultRestart =>
