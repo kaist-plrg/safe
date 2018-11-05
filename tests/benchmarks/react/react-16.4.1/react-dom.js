@@ -12429,7 +12429,7 @@ function coerceRef(returnFiber, current, element) {
       if (returnFiber.mode & StrictMode) {
         var componentName = getComponentName(returnFiber) || 'Component';
         if (!didWarnAboutStringRefInStrictMode[componentName]) {
-          warning_1(false, 'A string ref, "%s", has been found within a strict mode tree. ' + 'String refs are a source of potential bugs and should be avoided. ' + 'We recommend using createRef() instead.' + '\n%s' + '\n\nLearn more about using refs safely here:' + '\nhttps://fb.me/react-strict-mode-string-ref', mixedRef, getStackAddendumByWorkInProgressFiber(returnFiber));
+          warning_1(false, 'A string ref, "%s", has been found within a strict mode tree. ' + 'String refs are a source of potential bugs and should be avoided. ' + 'We recommend using createRef() instead.' + '\n%s' + '\n\nLearn more about using refs safely here:' + '\nhttps://fb.me/react-strict-mode-string-ref', mixedRef, getStackAddendumByWorkInProgressFiber(returnFiber));
           didWarnAboutStringRefInStrictMode[componentName] = true;
         }
       }
