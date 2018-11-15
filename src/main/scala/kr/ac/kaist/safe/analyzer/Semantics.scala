@@ -508,6 +508,11 @@ case class Semantics(
         v.locset.foreach(loc => println(st.heap.toStringLoc(loc).get))
         (st, excSt)
       }
+      case (NodeUtil.INTERNAL_NOT_YET_IMPLEMENTED, List(expr), None) => {
+        val (v, excSet) = V(expr, st);
+        println(s"[NotYetImplemented] $v")
+        (st, excSt)
+      }
       case (NodeUtil.INTERNAL_CHAR_CODE, List(expr), None) => {
         val (v, excSet) = V(expr, st)
         val numval = v.pvalue.strval.gamma match {

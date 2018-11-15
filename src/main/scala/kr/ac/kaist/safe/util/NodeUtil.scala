@@ -59,6 +59,7 @@ object NodeUtil {
   // internal API call
   // Helpers
   val INTERNAL_PRINT = internalAPIName("Print")
+  val INTERNAL_NOT_YET_IMPLEMENTED = internalAPIName("NotYetImplemented")
   val INTERNAL_CHAR_CODE = internalAPIName("CharCode")
   // 8.6.2 Object Internal Properties and Methods
   val INTERNAL_CLASS = internalAPIName("Class")
@@ -165,6 +166,7 @@ object NodeUtil {
   val INTERNAL_HAS_CONST = internalAPIName("HasConstruct")
   val internalCallSet: Set[String] = Set(
     INTERNAL_PRINT,
+    INTERNAL_NOT_YET_IMPLEMENTED,
     INTERNAL_CHAR_CODE,
     INTERNAL_CLASS,
     INTERNAL_PRIM_VAL,

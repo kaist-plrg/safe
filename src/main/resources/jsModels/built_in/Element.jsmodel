@@ -380,144 +380,172 @@ Heap: {
 Function: {
   1: [\\
   function Element() {
+    @NotYetImplemented("Element");
   }
   \\],
   2: [\\
   function Element() {
+    @NotYetImplemented("Element");
   }
   \\],
   3: [\\
   function Node() {
+    @NotYetImplemented("Node");
   }
   \\],
   4: [\\
   function Node() {
+    @NotYetImplemented("Node");
   }
   \\],
   5: [\\
   function EventTarget() {
+    @NotYetImplemented("EventTarget");
   }
   \\],
   6: [\\
   function EventTarget() {
+    @NotYetImplemented("EventTarget");
   }
   \\],
   7: [\\
   function addEventListener(type, func) {
-    // TODO
+    @NotYetImplemented("addEventListener");
   }
   \\],
   8: [\\
   function HTMLDocument() {
+    @NotYetImplemented("HTMLDocument");
   }
   \\],
   9: [\\
   function HTMLDocument() {
+    @NotYetImplemented("HTMLDocument");
   }
   \\],
   10: [\\
   function Document() {
+    @NotYetImplemented("Document");
   }
   \\],
   11: [\\
   function Document() {
+    @NotYetImplemented("Document");
   }
   \\],
   12: [\\
   function createElement() {
-    var o = {};
-    @Prototype(o, HTMLElement.prototype);
-    return o;
+    @NotYetImplemented("createElement");
   }
   \\],
   13: [\\
   function write(stuff) {
+    @NotYetImplemented("write");
   }
   \\],
   14: [\\
   function replace(name) {
+    @NotYetImplemented("replace");
   }
   \\],
   15: [\\
   function setTimeout(code) {
+    @NotYetImplemented("setTimeout");
   }
   \\],
   16: [\\
   function writeln(stuff) {
+    @NotYetImplemented("writeln");
   }
   \\],
   17: [\\
   function setInterval(code, delay) {
+    @NotYetImplemented("setInterval");
   }
   \\],
   18: [\\
   function HTMLElement() {
+    @NotYetImplemented("HTMLElement");
   }
   \\],
   19: [\\
   function getElementsByTagName() {
-    return [];
+    @NotYetImplemented("getElementsByTagName");
   }
   \\],
   20: [\\
   function HTMLHtmlElement() {
+    @NotYetImplemented("HTMLHtmlElement");
   }
   \\],
   21: [\\
   function NodeList() {
+    @NotYetImplemented("NodeList");
   }
   \\],
   22: [\\
   function NodeList() {
+    @NotYetImplemented("NodeList");
   }
   \\],
   23: [\\
   function insertBefore() {
+    @NotYetImplemented("insertBefore");
   }
   \\],
   24: [\\
   function getElementById() {
+    @NotYetImplemented("getElementById");
   }
   \\],
   25: [\\
   function getElementsByTagName() {
+    @NotYetImplemented("getElementsByTagName");
   }
   \\],
   26: [\\
   function getElementById() {
+    @NotYetImplemented("getElementById");
   }
   \\],
   27: [\\
   function removeChild() {
+    @NotYetImplemented("removeChild");
   }
   \\],
   28: [\\
   function createComment() {
+    @NotYetImplemented("createComment");
   }
   \\],
   29: [\\
   function appendChild() {
+    @NotYetImplemented("appendChild");
   }
   \\],
   30: [\\
   function XMLHttpRequest() {
+    @NotYetImplemented("XMLHttpRequest");
   }
   \\],
   31: [\\
   function setAttribute() {
+    @NotYetImplemented("setAttribute");
   }
   \\],
   32: [\\
   function clearTimeout() {
+    @NotYetImplemented("clearTimeout");
   }
   \\],
   33: [\\
   function createEvent() {
+    @NotYetImplemented("createEvent");
   }
   \\],
   34: [\\
   function requestAnimationFrame(callback) {
-    callback();
+    @NotYetImplemented("requestAnimationFrame");
   }
   \\]
 }
