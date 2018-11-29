@@ -554,7 +554,7 @@ object CKeyObject extends ObjDomain {
         } else BotTriple
 
       // 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then
-      val (obj7: Elem, b7, excSet7: Set[Exception]) =
+      val (obj7: Elem, b7, excSet3: Set[Exception]) =
         // a. If the [[Configurable]] field of current is false, then
         if (AbsBool.False ⊑ cc) {
           // i. Reject, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true.
@@ -569,7 +569,7 @@ object CKeyObject extends ObjDomain {
 
       // 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the
       // property named P of object O to the value of the field.
-      val (obj3, b3, excSet3) =
+      val (obj3, b3, excSet4) =
         if (AbsBool.True ⊑ cc || AbsBool.True ⊑ cw) {
           var newDP = obj(P)
           if (!dv.isBottom) newDP = newDP.copy(value = dv)
@@ -580,16 +580,10 @@ object CKeyObject extends ObjDomain {
           (changedObj, AbsBool.True, ExcSetEmpty)
         } else BotTriple
 
-      val excSet4 =
-        if (AbsStr("Array") ⊑ obj(IClass).value.pvalue.strval &&
-          AbsStr("length") ⊑ P &&
-          AbsBool.False ⊑ (TypeConversionHelper.ToNumber(dv) StrictEquals TypeConversionHelper.ToUint32(dv))) Set(RangeError)
-        else ExcSetEmpty
-
       val excSet5 =
         if (AbsStr("Array") ⊑ obj(IClass).value.pvalue.strval &&
           AbsStr("length") ⊑ P &&
-          AbsBool.False ⊑ obj(AbsStr.Number).configurable) Set(TypeError)
+          AbsBool.False ⊑ (TypeConversionHelper.ToNumber(dv) StrictEquals TypeConversionHelper.ToUint32(dv))) Set(RangeError)
         else ExcSetEmpty
 
       val excSet6 =
@@ -603,7 +597,7 @@ object CKeyObject extends ObjDomain {
 
       (
         obj1 ⊔ obj2 ⊔ obj3 ⊔ obj5 ⊔ obj6 ⊔ obj7, b1 ⊔ b2 ⊔ b3 ⊔ b5 ⊔ b6 ⊔ b7,
-        excSet1 ++ excSet2 ++ excSet3 ++ excSet4 ++ excSet5 ++ excSet6 ++ excSet7
+        excSet1 ++ excSet2 ++ excSet3 ++ excSet4 ++ excSet5 ++ excSet6
       )
     }
   }

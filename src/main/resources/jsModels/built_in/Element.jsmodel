@@ -1,5 +1,6 @@
 Heap: {
   #Global: {
+    "console": <#console, T, F, T>,
     "Element": <#Element, T, F, T>,
     "Node": <#Node, T, F, T>,
     "NodeList": <#NodeList, T, F, T>,
@@ -15,9 +16,28 @@ Heap: {
     "clearTimeout": <#Global.clearTimeout, T, T, T>,
     "navigator": <#Global.clientInformation, F, T, T>,
     "HTMLElement": <#HTMLElement, T, F, T>,
+    "HTMLDivElement": <#HTMLDivElement, T, F, T>,
+    "HTMLIFrameElement": <#HTMLIFrameElement, T, F, T>,
+    "HTMLBodyElement": <#HTMLBodyElement, T, F, T>,
     "HTMLHtmlElement": <#HTMLHtmlElement, T, F, T>,
+    "NamedNodeMap": <#NamedNodeMap, T, F, T>,
     "XMLHttpRequest": <#XMLHttpRequest, T, F, T>,
-    "requestAnimationFrame": <#Global.requestAnimationFrame, T, T, T>
+    "requestAnimationFrame": <#Global.requestAnimationFrame, T, T, T>,
+  },
+  #console: {
+    [[Class]]: "Object",
+    [[Extensible]]: true,
+    [[Prototype]]: #Object.prototype,
+    "error": <#console.error, T, T, T>
+  },
+  #console.error: {
+    [[Call]]: fun(39),
+    [[Scope]]: null,
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Class]]: "Function",
+    "length": <1, F, F, T>,
+    "name": <"error", F, F, T>
   },
   #Element: {
     [[Call]]: fun(1),
@@ -80,17 +100,9 @@ Heap: {
     [[Extensible]]: true,
     [[Prototype]]: #EventTarget.prototype,
     "constructor": <#Node, T, F, T>,
-    "childNodes": <#Node.prototype.childNodes, T, T, T>,
     "insertBefore": <#Node.prototype.insertBefore, T, T, T>,
     "appendChild": <#Node.prototype.appendChild, T, T, T>,
     "removeChild": <#Node.prototype.removeChild, T, T, T>
-  },
-  #Node.prototype.childNodes: {
-    [[Class]]: "NodeList",
-    [[Extensible]]: true,
-    [[HasInstance]]: null,
-    [[Prototype]]: #NodeList.prototype,
-    [[Scope]]: null
   },
   #Node.prototype.insertBefore: {
     [[Call]]: fun(23),
@@ -172,6 +184,21 @@ Heap: {
     [[Class]]: "HTMLDocument",
     [[Extensible]]: true,
     [[Prototype]]: #HTMLDocument.prototype,
+    "body": <#document.body, T, F, T>,
+    "nodeType": <9, T, F, T>,
+    "ownerDocument": <#document, T, F, T>
+  },
+  #document.body: {
+    [[Class]]: "HTMLBodyElement",
+    [[Extensible]]: true,
+    [[Prototype]]: #HTMLBodyElement.prototype,
+    "childNodes": <#document.body.childNodes, T, F, T>
+  },
+  #document.body.childNodes: {
+    [[Class]]: "Array",
+    [[Extensible]]: true,
+    [[Prototype]]: #Array.prototype,
+    "length": <0, T, F, F>
   },
   #HTMLDocument: {
     [[Call]]: fun(8),
@@ -354,6 +381,51 @@ Heap: {
     [[Extensible]]: true,
     [[Prototype]]: #Object.prototype
   },
+  #HTMLDivElement: {
+    [[Call]]: fun(35),
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[HasInstance]]: null,
+    [[Prototype]]: #HTMLElement,
+    [[Scope]]: null,
+    "prototype": <#HTMLDivElement.prototype, F, F, F>
+  },
+  #HTMLDivElement.prototype: {
+    [[Class]]: "HTMLDivElement",
+    [[Extensible]]: true,
+    [[Prototype]]: #HTMLElement.prototype,
+    "constructor": <#HTMLDivElement, T, F, T>,
+  },
+  #HTMLIFrameElement: {
+    [[Call]]: fun(38),
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[HasInstance]]: null,
+    [[Prototype]]: #HTMLElement,
+    [[Scope]]: null,
+    "prototype": <#HTMLIFrameElement.prototype, F, F, F>
+  },
+  #HTMLIFrameElement.prototype: {
+    [[Class]]: "HTMLIFrameElement",
+    [[Extensible]]: true,
+    [[Prototype]]: #HTMLElement.prototype,
+    "constructor": <#HTMLIFrameElement, T, F, T>,
+  },
+  #HTMLBodyElement: {
+    [[Call]]: fun(37),
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[HasInstance]]: null,
+    [[Prototype]]: #HTMLElement,
+    [[Scope]]: null,
+    "prototype": <#HTMLBodyElement.prototype, F, F, F>
+  },
+  #HTMLBodyElement.prototype: {
+    [[Class]]: "HTMLBodyElement",
+    [[Extensible]]: true,
+    [[Prototype]]: #HTMLElement.prototype,
+    "constructor": <#HTMLBodyElement, T, F, T>,
+  },
   #HTMLHtmlElement: {
     [[Call]]: fun(20),
     [[Class]]: "Function",
@@ -374,6 +446,19 @@ Heap: {
     [[Class]]: "Function",
     [[Extensible]]: true,
     [[Prototype]]: #Function.prototype
+  },
+  #NamedNodeMap: {
+    [[Construct]]: fun(36),
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    "prototype": <#NamedNodeMap.prototype, F, F, F>
+  },
+  #NamedNodeMap.prototype: {
+    [[Class]]: "NamedNodeMap",
+    [[Extensible]]: true,
+    [[Prototype]]: #Object.prototype,
+    "constructor": <#NamedNodeMap, T, F, T>
   }
 }
 
@@ -410,7 +495,11 @@ Function: {
   \\],
   7: [\\
   function addEventListener(type, func) {
-    @NotYetImplemented("addEventListener");
+    var evt = {};
+    evt.type = type;
+    evt.func = func;
+    evt.elem = this;
+    @addEventFunc(evt);
   }
   \\],
   8: [\\
@@ -434,8 +523,35 @@ Function: {
   }
   \\],
   12: [\\
-  function createElement() {
-    @NotYetImplemented("createElement");
+  function createElement(tag) {
+    // attributes
+    var attr = {};
+    @Prototype(elem, NamedNodeMap.prototype)
+
+    // element
+    var elem = {};
+    @Prototype(elem, HTMLElement.prototype);
+    elem.attributes = attr;
+    elem.ownerDocument = document;
+    elem.childNodes = [];
+    elem.nodeType = 1;
+
+    if (tag === 'div') {
+      elem.tagName = "DIV";
+      return elem;
+    } else if (tag === 'button') {
+      elem.tagName = "BUTTON";
+      return elem;
+    } else if (tag === 'li') {
+      elem.tagName = "LI";
+      return elem;
+    } else if (tag === 'ol') {
+      elem.tagName = "OL";
+      return elem;
+    } else {
+      @NotYetImplemented("createElement: tag = " + tag);
+    }
+    return elem;
   }
   \\],
   13: [\\
@@ -519,8 +635,8 @@ Function: {
   }
   \\],
   29: [\\
-  function appendChild() {
-    @NotYetImplemented("appendChild");
+  function appendChild(elem) {
+    this.childNodes.push(elem);
   }
   \\],
   30: [\\
@@ -529,8 +645,8 @@ Function: {
   }
   \\],
   31: [\\
-  function setAttribute() {
-    @NotYetImplemented("setAttribute");
+  function setAttribute(prop, value) {
+    this.attributes[prop] = value;
   }
   \\],
   32: [\\
@@ -544,8 +660,33 @@ Function: {
   }
   \\],
   34: [\\
-  function requestAnimationFrame(callback) {
+  function requestAnimationFrame() {
     @NotYetImplemented("requestAnimationFrame");
   }
-  \\]
+  \\],
+  35: [\\
+  function HTMLDivElement() {
+    @NotYetImplemented("HTMLDivElement");
+  }
+  \\],
+  36: [\\
+  function NamedNodeMap() {
+    @NotYetImplemented("NamedNodeMap");
+  }
+  \\],
+  37: [\\
+  function HTMLBodyElement() {
+    @NotYetImplemented("HTMLBodyElement");
+  }
+  \\],
+  38: [\\
+  function HTMLIFrameElement() {
+    @NotYetImplemented("HTMLIFrameElement");
+  }
+  \\],
+  39: [\\
+  function error(msg) {
+    @Print("console.error: " + msg);
+  }
+  \\],
 }

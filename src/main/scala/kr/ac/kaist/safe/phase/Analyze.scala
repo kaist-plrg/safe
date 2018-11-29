@@ -44,6 +44,7 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
 
     // display duration time
     if (config.time) {
+      println(s"iteration number: $iters")
       println(f"The analysis took $duration%.9f s.")
     }
 

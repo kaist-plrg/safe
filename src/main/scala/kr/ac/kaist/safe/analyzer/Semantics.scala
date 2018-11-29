@@ -11,6 +11,7 @@
 
 package kr.ac.kaist.safe.analyzer
 
+import javax.script.ScriptEngineManager
 import kr.ac.kaist.safe.errors.ExcLog
 import kr.ac.kaist.safe.errors.error._
 import kr.ac.kaist.safe.analyzer.domain._
@@ -19,13 +20,13 @@ import kr.ac.kaist.safe.nodes.ir._
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.util.{ NodeUtil, EJSNumber, EJSString, EJSBool, EJSNull, EJSUndef, AllocSite, Recency, Recent, Old }
 import kr.ac.kaist.safe.LINE_SEP
-
 import scala.collection.mutable.{ Map => MMap }
 
 case class Semantics(
     cfg: CFG,
     worklist: Worklist
 ) {
+  lazy val engine = new ScriptEngineManager().getEngineByMimeType("text/javascript")
   def init: Unit = {
     val entry = cfg.globalFunc.entry
     val entryCP = ControlPoint(entry, getState(entry).head match { case (tp, _) => tp })
@@ -511,6 +512,8 @@ case class Semantics(
       case (NodeUtil.INTERNAL_NOT_YET_IMPLEMENTED, List(expr), None) => {
         val (v, excSet) = V(expr, st);
         println(s"[NotYetImplemented] $v")
+        println(s"* Sensitivity: ")
+        cp.tracePartition.toStringList.foreach(println)
         (st, excSt)
       }
       case (NodeUtil.INTERNAL_CHAR_CODE, List(expr), None) => {
@@ -1148,6 +1151,23 @@ case class Semantics(
         val newExcSt = st.raiseException(excSet)
         (st1, excSt ⊔ newExcSt)
       }
+      case (NodeUtil.INTERNAL_REGEX_TEST, List(thisE, strE), None) => {
+        val (thisV, excSet1) = V(thisE, st)
+        val (strV, excSet2) = V(strE, st)
+        val resV = (thisV.getSingle, strV.getSingle) match {
+          case (ConOne(loc: Loc), ConOne(Str(arg))) =>
+            val obj = st.heap.get(loc)
+            (obj("source").value.getSingle, obj("flags").value.getSingle) match {
+              case (ConOne(Str(source)), ConOne(Str(flags))) =>
+                AbsBool(true == engine.eval(s"/$source/$flags.test('$arg');"))
+              case _ => AbsBool.Top
+            }
+          case _ => AbsBool.Top
+        }
+        val st1 = st.varStore(lhs, resV)
+        val newExcSt = st.raiseException(excSet1 ++ excSet2)
+        (st1, excSt ⊔ newExcSt)
+      }
       case (NodeUtil.INTERNAL_IS_OBJ, List(expr), None) => {
         val (v, excSet) = V(expr, st)
         val st1 =
@@ -1234,9 +1254,9 @@ case class Semantics(
       case (NodeUtil.INTERNAL_ADD_EVENT_FUNC, List(exprV), None) => {
         val (v, excSetV) = V(exprV, st)
         val id = NodeUtil.getInternalVarId(NodeUtil.INTERNAL_EVENT_FUNC)
-        val (curV, excSetC) = st.lookup(id)
+        val (curV, _) = st.lookup(id)
         val newSt = st.varStore(id, curV.locset ⊔ v.locset)
-        val newExcSt = st.raiseException(excSetV ++ excSetC)
+        val newExcSt = st.raiseException(excSetV)
         (newSt, excSt ⊔ newExcSt)
       }
       case (NodeUtil.INTERNAL_GET_LOC, List(exprV), None) => {

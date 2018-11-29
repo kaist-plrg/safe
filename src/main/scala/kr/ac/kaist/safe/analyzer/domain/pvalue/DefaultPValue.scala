@@ -43,7 +43,21 @@ object DefaultPValue extends PValueDomain {
   ) extends ElemTrait {
     def gamma: ConSet[PValue] = ConInf // TODO more precisely
 
-    def getSingle: ConSingle[PValue] = ConMany // TODO more precisely
+    def getSingle: ConSingle[PValue] = (
+      undefval.getSingle,
+      nullval.getSingle,
+      boolval.getSingle,
+      numval.getSingle,
+      strval.getSingle
+    ) match {
+        case (ConZero, ConZero, ConZero, ConZero, ConZero) => ConZero
+        case (ConOne(v), ConZero, ConZero, ConZero, ConZero) => ConOne(v)
+        case (ConZero, ConOne(v), ConZero, ConZero, ConZero) => ConOne(v)
+        case (ConZero, ConZero, ConOne(v), ConZero, ConZero) => ConOne(v)
+        case (ConZero, ConZero, ConZero, ConOne(v), ConZero) => ConOne(v)
+        case (ConZero, ConZero, ConZero, ConZero, ConOne(v)) => ConOne(v)
+        case _ => ConMany
+      }
 
     /* partial order */
     def ⊑(that: Elem): Boolean = {

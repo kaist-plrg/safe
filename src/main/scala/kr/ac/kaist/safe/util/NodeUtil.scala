@@ -156,6 +156,8 @@ object NodeUtil {
   val INTERNAL_SQRT = internalAPIName("sqrt")
   // 15.8.2.18 tan (x)
   val INTERNAL_TAN = internalAPIName("tan")
+  // 15.10.6.3 RegExp.prototype.test(string)
+  val INTERNAL_REGEX_TEST = internalAPIName("regexTest")
   // Other helpers
   val INTERNAL_IS_OBJ = internalAPIName("isObject")
   val INTERNAL_ITER_INIT = internalAPIName("iteratorInit")
@@ -215,6 +217,7 @@ object NodeUtil {
     INTERNAL_SIN,
     INTERNAL_SQRT,
     INTERNAL_TAN,
+    INTERNAL_REGEX_TEST,
     INTERNAL_IS_OBJ,
     INTERNAL_ITER_INIT,
     INTERNAL_ITER_HAS_NEXT,

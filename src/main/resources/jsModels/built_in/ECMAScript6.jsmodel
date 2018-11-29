@@ -95,7 +95,8 @@ Function: {
     @Prototype(obj, Set.prototype);
     @Class(obj, "Set");
     @Extensible(obj, true);
-    obj.content = content;
+    if (content === undefined) obj.content = [];
+    else obj.content = content;
     return obj;
   }
   \\],
@@ -109,7 +110,8 @@ Function: {
     @Prototype(obj, Map.prototype);
     @Class(obj, "Map");
     @Extensible(obj, true);
-    obj.content = content;
+    if (content === undefined) obj.content = [];
+    else obj.content = content;
     return obj;
   }
   \\],

@@ -81,7 +81,7 @@ object JSFromHTML {
     val codeContents3: List[(String, (Int, Int), String)] = {
       val evt = INTERNAL_EVENT_FUNC
       val ss = ("#event#loop", bogus,
-        s"while($INTERNAL_BOOL_TOP) { $INTERNAL_CALL($evt.func, $evt.elem, []); }")
+        s"while($INTERNAL_BOOL_TOP) { $INTERNAL_CALL($evt.func, $evt.elem, [{type: $evt.type}]); }")
       codeContents2 :+ ss
     }
 
