@@ -1400,6 +1400,30 @@ case class Semantics(
         val newExcSt = st.raiseException(excSet)
         (st1, excSt ⊔ newExcSt)
       }
+      case (NodeUtil.INTERNAL_MAX2, List(e1, e2), None) => {
+        val (v1, es1) = V(e1, st)
+        val (v2, es2) = V(e2, st)
+        val n1 = v1.pvalue.numval
+        val n2 = v2.pvalue.numval
+        val b = n1 > n2
+        val res1 = if (AT ⊑ b) n1 else AbsNum.Bot
+        val res2 = if (AF ⊑ b) n2 else AbsNum.Bot
+        val st1 = st.varStore(lhs, AbsValue(res1 ⊔ res2))
+        val newExcSt = st.raiseException(es1 ++ es2)
+        (st1, excSt ⊔ newExcSt)
+      }
+      case (NodeUtil.INTERNAL_MIN2, List(e1, e2), None) => {
+        val (v1, es1) = V(e1, st)
+        val (v2, es2) = V(e2, st)
+        val n1 = v1.pvalue.numval
+        val n2 = v2.pvalue.numval
+        val b = n1 < n2
+        val res1 = if (AT ⊑ b) n1 else AbsNum.Bot
+        val res2 = if (AF ⊑ b) n2 else AbsNum.Bot
+        val st1 = st.varStore(lhs, AbsValue(res1 ⊔ res2))
+        val newExcSt = st.raiseException(es1 ++ es2)
+        (st1, excSt ⊔ newExcSt)
+      }
       case _ =>
         excLog.signal(SemanticsNotYetImplementedError(ir))
         (AbsState.Bot, AbsState.Bot)

@@ -144,8 +144,10 @@ object NodeUtil {
   val INTERNAL_LOG = internalAPIName("log")
   // 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] )
   val INTERNAL_MAX = internalAPIName("max")
+  val INTERNAL_MAX2 = internalAPIName("max2")
   // 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] )
   val INTERNAL_MIN = internalAPIName("min")
+  val INTERNAL_MIN2 = internalAPIName("min2")
   // 15.8.2.13 pow (x, y)
   val INTERNAL_POW = internalAPIName("pow")
   // 15.8.2.15 round (x)
@@ -211,7 +213,9 @@ object NodeUtil {
     INTERNAL_FLOOR,
     INTERNAL_LOG,
     INTERNAL_MAX,
+    INTERNAL_MAX2,
     INTERNAL_MIN,
+    INTERNAL_MIN2,
     INTERNAL_POW,
     INTERNAL_ROUND,
     INTERNAL_SIN,
