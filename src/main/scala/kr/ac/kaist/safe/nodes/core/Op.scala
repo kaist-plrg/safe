@@ -23,7 +23,7 @@ abstract class Op {
 abstract class UOp(val keyword: String) extends Op {
   def apply(value: Value): Value = (this, value) match {
     case (ONeg, Num(n)) => Num(-n)
-    case (OBNot, LNum(n)) => LNum(~n)
+    case (OBNot, INum(n)) => INum(~n)
     case (_, _) => error(s"wrong type of value for the operator $this: $value")
   }
 }
@@ -46,18 +46,18 @@ abstract class BOp(val keyword: String) extends Op {
     case (OLt, Str(l), Str(r)) => Bool(l < r)
 
     // long operations
-    case (OPlus, LNum(l), LNum(r)) => LNum(l + r)
-    case (OSub, LNum(l), LNum(r)) => LNum(l - r)
-    case (OMul, LNum(l), LNum(r)) => LNum(l * r)
-    case (ODiv, LNum(l), LNum(r)) => LNum(l / r)
-    case (OMod, LNum(l), LNum(r)) => LNum(l % r)
-    case (OLt, LNum(l), LNum(r)) => Bool(l < r)
-    case (OBAnd, LNum(l), LNum(r)) => LNum(l & r)
-    case (OBOr, LNum(l), LNum(r)) => LNum(l | r)
-    case (OBXOr, LNum(l), LNum(r)) => LNum(l ^ r)
-    case (OLShift, LNum(l), LNum(r)) => LNum(l << r)
-    case (OSRShift, LNum(l), LNum(r)) => LNum(l >> r)
-    case (OURShift, LNum(l), LNum(r)) => LNum(l >>> r)
+    case (OPlus, INum(l), INum(r)) => INum(l + r)
+    case (OSub, INum(l), INum(r)) => INum(l - r)
+    case (OMul, INum(l), INum(r)) => INum(l * r)
+    case (ODiv, INum(l), INum(r)) => INum(l / r)
+    case (OMod, INum(l), INum(r)) => INum(l % r)
+    case (OLt, INum(l), INum(r)) => Bool(l < r)
+    case (OBAnd, INum(l), INum(r)) => INum(l & r)
+    case (OBOr, INum(l), INum(r)) => INum(l | r)
+    case (OBXOr, INum(l), INum(r)) => INum(l ^ r)
+    case (OLShift, INum(l), INum(r)) => INum(l << r)
+    case (OSRShift, INum(l), INum(r)) => INum(l >> r)
+    case (OURShift, INum(l), INum(r)) => INum(l >>> r)
     case _ => error(s"wrong type: $left $this $right")
   }
 }

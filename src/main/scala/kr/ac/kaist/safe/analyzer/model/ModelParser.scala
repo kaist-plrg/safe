@@ -252,9 +252,9 @@ object ModelParser extends RegexParsers with JavaTokenParsers {
         val astRewriteConfig = ASTRewriteConfig()
         val rPgm = ASTRewrite(pgm, safeConfig, astRewriteConfig).get
 
-        // compile
-        val compileConfig = CompileConfig()
-        val ir = Compile(rPgm, safeConfig, compileConfig).get
+        // translate
+        val translateConfig = TranslateConfig()
+        val ir = Translate(rPgm, safeConfig, translateConfig).get
 
         // cfg build
         val cfgBuildConfig = CFGBuildConfig()

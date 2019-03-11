@@ -458,7 +458,7 @@ object NodeUtil {
   ////////////////////////////////////////////////////////////////
 
   /*  make sure it is parenthesized */
-  def prBody(body: List[SourceElement]): String =
+  def prBody(body: List[Stmt]): String =
     join(0, body, LINE_SEP, new StringBuilder("")).toString
 
   def makeASTNodeInfo(span: Span): ASTNodeInfo =
@@ -514,7 +514,7 @@ object NodeUtil {
   }
 
   def prFtn(s: StringBuilder, indent: Int, fds: List[FunDecl], vds: List[VarDecl],
-    body: List[SourceElement]): Unit = {
+    body: List[Stmt]): Unit = {
     fds match {
       case Nil =>
       case _ =>
@@ -534,10 +534,10 @@ object NodeUtil {
     s.append(getIndent(indent + 1)).append(join(indent + 1, body, LINE_SEP + getIndent(indent + 1), new StringBuilder("")))
   }
 
-  def prUseStrictDirective(s: StringBuilder, indent: Int, fds: List[FunDecl], vds: List[VarDecl], body: SourceElements): Unit =
+  def prUseStrictDirective(s: StringBuilder, indent: Int, fds: List[FunDecl], vds: List[VarDecl], body: Stmts): Unit =
     prUseStrictDirective(s, indent, fds, vds, List(body))
 
-  def prUseStrictDirective(s: StringBuilder, indent: Int, fds: List[FunDecl], vds: List[VarDecl], stmts: List[SourceElements]): Unit =
+  def prUseStrictDirective(s: StringBuilder, indent: Int, fds: List[FunDecl], vds: List[VarDecl], stmts: List[Stmts]): Unit =
     fds.find(fd => fd.strict) match {
       case Some(_) => s.append(getIndent(indent)).append("\"use strict\";").append(LINE_SEP)
       case None => vds.find(vd => vd.strict) match {
@@ -669,7 +669,7 @@ object NodeUtil {
   object SimplifyWalker extends ASTWalker {
     var repeat = false
 
-    def simplify(stmts: List[SourceElement]): List[Stmt] = {
+    def simplify(stmts: List[Stmt]): List[Stmt] = {
       repeat = false
       val simplified = simpl(stmts.map(_.asInstanceOf[Stmt]))
       val result = if (repeat) simplify(simplified) else simplified
@@ -710,8 +710,8 @@ object NodeUtil {
       case Program(info, TopLevel(i, fds, vds, program)) =>
         Program(info, TopLevel(i, fds.map(walk), vds,
           program.map(ss => ss match {
-            case SourceElements(i, s, f) =>
-              SourceElements(i, simplify(s.map(walk)), f)
+            case Stmts(i, s, f) =>
+              Stmts(i, simplify(s.map(walk)), f)
           })))
     }
 
@@ -729,9 +729,9 @@ object NodeUtil {
     }
 
     override def walk(node: Functional): Functional = node match {
-      case Functional(i, fds, vds, SourceElements(info, body, strict), name, params, bodyS) =>
+      case Functional(i, fds, vds, Stmts(info, body, strict), name, params, bodyS) =>
         Functional(i, fds.map(walk), vds,
-          SourceElements(info, simplify(body.map(walk)), strict),
+          Stmts(info, simplify(body.map(walk)), strict),
           name, params, bodyS)
     }
   }

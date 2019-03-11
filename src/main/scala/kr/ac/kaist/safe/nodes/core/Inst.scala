@@ -11,30 +11,60 @@
 
 package kr.ac.kaist.safe.nodes.core
 
+import kr.ac.kaist.safe.LINE_SEP
+
 // CORE Instructions
 abstract class Inst {
   // Converted into string
-  override def toString: String = this match {
-    case IConst(x, c) => s"$x = $c"
-    case IId(x, y) => s"$x = $y"
-    case IAlloc(x) => s"$x = new"
-    case IUOp(x, uop, y) => s"$x = $uop $y"
-    case IBOp(x, bop, y, z) => s"$x = $y $bop $z"
-    case IFun(x, ps, b) => s"$x = fun (${ps.mkString(", ")}) $b"
-    case IApp(x, f, as) => s"$x = $f(${as.mkString(", ")})"
-    case ISeq(is) => s"{ ${is.mkString("; ")} }"
-    case IPropRead(x, y, z) => s"$x = $y[$z]"
-    case IPropWrite(x, y, z) => s"$x[$y] = $z"
-    case IPropDelete(o, p) => s"delete $o[$p]"
-    case IIf(c, t, e) => s"if ($c) $t else $e"
-    case IGetProps(x, y) => s"$x <=props= $y"
-    case IWhile(c, b) => s"while ($c) $b"
-    case ILabel(l) => s"LABEL[$l]"
-    case IBreak(l) => s"break $l"
-    case IThrow(x) => s"throw $x"
-    case ITry(t, x, c) => s"try $t catch($x) $c"
-    case INotYetImpl => s"???"
-    case IPrint(x) => s"print($x)"
+  override def toString: String =
+    stringTo(new StringBuilder).toString
+  def stringTo(
+    sb: StringBuilder,
+    indent: String = "",
+    body: Boolean = false
+  ): StringBuilder = {
+    if (!body) sb.append(indent)
+    this match {
+      case IConst(x, c) => sb.append(s"$x = $c")
+      case IId(x, y) => sb.append(s"$x = $y")
+      case IAlloc(x) => sb.append(s"$x = new")
+      case IUOp(x, uop, y) => sb.append(s"$x = $uop $y")
+      case IBOp(x, bop, y, z) => sb.append(s"$x = $y $bop $z")
+      case IFun(x, ps, b) =>
+        sb.append(s"$x = fun(${ps.mkString(", ")}) ")
+        b.stringTo(sb, indent, true)
+      case IApp(x, f, as) => sb.append(s"$x = $f(${as.mkString(", ")})")
+      case ISeq(is) =>
+        sb.append("{").append(LINE_SEP)
+        is.foreach {
+          case i =>
+            i.stringTo(sb, indent + TAB)
+            sb.append(LINE_SEP)
+        }
+        sb.append("}")
+      case IPropRead(x, y, z) => sb.append(s"$x = $y[$z]")
+      case IPropWrite(x, y, z) => sb.append(s"$x[$y] = $z")
+      case IPropDelete(o, p) => sb.append(s"delete $o[$p]")
+      case IIf(c, t, e) =>
+        sb.append(s"if ($c) ")
+        t.stringTo(sb, indent, true)
+        sb.append(" else ")
+        e.stringTo(sb, indent, true)
+      case IGetProps(x, y) => sb.append(s"$x <=props= $y")
+      case IWhile(c, b) =>
+        sb.append(s"while ($c) ")
+        b.stringTo(sb, indent, true)
+      case ILabel(l) => sb.append(s"LABEL[$l]")
+      case IBreak(l) => sb.append(s"break $l")
+      case IThrow(x) => sb.append(s"throw $x")
+      case ITry(t, x, c) =>
+        sb.append(s"try ")
+        t.stringTo(sb, indent)
+        sb.append(" catch($x) ")
+        c.stringTo(sb, indent)
+      case INotYetImpl => sb.append(s"???")
+      case IPrint(x) => sb.append(s"print($x)")
+    }
   }
 
   // Interpretation

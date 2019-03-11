@@ -27,7 +27,7 @@ abstract class Const(str: String) extends Value {
   override def toString: String = str
 }
 case class Num(n: Double) extends Const(n.toString)
-case class LNum(n: Long) extends Const(n.toString)
+case class INum(n: Long) extends Const(n.toString)
 case class Str(s: String) extends Const(s.toString)
 case class Bool(b: Boolean) extends Const(b.toString)
 case object Undef extends Const("undefined")
@@ -37,7 +37,7 @@ case object Null extends Const("null")
 // TODO more precise parsers
 trait ConstParser extends RegexParsers {
   lazy val num: Parser[Num] = "[0-9.]+".r ^^ { case str => Num(str.toDouble) }
-  lazy val lnum: Parser[LNum] = "[0-9]+L".r ^^ { case str => LNum(str.toLong) }
+  lazy val inum: Parser[INum] = "i[0-9]+".r ^^ { case str => INum(str.toLong) }
   lazy val bool: Parser[Bool] = "true" ^^^ Bool(true) | "false" ^^^ Bool(false)
   lazy val str: Parser[Str] = "\"" ~> "([^\"]*)".r <~ "\"" ^^ { case str => Str(str) }
   lazy val undef: Parser[Undef.type] = "undefined" ^^^ Undef

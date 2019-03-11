@@ -11,7 +11,18 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-case class State(env: Env = Env(), heap: Heap = Heap())
+import kr.ac.kaist.safe.LINE_SEP
+
+case class State(env: Env = Env(), heap: Heap = Heap()) {
+  // conversion to string
+  def stringTo(sb: StringBuilder): StringBuilder = {
+    sb.append("Env: ")
+    env.stringTo(sb).append(LINE_SEP)
+    sb.append("Heap: ")
+    heap.stringTo(sb)
+  }
+  override def toString: String = stringTo(new StringBuilder).toString
+}
 
 case class Env(map: Map[String, Value] = Map()) {
   // addition
@@ -20,6 +31,16 @@ case class Env(map: Map[String, Value] = Map()) {
   // lookup variables
   def lookup(id: Id): Value =
     map.getOrElse(id, error(s"free identifier: $id"))
+
+  // conversion to string
+  def stringTo(sb: StringBuilder): StringBuilder = {
+    sb.append("{").append(LINE_SEP)
+    map.foreach {
+      case (x, v) => sb.append(TAB).append(s"$x -> $v").append(LINE_SEP)
+    }
+    sb.append("}")
+  }
+  override def toString: String = stringTo(new StringBuilder).toString
 }
 case class Heap(map: Map[Addr, Obj] = Map()) {
   // new address
@@ -31,6 +52,18 @@ case class Heap(map: Map[Addr, Obj] = Map()) {
   // lookup addresses
   def lookup(addr: Addr): Obj =
     map.getOrElse(addr, error(s"free address: $addr"))
+
+  // conversion to string
+  def stringTo(sb: StringBuilder): StringBuilder = {
+    sb.append("{").append(LINE_SEP)
+    map.foreach {
+      case (a, o) =>
+        sb.append(TAB).append(s"$a -> ")
+        o.stringTo(sb, TAB, true).append(LINE_SEP)
+    }
+    sb.append("}")
+  }
+  override def toString: String = stringTo(new StringBuilder).toString
 }
 
 case class Obj(map: Map[Str, Value] = Map()) {
@@ -43,4 +76,20 @@ case class Obj(map: Map[Str, Value] = Map()) {
 
   // deletion
   def -(prop: Str): Obj = Obj(map - prop)
+
+  // conversion to string
+  def stringTo(
+    sb: StringBuilder,
+    indent: String = "",
+    body: Boolean = false
+  ): StringBuilder = {
+    if (!body) sb.append(TAB)
+    val prefix = indent + TAB
+    sb.append("{").append(LINE_SEP)
+    map.foreach {
+      case (p, v) => sb.append(prefix).append("$p -> $v").append(LINE_SEP)
+    }
+    sb.append("}")
+  }
+  override def toString: String = stringTo(new StringBuilder).toString
 }

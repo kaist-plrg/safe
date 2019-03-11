@@ -1,11 +1,11 @@
 /**
  * *****************************************************************************
- * Copyright (c) 2019, KAIST.
+ * Copyright (c) 2016-2018, KAIST.
  * All rights reserved.
  *
  * Use is subject to license terms.
  *
- * This distribution may include materials developed by thcored parties.
+ * This distribution may include materials developed by third parties.
  * ****************************************************************************
  */
 
@@ -13,29 +13,29 @@ package kr.ac.kaist.safe.phase
 
 import scala.util.{ Try, Success }
 import kr.ac.kaist.safe.SafeConfig
-import kr.ac.kaist.safe.compiler.Compiler
+import kr.ac.kaist.safe.compiler.Translator
 import kr.ac.kaist.safe.nodes.ast.Program
-import kr.ac.kaist.safe.nodes.core.ISeq
+import kr.ac.kaist.safe.nodes.ir.IRRoot
 import kr.ac.kaist.safe.util._
 
-// Compile phase
-case object Compile extends PhaseObj[Program, CompileConfig, ISeq] {
+// Translate phase
+case object Translate extends PhaseObj[Program, TranslateConfig, IRRoot] {
   val name: String = "compiler"
-  val help: String = "Compiles JavaScript source files to Core."
+  val help: String = "Translates JavaScript source files to IR."
 
   def apply(
     program: Program,
     safeConfig: SafeConfig,
-    config: CompileConfig
-  ): Try[ISeq] = {
-    // Compile AST -> Core.
-    val compiler = new Compiler(program)
-    val core = compiler.result
-    val excLog = compiler.excLog
+    config: TranslateConfig
+  ): Try[IRRoot] = {
+    // Translate AST -> IR.
+    val translator = new Translator(program)
+    val ir = translator.result
+    val excLog = translator.excLog
 
     // Report errors.
     if (excLog.hasError) {
-      println(program.relFileName + ":")
+      println(ir.relFileName + ":")
       println(excLog)
     }
 
@@ -43,26 +43,26 @@ case object Compile extends PhaseObj[Program, CompileConfig, ISeq] {
     config.outFile match {
       case Some(out) => {
         val ((fw, writer)) = Useful.fileNameToWriters(out)
-        writer.write(core.toString)
+        writer.write(ir.toString(0))
         writer.close; fw.close
-        println("Dumped core to " + out)
+        println("Dumped IR to " + out)
       }
       case None =>
     }
-    Success(core)
+    Success(ir)
   }
 
-  def defaultConfig: CompileConfig = CompileConfig()
-  val options: List[PhaseOption[CompileConfig]] = List(
+  def defaultConfig: TranslateConfig = TranslateConfig()
+  val options: List[PhaseOption[TranslateConfig]] = List(
     ("silent", BoolOption(c => c.silent = true),
       "messages during compilation are muted."),
     ("out", StrOption((c, s) => c.outFile = Some(s)),
-      "the resulting Core will be written to the outfile.")
+      "the resulting IR will be written to the outfile.")
   )
 }
 
-// Compile phase config
-case class CompileConfig(
+// Translate phase config
+case class TranslateConfig(
   var silent: Boolean = false,
   var outFile: Option[String] = None
 ) extends Config

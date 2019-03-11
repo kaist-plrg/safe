@@ -16,6 +16,7 @@ import kr.ac.kaist.safe.errors.error.NoMode
 import kr.ac.kaist.safe.nodes.ast.Program
 import kr.ac.kaist.safe.nodes.cfg.CFG
 import kr.ac.kaist.safe.nodes.ir.IRRoot
+import kr.ac.kaist.safe.nodes.core.{ ISeq, State }
 import kr.ac.kaist.safe.phase._
 import kr.ac.kaist.safe.util.ArgParser
 
@@ -75,13 +76,23 @@ case object CmdASTRewrite extends CommandObj("astRewrite", CmdParse >> ASTRewrit
   override def display(program: Program): Unit = println(program.toString(0))
 }
 
-// compile
-case object CmdCompile extends CommandObj("compile", CmdASTRewrite >> Compile) {
+// translate
+case object CmdTranslate extends CommandObj("translate", CmdASTRewrite >> Translate) {
   override def display(ir: IRRoot): Unit = println(ir.toString(0))
 }
 
+// compile
+case object CmdCompile extends CommandObj("compile", CmdASTRewrite >> Compile) {
+  override def display(core: ISeq): Unit = println(core.toString)
+}
+
+// eval
+case object CmdEval extends CommandObj("eval", CmdCompile >> Eval) {
+  override def display(st: State): Unit = println(st.toString)
+}
+
 // cfgBuild
-case object CmdCFGBuild extends CommandObj("cfgBuild", CmdCompile >> CFGBuild) {
+case object CmdCFGBuild extends CommandObj("cfgBuild", CmdTranslate >> CFGBuild) {
   override def display(cfg: CFG): Unit = println(cfg.toString(0))
 }
 

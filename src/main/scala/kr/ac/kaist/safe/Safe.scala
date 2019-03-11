@@ -71,7 +71,9 @@ object Safe {
   val commands: List[Command] = List(
     CmdParse,
     CmdASTRewrite,
+    CmdTranslate,
     CmdCompile,
+    CmdEval,
     CmdCFGBuild,
     CmdHeapBuild,
     CmdAnalyze,
@@ -87,7 +89,9 @@ object Safe {
   var phases: List[Phase] = List(
     Parse,
     ASTRewrite,
+    Translate,
     Compile,
+    Eval,
     CFGBuild,
     HeapBuild,
     Analyze,

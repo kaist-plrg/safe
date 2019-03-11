@@ -22,4 +22,7 @@ package object core {
   def error(msg: String): Nothing = throw CoreError(msg)
   def cast[T](v: Any)(implicit tag: ClassTag[T]): T =
     v match { case v: T => v case _ => error(s"$v is not $tag") }
+
+  // indentation
+  val TAB = "  "
 }
