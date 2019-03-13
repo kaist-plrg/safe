@@ -54,7 +54,7 @@ abstract class Inst {
       case IWhile(c, b) =>
         sb.append(s"while ($c) ")
         b.stringTo(sb, indent, true)
-      case ILabel(l) => sb.append(s"LABEL[$l]")
+      case ILabel(l) => sb.append(s"label $l")
       case IBreak(l) => sb.append(s"break $l")
       case IThrow(x) => sb.append(s"throw $x")
       case ITry(t, x, c) =>
@@ -63,7 +63,7 @@ abstract class Inst {
         sb.append(" catch($x) ")
         c.stringTo(sb, indent)
       case INotYetImpl => sb.append(s"???")
-      case IPrint(x) => sb.append(s"print($x)")
+      case IPrint(x) => sb.append(s"print $x")
     }
   }
 
@@ -206,10 +206,10 @@ trait InstParser extends ConstParser with OpParser {
       ("if" ~> ("(" ~> (id <~ ")"))) ~ inst ~ ("else" ~> inst) ^^ { case c ~ t ~ e => IIf(c, t, e) } |
       (id <~ "<=props=") ~ id ^^ { case x ~ y => IGetProps(x, y) } |
       ("while" ~> ("(" ~> (id <~ ")"))) ~ inst ^^ { case c ~ b => IWhile(c, b) } |
-      ("LABEL" ~> ("[" ~> (label <~ "]"))) ^^ { case l => ILabel(l) } |
+      "label" ~> label ^^ { case l => ILabel(l) } |
       "break" ~> label ^^ { case l => IBreak(l) } |
       "throw" ~> id ^^ { case x => IThrow(x) } |
       ("try" ~> inst) ~ ("catch" ~> ("(" ~> (id <~ ")"))) ~ inst ^^ { case t ~ x ~ c => ITry(t, x, c) } |
       "???" ^^^ INotYetImpl |
-      ("print" ~> ("(" ~> (id <~ ")"))) ^^ { case x => IPrint(x) }
+      "print" ~> id ^^ { case x => IPrint(x) }
 }

@@ -71,7 +71,7 @@ class Compiler(program: ast.Program) {
     case ast.NoOp(_, _) =>
     case ast.ExprStmt(_, expr, _) =>
       walkExpr(expr, insts)
-    case _ => println(stmt); ???
+    case _ => ???
   }
 
   private def walkExpr(
@@ -80,7 +80,7 @@ class Compiler(program: ast.Program) {
   ): Unit = expr match {
     case ast.IntLiteral(_, intVal, _) =>
       insts += core.IConst(newId, core.INum(BigInt(intVal).toLong))
-    case _ => println(expr); ???
+    case _ => ???
   }
 
   ////////////////////////////////////////////////////////////////

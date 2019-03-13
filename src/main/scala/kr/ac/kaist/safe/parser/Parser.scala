@@ -13,7 +13,7 @@ package kr.ac.kaist.safe.parser
 
 import java.io._
 import java.nio.charset.Charset
-import scala.util.{ Try, Success, Failure }
+import scala.util.{ Random, Try, Success, Failure }
 import xtc.parser.{ Result, ParseError, SemanticValue }
 import kr.ac.kaist.safe.errors.ExcLog
 import kr.ac.kaist.safe.errors.error.{ ParserError, NotJSFileError, AlreadyMergedSourceError }
@@ -72,7 +72,8 @@ object Parser {
   def stringToAST(str: String): Try[(Program, ExcLog)] = {
     val sr = new StringReader(str)
     val in = new BufferedReader(sr)
-    val pgm = resultToAST[Program](new JS(in, "stringParse"), _.JSmain(0))
+    val rand = Random.alphanumeric.take(16).mkString
+    val pgm = resultToAST[Program](new JS(in, s"stringParse_$rand"), _.JSmain(0))
     val result = pgm.map { case (e, log) => (DynamicRewriter(e), log) }
     in.close; sr.close
     result

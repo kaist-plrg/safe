@@ -11,10 +11,10 @@
     "maxStrSetSize": 10,
     "recency": false,
     "heap-clone": false,
-    "acs": 1,
-    "callsiteSensitivity": 0,
-    "loopIter": 0,
-    "loopDepth": 0,
+    "acs": 0,
+    "callsiteSensitivity": 100,
+    "loopIter": 20,
+    "loopDepth": 10,
     "snapshot": "",
     "symbolic": true
   }
