@@ -16,6 +16,6 @@
     "loopIter": 20,
     "loopDepth": 10,
     "snapshot": "",
-    "symbolic": true
+    "symbolic": false
   }
 }
