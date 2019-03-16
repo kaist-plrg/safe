@@ -14,30 +14,23 @@ package kr.ac.kaist.safe.phase
 import scala.util.{ Try, Success }
 import kr.ac.kaist.safe.SafeConfig
 import kr.ac.kaist.safe.compiler.Compiler
-import kr.ac.kaist.safe.nodes.ast.Program
-import kr.ac.kaist.safe.nodes.core.ISeq
+import kr.ac.kaist.safe.nodes.ast
+import kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.util._
 
 // Compile phase
-case object Compile extends PhaseObj[Program, CompileConfig, ISeq] {
+case object Compile extends PhaseObj[ast.Program, CompileConfig, core.Program] {
   val name: String = "compiler"
   val help: String = "Compiles JavaScript source files to Core."
 
   def apply(
-    program: Program,
+    program: ast.Program,
     safeConfig: SafeConfig,
     config: CompileConfig
-  ): Try[ISeq] = {
+  ): Try[core.Program] = {
     // Compile AST -> Core.
     val compiler = new Compiler(program)
     val core = compiler.result
-    val excLog = compiler.excLog
-
-    // Report errors.
-    if (excLog.hasError) {
-      println(program.relFileName + ":")
-      println(excLog)
-    }
 
     // Pretty print to file.
     config.outFile match {

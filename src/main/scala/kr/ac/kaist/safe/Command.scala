@@ -13,10 +13,10 @@ package kr.ac.kaist.safe
 
 import kr.ac.kaist.safe.analyzer._
 import kr.ac.kaist.safe.errors.error.NoMode
-import kr.ac.kaist.safe.nodes.ast.Program
+import kr.ac.kaist.safe.nodes.ast
 import kr.ac.kaist.safe.nodes.cfg.CFG
 import kr.ac.kaist.safe.nodes.ir.IRRoot
-import kr.ac.kaist.safe.nodes.core.{ ISeq, State }
+import kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.phase._
 import kr.ac.kaist.safe.util.ArgParser
 
@@ -68,12 +68,12 @@ case object CmdBase extends CommandObj("", PhaseNil)
 
 // parse
 case object CmdParse extends CommandObj("parse", CmdBase >> Parse) {
-  override def display(program: Program): Unit = println(program.toString(0))
+  override def display(program: ast.Program): Unit = println(program.toString(0))
 }
 
 // astRewrite
 case object CmdASTRewrite extends CommandObj("astRewrite", CmdParse >> ASTRewrite) {
-  override def display(program: Program): Unit = println(program.toString(0))
+  override def display(program: ast.Program): Unit = println(program.toString(0))
 }
 
 // translate
@@ -83,12 +83,12 @@ case object CmdTranslate extends CommandObj("translate", CmdASTRewrite >> Transl
 
 // compile
 case object CmdCompile extends CommandObj("compile", CmdASTRewrite >> Compile) {
-  override def display(core: ISeq): Unit = println(core.toString)
+  override def display(pgm: core.Program): Unit = println(pgm.toString)
 }
 
 // eval
 case object CmdEval extends CommandObj("eval", CmdCompile >> Eval) {
-  override def display(st: State): Unit = println(st.toString)
+  override def display(st: core.State): Unit = println(st.toString)
 }
 
 // cfgBuild

@@ -12,22 +12,22 @@
 package kr.ac.kaist.safe.phase
 
 import kr.ac.kaist.safe.SafeConfig
-import kr.ac.kaist.safe.nodes.core.{ Model, ISeq, State }
+import kr.ac.kaist.safe.nodes.core._
 import kr.ac.kaist.safe.util._
 import scala.util.{ Try, Success }
 
 // Eval phase
-case object Eval extends PhaseObj[ISeq, EvalConfig, State] {
+case object Eval extends PhaseObj[Program, EvalConfig, State] {
   val name: String = "eval"
   val help: String = "evaluates JavaScript source files to Core."
 
   def apply(
-    inst: ISeq,
+    pgm: Program,
     safeConfig: SafeConfig,
     config: EvalConfig
   ): Try[State] = {
-    // Evaluate instruction.
-    val st: State = inst.interp(Model.initial)
+    // Evaluate program
+    val st: State = Sem.interp(pgm)(ECMAScript5)
 
     // Pretty print to file.
     config.outFile match {
