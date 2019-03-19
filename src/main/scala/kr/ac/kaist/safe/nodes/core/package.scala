@@ -13,7 +13,7 @@ package kr.ac.kaist.safe.nodes
 
 import kr.ac.kaist.safe.errors.error.CoreError
 import scala.reflect.ClassTag
-import scala.util.parsing.combinator.RegexParsers
+import scala.util.parsing.combinator.{ JavaTokenParsers, PackratParsers }
 
 package object core {
   def error(msg: String): Nothing = throw CoreError(msg)
@@ -24,7 +24,7 @@ package object core {
   val TAB = "  "
 
   // parsers
-  trait CoreParser extends RegexParsers {
-    lazy val idstr = "([a-zA-Z][a-zA-Z0-9_]*)".r
+  trait CoreParser extends JavaTokenParsers with PackratParsers {
+    val idstr: PackratParser[String] = ident
   }
 }

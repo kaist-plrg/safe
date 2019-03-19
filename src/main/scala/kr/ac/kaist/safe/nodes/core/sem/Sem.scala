@@ -87,6 +87,9 @@ object Sem {
     case (OLShift, INum(l), INum(r)) => INum(l << r)
     case (OSRShift, INum(l), INum(r)) => INum(l >> r)
     case (OURShift, INum(l), INum(r)) => INum(l >>> r)
+
+    // equality operations
+    case (OEq, l, r) => Bool(l == r)
     case (_, lval, rval) => error(s"wrong type: $lval $bop $rval")
   }
 
@@ -94,7 +97,7 @@ object Sem {
   def fixpoint(st: State): State = trans(st) match {
     case st @ State(insts, _, _) => insts match {
       case Nil => st
-      case _ => trans(st)
+      case _ => fixpoint(st)
     }
   }
 
@@ -105,6 +108,11 @@ object Sem {
         val v = interp(expr)(st)
         val newEnv = env.update(id, v)
         State(rest, newEnv, heap)
+      case IAlloc(id) =>
+        val addr = heap.newAddr
+        val newHeap = heap.update(addr, Obj())
+        val newEnv = env.update(id, addr)
+        State(rest, newEnv, newHeap)
       case IPropWrite(obj, prop, expr) => interp(obj)(st) match {
         case (addr: Addr) => interp(prop)(st) match {
           case Str(name) =>
@@ -163,6 +171,11 @@ object Sem {
         val Cont(newInsts, newEnv) = env(ThrowLabel)
         val assEnv = env.update(ExceptionId, v)
         State(newInsts, assEnv, heap)
+      case IAssert(expr) => interp(expr)(st) match {
+        case Bool(true) => State(rest, env, heap)
+        case Bool(false) => error(s"assertion fail: $expr")
+        case v => error(s"not a boolean: $v")
+      }
       case ITry(trySeq, id, catchSeq) =>
         val assign = IExpr(id, EId(ExceptionId))
         val newEnv = env.update(ThrowLabel, Cont(assign :: catchSeq, env))

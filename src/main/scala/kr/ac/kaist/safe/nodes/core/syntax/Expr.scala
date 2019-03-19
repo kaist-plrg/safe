@@ -48,19 +48,19 @@ case class EPropRead(obj: Expr, prop: Expr) extends Expr
 
 // parser for expressions
 trait ExprParser extends IdParser with OpParser {
-  lazy val num = "[0-9.]+".r ^^ { _.toDouble }
-  lazy val inum = "i[0-9]+".r ^^ { _.toLong }
-  lazy val str = "\"" ~> "([^\"]*)".r <~ "\""
-  lazy val bool = "true" ^^^ true | "false" ^^^ false
-  lazy val expr: Parser[Expr] =
+  val num: PackratParser[Double] = floatingPointNumber ^^ { _.toDouble }
+  val inum: PackratParser[Long] = "i" ~> decimalNumber ^^ { _.toLong }
+  val str: PackratParser[String] = stringLiteral
+  val bool: PackratParser[Boolean] = "true" ^^^ true | "false" ^^^ false
+  val expr: PackratParser[Expr] =
     num ^^ { ENum(_) } |
       inum ^^ { EINum(_) } |
       str ^^ { EStr(_) } |
       bool ^^ { EBool(_) } |
-      "undef" ^^^ EUndef |
+      "undefined" ^^^ EUndef |
       "null" ^^^ ENull |
-      ("(" ~> uop) ~ (expr <~ ")") ^^ { case u ~ e => EUOp(u, e) } |
-      ("(" ~> expr) ~ bop ~ (expr <~ ")") ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
-      (expr <~ "[") ~ (expr <~ "]") ^^ { case o ~ p => EPropRead(o, p) } |
-      id ^^ { EId(_) }
+      id ^^ { EId(_) } |
+      "(" ~> (uop ~ expr) <~ ")" ^^ { case u ~ e => EUOp(u, e) } |
+      "(" ~> (expr ~ bop ~ expr) <~ ")" ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
+      "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) }
 }

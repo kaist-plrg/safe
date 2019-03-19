@@ -25,7 +25,7 @@ case object ThrowLabel extends Label
 
 // parser for expressions
 trait LabelParser extends CoreParser {
-  lazy val label =
+  val label: PackratParser[Label] =
     "@return" ^^^ ReturnLabel |
       "@throw" ^^^ ThrowLabel |
       idstr ^^ { UserLabel(_) }

@@ -23,10 +23,10 @@ object Model {
 object ECMAScript5 extends Model {
   // environment
   val env = Env(Map(
-    UserId("$ERROR") -> Clo(List(UserId("x")), List(IThrow(EId(UserId("x"))))),
-    UserId("$FAIL") -> Clo(List(UserId("x")), List(IThrow(EId(UserId("x"))))),
-    UserId("runTestCase") -> Clo(List(UserId("x")), List(IIf(EId(UserId("x")), Nil, List(IThrow(EId(UserId("x"))))))),
-    UserId("fnGlobalObject") -> Clo(List(), List(IReturn(EId(UserId("[[Global]]")))))
+    UserId("$ERROR") -> Clo(List(UserId("x")), List(IAssert(EBool(false)))),
+    UserId("$FAIL") -> Clo(List(UserId("x")), List(IAssert(EBool(false)))),
+    UserId("runTestCase") -> Clo(List(UserId("x")), List(IAssert(EId(UserId("x"))))),
+    UserId("fnGlobalObject") -> Clo(List(), List(IReturn(EId(GlobalId))))
   ), Map())
 
   // heap

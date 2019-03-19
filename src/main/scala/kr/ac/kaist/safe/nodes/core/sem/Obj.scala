@@ -14,7 +14,7 @@ package kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Objects
-case class Obj(map: Map[Id, Value]) {
+case class Obj(map: Map[Id, Value] = Map()) {
   // update properties
   def update(id: Id, value: Value): Obj = Obj(map + (id -> value))
 

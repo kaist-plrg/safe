@@ -19,6 +19,7 @@ case object OMul extends BOp("*")
 case object ODiv extends BOp("/")
 case object OMod extends BOp("%")
 case object OLt extends BOp("<")
+case object OEq extends BOp("==")
 case object OBAnd extends BOp("&")
 case object OBOr extends BOp("|")
 case object OBXOr extends BOp("^")
@@ -28,13 +29,14 @@ case object OURShift extends BOp(">>>")
 
 // parser for binary operators
 trait BOpParser extends CoreParser {
-  lazy val bop =
+  val bop: PackratParser[BOp] =
     "+" ^^^ OPlus |
       "-" ^^^ OSub |
       "*" ^^^ OMul |
       "/" ^^^ ODiv |
       "%" ^^^ OMod |
       "<" ^^^ OLt |
+      "==" ^^^ OEq |
       "&" ^^^ OBAnd |
       "|" ^^^ OBOr |
       "^" ^^^ OBXOr |

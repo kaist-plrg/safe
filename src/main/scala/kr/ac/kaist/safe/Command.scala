@@ -83,12 +83,22 @@ case object CmdTranslate extends CommandObj("translate", CmdASTRewrite >> Transl
 
 // compile
 case object CmdCompile extends CommandObj("compile", CmdASTRewrite >> Compile) {
-  override def display(pgm: core.Program): Unit = println(pgm.toString)
+  override def display(pgm: core.Program): Unit = println(pgm)
 }
 
 // eval
-case object CmdEval extends CommandObj("eval", CmdCompile >> Eval) {
-  override def display(st: core.State): Unit = println(st.toString)
+case object CmdEval extends CommandObj("eval", CmdCompile >> EvalCore) {
+  override def display(st: core.State): Unit = println(st)
+}
+
+// parse-core
+case object CmdParseCore extends CommandObj("parse-core", CmdBase >> ParseCore) {
+  override def display(pgm: core.Program): Unit = println(pgm)
+}
+
+// eval-core
+case object CmdEvalCore extends CommandObj("eval-core", CmdParseCore >> EvalCore) {
+  override def display(st: core.State): Unit = println(st)
 }
 
 // cfgBuild

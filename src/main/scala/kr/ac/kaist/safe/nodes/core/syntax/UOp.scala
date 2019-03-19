@@ -18,5 +18,5 @@ case object OBNot extends UOp("!")
 
 // parser for unary operators
 trait UOpParser extends CoreParser {
-  lazy val uop = "-" ^^^ ONeg | "!" ^^^ OBNot
+  val uop: PackratParser[UOp] = "-" ^^^ ONeg | "!" ^^^ OBNot
 }
