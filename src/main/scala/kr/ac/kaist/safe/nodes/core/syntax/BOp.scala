@@ -44,3 +44,6 @@ trait BOpParser extends CoreParser {
       ">>" ^^^ OSRShift |
       ">>>" ^^^ OURShift
 }
+object BOp extends BOpParser {
+  def apply(str: String): BOp = parseAll(bop, str).get
+}

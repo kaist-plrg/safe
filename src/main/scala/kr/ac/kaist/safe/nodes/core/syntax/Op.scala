@@ -18,4 +18,9 @@ abstract class Op {
 }
 
 // parser for operators
-trait OpParser extends UOpParser with BOpParser
+trait OpParser extends UOpParser with BOpParser {
+  val op: PackratParser[Op] = uop | bop
+}
+object Op extends OpParser {
+  def apply(str: String): Op = parseAll(op, str).get
+}

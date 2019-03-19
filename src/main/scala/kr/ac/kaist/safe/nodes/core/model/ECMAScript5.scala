@@ -11,24 +11,22 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-// CORE Model
-abstract class Model {
-  val env: Env
-  val heap: Heap
-}
-object Model {
-  def unapply(model: Model): Option[(Env, Heap)] = Some((model.env, model.heap))
-}
-
+// ECMASCript 5.1
 object ECMAScript5 extends Model {
+  // internal identifiers
+  val GlobalId = InternalId("Global")
+
+  val failClo = Clo("(x) => throw x;")
+  val assertClo = Clo("(x) => assert x;")
+
   // environment
-  val env = Env(Map(
-    UserId("$ERROR") -> Clo(List(UserId("x")), List(IAssert(EBool(false)))),
-    UserId("$FAIL") -> Clo(List(UserId("x")), List(IAssert(EBool(false)))),
-    UserId("runTestCase") -> Clo(List(UserId("x")), List(IAssert(EId(UserId("x"))))),
+  val env: Env = Env(Map(
+    UserId("$ERROR") -> failClo,
+    UserId("$FAIL") -> failClo,
+    UserId("runTestCase") -> assertClo,
     UserId("fnGlobalObject") -> Clo(List(), List(IReturn(EId(GlobalId))))
-  ), Map())
+  ), Map(), None, None)
 
   // heap
-  val heap = Heap(Map())
+  val heap: Heap = Heap(Map())
 }

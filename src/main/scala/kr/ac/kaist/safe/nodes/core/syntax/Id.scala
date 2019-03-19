@@ -15,21 +15,20 @@ package kr.ac.kaist.safe.nodes.core
 abstract class Id {
   def appendTo(sb: StringBuilder): StringBuilder = this match {
     case UserId(name) => sb.append(name)
-    case GlobalId => sb.append("@global")
-    case ReturnId => sb.append("@return")
-    case ExceptionId => sb.append("@exception")
+    case InternalId(name) => sb.append("@").append(name)
   }
 }
-case class UserId(name: String) extends Id
-case object GlobalId extends Id
-case object ReturnId extends Id
-case object ExceptionId extends Id
 
-// parser for expressions
+// user identifiers
+case class UserId(name: String) extends Id
+
+// internal identifiers
+case class InternalId(name: String) extends Id
+
+// parser for identifiers
 trait IdParser extends CoreParser {
-  val id: PackratParser[Id] =
-    idstr ^^ { UserId(_) } |
-      "@global" ^^^ GlobalId |
-      "@return" ^^^ ReturnId |
-      "@exception" ^^^ ExceptionId
+  val id: PackratParser[Id] = idstr ^^ { UserId(_) } | "@" ~> idstr ^^ { InternalId(_) }
+}
+object Id extends IdParser {
+  def apply(str: String): Id = parseAll(id, str).get
 }

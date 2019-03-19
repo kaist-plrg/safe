@@ -14,7 +14,9 @@ package kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Heaps
-case class Heap(map: Map[Addr, Obj]) {
+case class Heap(
+    map: Map[Addr, Obj] = Map()
+) {
   // new address
   def newAddr: Addr = Addr(map.size)
 

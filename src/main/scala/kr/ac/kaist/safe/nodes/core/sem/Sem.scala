@@ -1,3 +1,4 @@
+
 /**
  * *****************************************************************************
  * Copyright (c) 2019, KAIST.
@@ -11,19 +12,16 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-import kr.ac.kaist.safe.LINE_SEP
-
-// CORE Semantics
+// Semantics
 object Sem {
-  // for programs
+  // interpret programs
   def interp(pgm: Program): Model => State = model => {
-    val Model(env, heap) = model
     val Program(insts) = pgm
-    val initial = State(insts, env, heap)
+    val initial = State(insts, model.env, model.heap)
     fixpoint(initial)
   }
 
-  // for expressions
+  // interpret for expressions
   def interp(expr: Expr): State => Value = st => st match {
     case State(_, env, heap) => expr match {
       case ENum(n) => Num(n)
@@ -53,14 +51,14 @@ object Sem {
     }
   }
 
-  // for unary operators
+  // interpret for unary operators
   def interp(uop: UOp): Value => Value = (uop, _) match {
     case (ONeg, Num(n)) => Num(-n)
     case (OBNot, INum(n)) => INum(~n)
     case (_, value) => error(s"wrong type of value for the operator $uop: $value")
   }
 
-  // for binary operators
+  // interpret for binary operators
   def interp(bop: BOp): (Value, Value) => Value = (bop, _, _) match {
     // double operations
     case (OPlus, Num(l), Num(r)) => Num(l + r)
@@ -144,9 +142,11 @@ object Sem {
             case ((Nil, map), param) => (Nil, map + (param -> Undef))
             case ((value :: rest, map), param) => (rest, map + (param -> value))
           }
-          val assign = IExpr(id, EId(ReturnId))
-          val labels = Map[Label, Cont](ReturnLabel -> Cont(assign :: rest, env))
-          val newEnv = Env(ids, labels)
+          val newEnv = Env(
+            ids = ids,
+            retLabel = Some((id, Cont(rest, env))),
+            excLabel = env.excLabel
+          )
           State(body, newEnv, heap)
         case v => error(s"not a closure: $v")
       }
@@ -168,23 +168,23 @@ object Sem {
         State(newInsts, newEnv, heap)
       case IThrow(expr) =>
         val v = interp(expr)(st)
-        val Cont(newInsts, newEnv) = env(ThrowLabel)
-        val assEnv = env.update(ExceptionId, v)
-        State(newInsts, assEnv, heap)
-      case IAssert(expr) => interp(expr)(st) match {
-        case Bool(true) => State(rest, env, heap)
-        case Bool(false) => error(s"assertion fail: $expr")
-        case v => error(s"not a boolean: $v")
-      }
+        env.excLabel match {
+          case Some((id, Cont(newInsts, newEnv))) =>
+            val assEnv = newEnv.update(id, v)
+            State(newInsts, assEnv, heap)
+          case None => error(s"uncaught exception: $v")
+        }
       case ITry(trySeq, id, catchSeq) =>
-        val assign = IExpr(id, EId(ExceptionId))
-        val newEnv = env.update(ThrowLabel, Cont(assign :: catchSeq, env))
+        val newEnv = env.updateExc(id, Cont(catchSeq, env))
         State(trySeq, newEnv, heap)
       case IReturn(expr) =>
         val v = interp(expr)(st)
-        val Cont(newInsts, newEnv) = env(ReturnLabel)
-        val assEnv = env.update(ReturnId, v)
-        State(newInsts, assEnv, heap)
+        env.retLabel match {
+          case Some((id, Cont(newInsts, newEnv))) =>
+            val assEnv = newEnv.update(id, v)
+            State(newInsts, assEnv, heap)
+          case None => error(s"illegal return: $v")
+        }
     }
     case _ => error("no remaining instructions")
   }

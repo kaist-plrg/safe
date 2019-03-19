@@ -30,3 +30,6 @@ trait LabelParser extends CoreParser {
       "@throw" ^^^ ThrowLabel |
       idstr ^^ { UserLabel(_) }
 }
+object Label extends LabelParser {
+  def apply(str: String): Label = parseAll(label, str).get
+}

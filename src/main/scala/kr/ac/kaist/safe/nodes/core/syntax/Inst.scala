@@ -137,3 +137,6 @@ trait InstParser extends ExprParser with LabelParser {
       (id <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) <~ ";" ^^ { case x ~ f ~ as => IApp(x, f, as) } |
       (id <~ "=") ~ expr <~ ";" ^^ { case x ~ e => IExpr(x, e) }
 }
+object Inst extends InstParser {
+  def apply(str: String): Inst = parseAll(inst, str).get
+}

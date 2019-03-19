@@ -24,9 +24,14 @@ case class Program(insts: List[Inst]) {
     sb
   }
 }
+
+// parser for programs
+trait ProgramParser extends InstParser {
+  val prog: PackratParser[Program] = instSeq ^^ { Program(_) }
+}
 object Program extends ProgramParser {
   // parse a string into a program
-  def fromString(str: String): UTry[Program] = UTry(parse(prog, str).get)
+  def apply(str: String): Program = parse(prog, str).get
 
   // parse a file into sequence of instructions
   def fileToInsts(f: String): UTry[List[Inst]] = {
@@ -53,9 +58,4 @@ object Program extends ProgramParser {
       }
     }).map { Program(_) }
   }
-}
-
-// parser for programs
-trait ProgramParser extends InstParser {
-  val prog: PackratParser[Program] = instSeq ^^ { Program(_) }
 }

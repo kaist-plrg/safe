@@ -17,7 +17,7 @@ import kr.ac.kaist.safe.nodes.core.State
 import org.scalatest._
 import scala.util.Random.shuffle
 
-class EvalTest extends AnalyzeTest {
+class EvalTest extends SafeTest {
   // registration
   val evalTestDir = testDir + "core"
   shuffle(walkTree(new File(evalTestDir))).foreach(file => {

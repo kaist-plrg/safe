@@ -64,3 +64,6 @@ trait ExprParser extends IdParser with OpParser {
       "(" ~> (expr ~ bop ~ expr) <~ ")" ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
       "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) }
 }
+object Expr extends ExprParser {
+  def apply(str: String): Expr = parseAll(expr, str).get
+}

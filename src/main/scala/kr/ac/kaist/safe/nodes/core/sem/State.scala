@@ -14,7 +14,11 @@ package kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.LINE_SEP
 
 // CORE States
-case class State(insts: List[Inst], env: Env, heap: Heap) {
+case class State(
+    insts: List[Inst] = Nil,
+    env: Env = Env(),
+    heap: Heap = Heap()
+) {
   // update identifiers
   def update(id: Id, value: Value): State =
     copy(env = env.update(id, value))
