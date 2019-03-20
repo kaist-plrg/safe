@@ -1,0 +1,24 @@
+// function applications
+function double(x) { return (x + x); }
+function call(f, x) {
+  result = f(x);
+  return result;
+}
+
+x = double(24);
+assert(x == 48);
+
+x = call(double, 3);
+assert(x == 6);
+
+function f(x, y) { return y; }
+
+x = f(1);
+assert(x == undefined);
+
+x = f(1, 2, 3);
+assert(x == 2);
+
+function f() { }
+x = f();
+assert(x == undefined);

@@ -1,0 +1,14 @@
+// exceptions
+x = 0;
+try {
+  throw 1;
+} catch (x)
+assert(x == 1);
+
+function f() { throw "err"; }
+
+x = "";
+try {
+  y = f();
+} catch (x)
+assert(x == "err");

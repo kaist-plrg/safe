@@ -1,0 +1,7 @@
+// function declarations
+function f(x, y) { return (x + y); }
+function g(x, y) { return (x + y); }
+assert(f == f);
+assert(f == g);
+f = 1;
+assert(f == 1);

@@ -1,0 +1,8 @@
+// property writes
+obj = new;
+obj["a"] = 1;
+prop = "b";
+obj[prop] = 2;
+assert((obj["a"]) == 1);
+assert((obj[prop]) == 2);
+assert((obj["b"]) == 2);
