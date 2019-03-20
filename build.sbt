@@ -63,7 +63,7 @@ scalacOptions in ThisBuild ++= Seq("-deprecation", "-feature",
                                    "-language:postfixOps",
                                    "-language:implicitConversions")
 
-unmanagedJars in Compile ++= Seq(file("lib/xtc.jar"), file("lib/jline-2.12.jar"), file("lib/jericho-html-3.3.jar"))
+unmanagedJars in Compile ++= Seq(file("lib/xtc.jar"), file("lib/jericho-html-3.3.jar"))
 cleanFiles ++= Seq(file("src/main/java/kr/ac/kaist/safe/parser/"))
 
 libraryDependencies ++= Seq(
@@ -73,7 +73,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.0.10",
   "io.spray" %% "spray-json" % "1.3.2",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.2",
-  "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.1"
+  "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.1",
+  "org.jline" % "jline" % "3.10.0"
 )
 
 javacOptions ++= Seq("-encoding", "UTF-8")

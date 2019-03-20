@@ -13,13 +13,14 @@ package kr.ac.kaist.safe.analyzer.console
 
 import java.io.PrintWriter
 
-import jline.console.ConsoleReader
-import jline.console.completer._
 import kr.ac.kaist.safe.LINE_SEP
 import kr.ac.kaist.safe.analyzer.console.command._
 import kr.ac.kaist.safe.analyzer._
 import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.phase.HeapBuildConfig
+import org.jline.reader.LineReaderBuilder
+import org.jline.reader.impl.completer.StringsCompleter
+import org.jline.terminal._
 
 import scala.collection.JavaConverters._
 
@@ -32,12 +33,20 @@ class Console(
   ////////////////////////////////////////////////////////////////
   // private variables
   ////////////////////////////////////////////////////////////////
-
-  private val reader = new ConsoleReader()
-  private val out: PrintWriter = new PrintWriter(reader.getOutput)
+  private val builder: TerminalBuilder = TerminalBuilder.builder();
+  private val terminal: Terminal = builder.build();
+  private val cmds = Command.commands.map(_.name).asJavaCollection
+  private val completer = new StringsCompleter(cmds)
+  private val reader = LineReaderBuilder.builder()
+    .terminal(terminal)
+    .completer(completer)
+    .build()
+  private var prompt: String = ""
 
   iter = iter0
-  init()
+  runCmd("help") match {
+    case o: CmdResult => println(o)
+  }
 
   ////////////////////////////////////////////////////////////////
   // API
@@ -65,7 +74,7 @@ class Console(
       setPrompt()
       while ({
         println
-        val line = reader.readLine
+        val line = reader.readLine(prompt)
         startTime = System.currentTimeMillis
         beforeTime = System.currentTimeMillis
         val loop = runCmd(line) match {
@@ -80,7 +89,6 @@ class Console(
             setPrompt()
             true
         }
-        out.flush()
         loop
       }) {}
     } else if (showIter) {
@@ -155,21 +163,7 @@ class Console(
   ////////////////////////////////////////////////////////////////
   // private helper
   ////////////////////////////////////////////////////////////////
-
-  private def init(): Unit = {
-    val cmds = Command.commands.map(_.name).asJavaCollection
-    reader.addCompleter(new StringsCompleter(cmds))
-    // TODO extend aggregator for sub-command
-    // reader.addCompleter(new AggregateCompleter(
-    //   new ArgumentCompleter(new StringsCompleter("asdf"), new StringsCompleter("sdf"), new NullCompleter()),
-    //   new ArgumentCompleter(new StringsCompleter("wer"), new NullCompleter())
-    // ))
-    runCmd("help") match {
-      case o: CmdResult => println(o)
-    }
-  }
-
-  private def setPrompt(prompt: String = getPrompt): Unit = {
-    reader.setPrompt(prompt)
+  private def setPrompt(input: String = getPrompt): Unit = {
+    prompt = input
   }
 }
