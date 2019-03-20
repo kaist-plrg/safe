@@ -28,3 +28,6 @@ case class Obj(map: Map[Id, Value] = Map()) {
   // check existence
   def contains(id: Id): Value = Bool(map contains id)
 }
+object Obj {
+  def apply(seq: (Id, Value)*): Obj = Obj(Map(seq: _*))
+}

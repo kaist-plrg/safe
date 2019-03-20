@@ -82,7 +82,7 @@ case object CmdTranslate extends CommandObj("translate", CmdASTRewrite >> Transl
 }
 
 // compile
-case object CmdCompile extends CommandObj("compile", CmdASTRewrite >> Compile) {
+case object CmdCompile extends CommandObj("compile", CmdParse >> Compile) {
   override def display(pgm: core.Program): Unit = println(pgm)
 }
 

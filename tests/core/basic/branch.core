@@ -9,3 +9,7 @@ assert(x == 1);
 
 x = f(false);
 assert(x == "fail");
+
+x = 1;
+if (x == 2) x = 3;
+assert(x == 1);

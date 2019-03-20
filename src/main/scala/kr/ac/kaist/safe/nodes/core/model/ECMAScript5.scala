@@ -13,15 +13,35 @@ package kr.ac.kaist.safe.nodes.core
 
 // ECMASCript 5.1
 object ECMAScript5 extends Model {
+  private val ExecutionContext = StaAddr("ExecutionContext")
+  private val GlobalEnvironment = StaAddr("GlobalEnvironment")
+  private val GlobalObject = StaAddr("GlobalObject")
+
   // environment
-  val globals: Map[Id, Value] = Map()
-  // 8.6.1 Property Attributes
-  //   [[Value]]
-  //   [[Writable]]
-  //   [[Enumerable]]
-  //   [[Configurable]]
-  //   [[Get]]
-  //   [[Set]]
+  val globals: Map[Id, Value] = Map(
+    // 10.3 Execution Contexts
+    "ExecutionContext" -> ExecutionContext,
+    // 10.2.3 The Global Environment
+    "GlobalEnvironment" -> GlobalEnvironment,
+    // 15.1 The Global Object
+    "GlobalObject" -> GlobalObject,
+    // 10.3.1 Identifier Resolution
+    "IdentifierResolution" -> Clo("""(Identifier, strict) => {
+      env = (ExecutionContext["LexicalEnvironment"]);
+      result = GetIdentifierReference(env, Identifier, strict);
+      return result;
+    }"""),
+    // 10.2.2.1 GetIdentifierReference (lex, name, strict)
+    "GetIdentifierReference" -> Clo("""(lex, name, strict) => {
+      if (lex == null) {
+        reference = {
+          BaseValue: undefined,
+          ReferencedName: name,
+          StrictMode: strict
+        };
+        return reference;
+      }
+    }""")
   // 8.6.2 Object Internal Properties and Methods
   //   [[Prototype]]
   //   [[Class]]
@@ -89,7 +109,6 @@ object ECMAScript5 extends Model {
   // 10.2.2.1 GetIdentifierReference (lex, name, strict)
   // 10.2.2.2 NewDeclarativeEnvironment (E)
   // 10.2.2.3 NewObjectEnvironment (O, E)
-
   // 10.3.1 Identifier Resolution
   // 10.4.1 Entering Global Code
   // 10.4.1.1 Initial Global Execution Context
@@ -216,7 +235,7 @@ object ECMAScript5 extends Model {
   //   StatementList : StatementList Statement
   // 12.2 Variable Statement
   //   VariableStatement : var VariableDeclarationList ;
-  //   VariableDeclarationList :VariableDeclaration
+  //   VariableDeclarationList : VariableDeclaration
   //   VariableDeclarationList : VariableDeclarationList , VariableDeclaration
   //   VariableDeclaration : Identifier
   //   VariableDeclaration : Identifier Initialiser
@@ -612,9 +631,18 @@ object ECMAScript5 extends Model {
   // 15.12.1.2 The JSON Syntactic Grammar
   // 15.12.2 parse ( text [ , reviver ] )
   // 15.12.3 stringify ( value [ , replacer [ , space ] ] )
+  )
 
   // heap
-  val heap: Heap = Heap(Map())
+  val heap: Heap = Heap(
+    ExecutionContext -> Obj(
+      "VariableEnvironment" -> GlobalEnvironment,
+      "LexicalEnvironment" -> GlobalEnvironment,
+      "ThisBinding" -> GlobalObject
+    ),
+    GlobalEnvironment -> Obj(),
+    GlobalObject -> Obj()
+  )
 
   // XXX test262 modeling
   // val failClo = Clo("(x) => throw x;")

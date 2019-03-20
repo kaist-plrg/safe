@@ -20,7 +20,7 @@ case class Heap(
 ) {
   // new addresses
   def alloc: (Addr, Heap) = {
-    val addr = Addr(size)
+    val addr = DynAddr(size)
     (addr, Heap(map + (addr -> Obj()), size + 1))
   }
 
@@ -30,4 +30,7 @@ case class Heap(
   // lookup addresses
   def apply(addr: Addr): Obj =
     map.getOrElse(addr, error(s"free address: $addr"))
+}
+object Heap {
+  def apply(seq: (Addr, Obj)*): Heap = Heap(Map(seq: _*))
 }

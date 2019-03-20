@@ -73,7 +73,12 @@ class Compiler(program: ast.Program) {
   private def walkStmt(
     stmt: ast.Stmt,
     insts: MutableList[core.Inst]
-  ): Unit = todo(stmt)
+  ): Unit = stmt match {
+    case (_: ast.NoOp) =>
+    // 12.2 Variable Statement
+    case ast.VarStmt(_, vds) => vds.foreach(walkVd(_, insts))
+    case s => todo(s)
+  }
 
   // for Expr
   private def walkExpr(

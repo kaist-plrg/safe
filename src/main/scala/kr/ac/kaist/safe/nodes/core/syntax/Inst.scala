@@ -132,7 +132,7 @@ trait InstParser extends ExprParser {
     ("delete" ~> expr) ~ ("[" ~> (expr <~ "]")) <~ ";" ^^ { case o ~ p => IPropDelete(o, p) } |
       ("function" ~> ident) ~ (("(" ~> repsep(ident, ",")) <~ ")") ~ inst ^^ { case x ~ ps ~ b => IFun(x, ps, b) } |
       "return" ~> expr <~ ";" ^^ { case e => IReturn(e) } |
-      ("if" ~> expr) ~ inst ~ ("else" ~> inst) ^^ { case c ~ t ~ e => IIf(c, t, e) } |
+      ("if" ~> expr) ~ inst ~ ("else" ~> inst?) ^^ { case c ~ t ~ e => IIf(c, t, e.getOrElse(ISeq(Nil))) } |
       ("while" ~> expr) ~ inst ^^ { case c ~ b => IWhile(c, b) } |
       ("label" ~> ident <~ ":") ~ inst ^^ { case l ~ is => ILabel(l, is) } |
       "break" ~> ident <~ ";" ^^ { case l => IBreak(l) } |

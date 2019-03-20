@@ -17,7 +17,9 @@ import scala.util.parsing.combinator._
 trait Value
 
 // CORE Addresses
-case class Addr(long: Long) extends Value
+trait Addr extends Value
+case class DynAddr(long: Long) extends Addr
+case class StaAddr(name: String) extends Addr
 
 // CORE Closures
 case class Clo(params: List[Id], body: Inst) extends Value
