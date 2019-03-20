@@ -27,4 +27,10 @@ package object core {
   trait CoreParser extends JavaTokenParsers with PackratParsers {
     override protected val whiteSpace = """(\s|//.*)+""".r
   }
+
+  // identifiers
+  type Id = String
+
+  // labels
+  type Label = String
 }

@@ -29,7 +29,7 @@ object Sem {
       case EBool(b) => Bool(b)
       case EUndef => Undef
       case ENull => Null
-      case EId(id) => env(id)
+      case EId(id) => env.getId(id)
       case EUOp(uop, expr) =>
         val v = interp(expr)(st)
         interp(uop)(v)
@@ -39,19 +39,17 @@ object Sem {
         interp(bop)(lv, rv)
       case EPropRead(obj, prop) => interp(obj)(st) match {
         case (addr: Addr) => interp(prop)(st) match {
-          case Str(name) =>
+          case Str(prop) =>
             val obj = heap(addr)
-            val prop = Id(name)
             obj(prop)
           case v => error(s"not a string: $v")
         }
         case v => error(s"not an address: $v")
       }
       case EPropIn(prop, obj) => interp(prop)(st) match {
-        case Str(name) => interp(obj)(st) match {
+        case Str(prop) => interp(obj)(st) match {
           case (addr: Addr) =>
             val obj = heap(addr)
-            val prop = Id(name)
             obj contains prop
           case v => error(s"not an address: $v")
         }
@@ -114,18 +112,16 @@ object Sem {
     case State(insts @ (inst :: rest), env, heap) => inst match {
       case IExpr(id, expr) =>
         val v = interp(expr)(st)
-        val newEnv = env.update(id, v)
+        val newEnv = env.setId(id, v)
         State(rest, newEnv, heap)
       case IAlloc(id) =>
-        val addr = heap.newAddr
-        val newHeap = heap.update(addr, Obj())
-        val newEnv = env.update(id, addr)
+        val (addr, newHeap) = heap.alloc
+        val newEnv = env.setId(id, addr)
         State(rest, newEnv, newHeap)
       case IPropWrite(obj, prop, expr) => interp(obj)(st) match {
         case (addr: Addr) => interp(prop)(st) match {
-          case Str(name) =>
+          case Str(prop) =>
             val obj = heap(addr)
-            val prop = Id(name)
             val value = interp(expr)(st)
             State(rest, env, heap.update(addr, obj.update(prop, value)))
           case v => error(s"not a string: $v")
@@ -134,9 +130,8 @@ object Sem {
       }
       case IPropDelete(obj, prop) => interp(obj)(st) match {
         case (addr: Addr) => interp(prop)(st) match {
-          case Str(name) =>
+          case Str(prop) =>
             val obj = heap(addr)
-            val prop = Id(name)
             State(rest, env, heap.update(addr, obj.delete(prop)))
           case v => error(s"not a string: $v")
         }
@@ -144,7 +139,7 @@ object Sem {
       }
       case IFun(name, params, body) =>
         val v = Clo(params, body)
-        State(rest, env.update(name, v), heap)
+        State(rest, env.setId(name, v), heap)
       case IApp(id, fun, args) => interp(fun)(st) match {
         case Clo(params, body) =>
           val vs = args.map(interp(_)(st))
@@ -165,7 +160,7 @@ object Sem {
         val v = interp(expr)(st)
         env.retLabel match {
           case Some(ScopeCont(id, newInsts, newEnv)) =>
-            val assEnv = newEnv.update(id, v)
+            val assEnv = newEnv.setId(id, v)
             State(newInsts, assEnv, heap)
           case None => error(s"illegal return: $v")
         }
@@ -180,19 +175,19 @@ object Sem {
         case v => error(s"not a boolean: $v")
       }
       case ILabel(label, body) =>
-        val newEnv = env.update(label, LabelCont(rest))
+        val newEnv = env.setLabel(label, LabelCont(rest))
         State(body :: rest, newEnv, heap)
       case IBreak(label) =>
-        val LabelCont(newInsts) = env(label)
+        val LabelCont(newInsts) = env.getLabel(label)
         State(newInsts, env, heap)
       case ITry(tryInst, id) =>
-        val newEnv = env.updateExc(ScopeCont(id, rest, env))
+        val newEnv = env.setExcLabel(ScopeCont(id, rest, env))
         State(tryInst :: rest, newEnv, heap)
       case IThrow(expr) =>
         val v = interp(expr)(st)
         env.excLabel match {
           case Some(ScopeCont(id, newInsts, newEnv)) =>
-            val assEnv = newEnv.update(id, v)
+            val assEnv = newEnv.setId(id, v)
             State(newInsts, assEnv, heap)
           case None => error(s"uncaught exception: $v")
         }

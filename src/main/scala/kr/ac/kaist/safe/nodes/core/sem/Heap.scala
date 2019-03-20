@@ -15,12 +15,16 @@ import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Heaps
 case class Heap(
-    map: Map[Addr, Obj] = Map()
+    map: Map[Addr, Obj] = Map(),
+    size: Int = 0
 ) {
-  // new address
-  def newAddr: Addr = Addr(map.size)
+  // new addresses
+  def alloc: (Addr, Heap) = {
+    val addr = Addr(size)
+    (addr, Heap(map + (addr -> Obj()), size + 1))
+  }
 
-  // addition
+  // update objects
   def update(addr: Addr, obj: Obj): Heap = Heap(map + (addr -> obj))
 
   // lookup addresses

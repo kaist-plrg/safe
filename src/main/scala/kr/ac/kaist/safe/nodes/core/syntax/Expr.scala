@@ -22,7 +22,7 @@ abstract class Expr {
     case EBool(b) => sb.append(b)
     case EUndef => sb.append("undefined")
     case ENull => sb.append("null")
-    case EId(id) => id.appendTo(sb)
+    case EId(id) => sb.append(id)
     case EUOp(uop, expr) =>
       sb.append("(").append(uop).append(" ")
       expr.appendTo(sb).append(")")
@@ -53,7 +53,7 @@ case class EPropRead(obj: Expr, prop: Expr) extends Expr
 case class EPropIn(prop: Expr, obj: Expr) extends Expr
 
 // parser for expressions
-trait ExprParser extends IdParser with OpParser {
+trait ExprParser extends OpParser {
   val expr: PackratParser[Expr] =
     floatingPointNumber ^^ { case s => ENum(s.toDouble) } |
       "i" ~> decimalNumber ^^ { case s => EINum(s.toLong) } |
@@ -66,7 +66,7 @@ trait ExprParser extends IdParser with OpParser {
       "(" ~> (expr ~ bop ~ expr) <~ ")" ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
       "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) } |
       "(" ~> (expr ~ ("in" ~> expr)) <~ ")" ^^ { case p ~ o => EPropIn(p, o) } |
-      id ^^ { EId(_) }
+      ident ^^ { EId(_) }
 }
 object Expr extends ExprParser {
   def apply(str: String): Expr = parseAll(expr, str).get

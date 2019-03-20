@@ -24,7 +24,7 @@ case class Clo(params: List[Id], body: Inst) extends Value
 
 // parser for closures
 trait CloParser extends InstParser {
-  val clo: PackratParser[Clo] = ("(" ~> repsep(id, ",") <~ ")" <~ "=>") ~ inst ^^ {
+  val clo: PackratParser[Clo] = ("(" ~> repsep(ident, ",") <~ ")" <~ "=>") ~ inst ^^ {
     case ps ~ b => Clo(ps, b)
   }
 }

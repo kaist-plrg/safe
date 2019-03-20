@@ -23,10 +23,10 @@ abstract class Inst {
     if (!body) sb.append(indent)
     this match {
       case IExpr(id, expr) =>
-        id.appendTo(sb).append(" = ")
+        sb.append(id).append(" = ")
         expr.appendTo(sb).append(";")
       case IAlloc(id) =>
-        id.appendTo(sb).append(" = new").append(";")
+        sb.append(id).append(" = new").append(";")
       case IPropWrite(obj, prop, expr) =>
         obj.appendTo(sb).append("[")
         prop.appendTo(sb).append("] = ")
@@ -36,21 +36,11 @@ abstract class Inst {
         obj.appendTo(sb).append("[")
         prop.appendTo(sb).append("]").append(";")
       case IFun(name, params, body) =>
-        sb.append("function ")
-        name.appendTo(sb).append(" (")
-        params match {
-          case Nil =>
-          case hd :: tl =>
-            hd.appendTo(sb)
-            tl.foreach(param => {
-              sb.append(", ")
-              param.appendTo(sb)
-            })
-        }
-        sb.append(") ")
+        sb.append("function ").append(name).append(" (")
+        sb.append(params.mkString(", ")).append(") ")
         body.appendTo(sb, indent, true)
       case IApp(id, fun, args) =>
-        id.appendTo(sb).append(" = ")
+        sb.append(id).append(" = ")
         fun.appendTo(sb).append("(")
         args match {
           case Nil =>
@@ -76,17 +66,14 @@ abstract class Inst {
         cond.appendTo(sb).append(" ")
         body.appendTo(sb, indent, true)
       case ILabel(label, body) =>
-        sb.append("label ")
-        label.appendTo(sb).append(": ")
+        sb.append("label ").append(label).append(": ")
         body.appendTo(sb, indent, true)
       case IBreak(label) =>
-        sb.append("break ")
-        label.appendTo(sb).append(";")
+        sb.append("break ").append(label).append(";")
       case ITry(tryInst, id) =>
         sb.append(s"try ")
         tryInst.appendTo(sb, indent, true)
-        sb.append(" catch(")
-        id.appendTo(sb).append(") ")
+        sb.append(" catch(").append(id).append(") ")
       case IThrow(expr) =>
         sb.append("throw ")
         expr.appendTo(sb).append(";")
@@ -137,32 +124,32 @@ case class IAssert(expr: Expr) extends Inst
 case class IPrint(expr: Expr) extends Inst
 
 // parser for instructions
-trait InstParser extends ExprParser with LabelParser {
+trait InstParser extends ExprParser {
   val instSeq: PackratParser[List[Inst]] = rep(inst)
   val prop: PackratParser[String ~ Expr] = (ident <~ ":") ~ expr
   val props: PackratParser[List[String ~ Expr]] = "{" ~> repsep(prop, ",") <~ "}"
   val inst: PackratParser[Inst] =
     ("delete" ~> expr) ~ ("[" ~> (expr <~ "]")) <~ ";" ^^ { case o ~ p => IPropDelete(o, p) } |
-      ("function" ~> id) ~ (("(" ~> repsep(id, ",")) <~ ")") ~ inst ^^ { case x ~ ps ~ b => IFun(x, ps, b) } |
+      ("function" ~> ident) ~ (("(" ~> repsep(ident, ",")) <~ ")") ~ inst ^^ { case x ~ ps ~ b => IFun(x, ps, b) } |
       "return" ~> expr <~ ";" ^^ { case e => IReturn(e) } |
       ("if" ~> expr) ~ inst ~ ("else" ~> inst) ^^ { case c ~ t ~ e => IIf(c, t, e) } |
       ("while" ~> expr) ~ inst ^^ { case c ~ b => IWhile(c, b) } |
-      ("label" ~> label <~ ":") ~ inst ^^ { case l ~ is => ILabel(l, is) } |
-      "break" ~> label <~ ";" ^^ { case l => IBreak(l) } |
-      ("try" ~> inst) ~ ("catch" ~> ("(" ~> (id <~ ")"))) ^^ { case t ~ x => ITry(t, x) } |
+      ("label" ~> ident <~ ":") ~ inst ^^ { case l ~ is => ILabel(l, is) } |
+      "break" ~> ident <~ ";" ^^ { case l => IBreak(l) } |
+      ("try" ~> inst) ~ ("catch" ~> ("(" ~> (ident <~ ")"))) ^^ { case t ~ x => ITry(t, x) } |
       "throw" ~> expr <~ ";" ^^ { case e => IThrow(e) } |
       "{" ~> instSeq <~ "}" ^^ { case seq => ISeq(seq) } |
       "assert" ~> expr <~ ";" ^^ { case e => IAssert(e) } |
       "print" ~> expr <~ ";" ^^ { case e => IPrint(e) } |
       expr ~ ("[" ~> expr <~ "]") ~ ("=" ~> expr) <~ ";" ^^ { case o ~ p ~ e => IPropWrite(o, p, e) } |
-      id <~ "=" <~ "new" <~ ";" ^^ { case x => IAlloc(x) } |
-      (id <~ "=") ~ (props <~ ";") ^^ {
+      ident <~ "=" <~ "new" <~ ";" ^^ { case x => IAlloc(x) } |
+      (ident <~ "=") ~ (props <~ ";") ^^ {
         case x ~ props => ISeq(IAlloc(x) :: props.map {
           case p ~ e => IPropWrite(EId(x), EStr(p), e)
         })
       } |
-      (id <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) <~ ";" ^^ { case x ~ f ~ as => IApp(x, f, as) } |
-      (id <~ "=") ~ expr <~ ";" ^^ { case x ~ e => IExpr(x, e) }
+      (ident <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) <~ ";" ^^ { case x ~ f ~ as => IApp(x, f, as) } |
+      (ident <~ "=") ~ expr <~ ";" ^^ { case x ~ e => IExpr(x, e) }
 }
 object Inst extends InstParser {
   def apply(str: String): Inst = parseAll(inst, str).get

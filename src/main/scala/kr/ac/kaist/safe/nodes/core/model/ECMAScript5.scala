@@ -13,9 +13,8 @@ package kr.ac.kaist.safe.nodes.core
 
 // ECMASCript 5.1
 object ECMAScript5 extends Model {
-  ////////////////////////////////////////////////////////////////////////////////
-  // Internal Identifiers
-  ////////////////////////////////////////////////////////////////////////////////
+  // environment
+  val globals: Map[Id, Value] = Map()
   // 8.6.1 Property Attributes
   //   [[Value]]
   //   [[Writable]]
@@ -613,9 +612,6 @@ object ECMAScript5 extends Model {
   // 15.12.1.2 The JSON Syntactic Grammar
   // 15.12.2 parse ( text [ , reviver ] )
   // 15.12.3 stringify ( value [ , replacer [ , space ] ] )
-
-  // environment
-  val globals: Map[Id, Value] = Map()
 
   // heap
   val heap: Heap = Heap(Map())
