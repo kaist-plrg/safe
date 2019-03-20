@@ -41,6 +41,20 @@ object ECMAScript5 extends Model {
         };
         return reference;
       }
+      envRec = (lex["EnvironmentRecord"]);
+      exists = HasBinding(envRec, name);
+      if (exists == true) {
+        reference = {
+          BaseValue: envRec,
+          ReferencedName: name,
+          StrictMode: strict
+        };
+        return reference;
+      } else {
+        outer = (lex["Outer"]);
+        result = GetIdentifierReference(outer, name, strict);
+        return result;
+      }
     }""")
   // 8.6.2 Object Internal Properties and Methods
   //   [[Prototype]]
