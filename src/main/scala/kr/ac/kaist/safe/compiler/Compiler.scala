@@ -22,85 +22,83 @@ class Compiler(program: ast.Program) {
   ////////////////////////////////////////////////////////////////
   // Results
   ////////////////////////////////////////////////////////////////
-  lazy val result: core.Program = ???
-  // {
-  //   val insts = MutableList[core.Inst]()
-  //   walkProgram(program, insts)
-  //   core.ISeq(insts.toList)
-  // }
-  // lazy val excLog: ExcLog = new ExcLog
+  lazy val result: core.Program = {
+    val insts = MutableList[core.Inst]()
+    walkProgram(program, insts)
+    core.Program(insts.toList)
+  }
 
-  // ////////////////////////////////////////////////////////////////
-  // // Private Mutable Variables
-  // ////////////////////////////////////////////////////////////////
-  // private var idCount: Long = 0
-  // private var env: Map[ast.Id, String] = Map()
+  ////////////////////////////////////////////////////////////////
+  // Private Mutable Variables
+  ////////////////////////////////////////////////////////////////
+  private var idCount: Long = 0
+  private var env: Map[ast.Id, String] = Map()
 
-  // ////////////////////////////////////////////////////////////////
-  // // Translations
-  // ////////////////////////////////////////////////////////////////
-  // // for Program
-  // private def walkProgram(
-  //   pgm: ast.Program,
-  //   insts: MutableList[core.Inst]
-  // ): Unit = {
-  //   val ast.Program(_, ast.TopLevel(_, fds, vds, stmts)) = pgm
-  //   fds.foreach(walkFd(_, insts))
-  //   vds.foreach(walkVd(_, insts))
-  //   stmts.foreach(_.body.foreach(walkStmt(_, insts)))
-  // }
+  ////////////////////////////////////////////////////////////////
+  // Translations
+  ////////////////////////////////////////////////////////////////
+  // for Program
+  private def walkProgram(
+    pgm: ast.Program,
+    insts: MutableList[core.Inst]
+  ): Unit = {
+    val ast.Program(_, ast.TopLevel(_, fds, vds, stmts)) = pgm
+    fds.foreach(walkFd(_, insts))
+    vds.foreach(walkVd(_, insts))
+    stmts.foreach(_.body.foreach(walkStmt(_, insts)))
+  }
 
-  // // for FunDecl
-  // private def walkFd(
-  //   fd: ast.FunDecl,
-  //   insts: MutableList[core.Inst]
-  // ): Unit = {
-  //   val ast.FunDecl(_, f, _) = fd
-  //   walkFunctional(f, insts)
-  // }
+  // for FunDecl
+  private def walkFd(
+    fd: ast.FunDecl,
+    insts: MutableList[core.Inst]
+  ): Unit = {
+    val ast.FunDecl(_, f, _) = fd
+    walkFunctional(f, insts)
+  }
 
-  // // for Functional
-  // private def walkFunctional(
-  //   functional: ast.Functional,
-  //   insts: MutableList[core.Inst]
-  // ): Unit = todo(functional)
+  // for Functional
+  private def walkFunctional(
+    functional: ast.Functional,
+    insts: MutableList[core.Inst]
+  ): Unit = todo(functional)
 
-  // // for VarDecl
-  // private def walkVd(
-  //   vd: ast.VarDecl,
-  //   insts: MutableList[core.Inst]
-  // ): Unit = todo(vd)
+  // for VarDecl
+  private def walkVd(
+    vd: ast.VarDecl,
+    insts: MutableList[core.Inst]
+  ): Unit = todo(vd)
 
-  // // for Stmt
-  // private def walkStmt(
-  //   stmt: ast.Stmt,
-  //   insts: MutableList[core.Inst]
-  // ): Unit = todo(stmt)
+  // for Stmt
+  private def walkStmt(
+    stmt: ast.Stmt,
+    insts: MutableList[core.Inst]
+  ): Unit = todo(stmt)
 
-  // // for Expr
-  // private def walkExpr(
-  //   expr: ast.Expr,
-  //   insts: MutableList[core.Inst]
-  // ): String = todo(expr)
+  // for Expr
+  private def walkExpr(
+    expr: ast.Expr,
+    insts: MutableList[core.Inst]
+  ): String = todo(expr)
 
-  // ////////////////////////////////////////////////////////////////
-  // // Helper Functions
-  // ////////////////////////////////////////////////////////////////
-  // // create a new id
-  // private def newId(id: ast.Id): String = {
-  //   val nid = newId
-  //   env += (id -> newId)
-  //   nid
-  // }
-  // private def newId: String = {
-  //   val id = s"x$idCount"
-  //   idCount += 1
-  //   id
-  // }
+  ////////////////////////////////////////////////////////////////
+  // Helper Functions
+  ////////////////////////////////////////////////////////////////
+  // create a new id
+  private def newId(id: ast.Id): String = {
+    val nid = newId
+    env += (id -> newId)
+    nid
+  }
+  private def newId: String = {
+    val id = s"x$idCount"
+    idCount += 1
+    id
+  }
 
-  // // XXX temporal debugging tool
-  // private def todo(x: Any): Nothing = {
-  //   println(x)
-  //   ???
-  // }
+  // XXX temporal debugging tool
+  private def todo(x: Any): Nothing = {
+    println(x)
+    ???
+  }
 }

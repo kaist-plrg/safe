@@ -19,7 +19,7 @@ import scala.util.Random.shuffle
 
 class EvalTest extends SafeTest {
   // registration
-  val evalTestDir = testDir + "core"
+  val evalTestDir = testDir + "core" + SEP + "test262"
   shuffle(walkTree(new File(evalTestDir))).foreach(file => {
     val filename = file.getName
     lazy val name = file.toString

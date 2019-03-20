@@ -14,7 +14,7 @@ package kr.ac.kaist.safe.nodes.core
 // Semantics Model
 abstract class Model {
   // environment
-  val env: Env
+  val globals: Map[Id, Value]
 
   // heap
   val heap: Heap

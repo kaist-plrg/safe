@@ -24,4 +24,7 @@ case class Obj(map: Map[Id, Value] = Map()) {
 
   // delete properties
   def delete(id: Id): Obj = Obj(map - id)
+
+  // check existence
+  def contains(id: Id): Value = Bool(map contains id)
 }

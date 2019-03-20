@@ -24,14 +24,14 @@ case class State(
     copy(env = env.update(id, value))
 
   // update labels
-  def update(label: Label, cont: Cont): State =
+  def update(label: Label, cont: LabelCont): State =
     copy(env = env.update(label, cont))
 
   // lookup identifiers
   def apply(id: Id): Value = env(id)
 
   // lookup labels
-  def apply(label: Label): Cont = env(label)
+  def apply(label: Label): LabelCont = env(label)
 
   // new address
   def newAddr: Addr = heap.newAddr

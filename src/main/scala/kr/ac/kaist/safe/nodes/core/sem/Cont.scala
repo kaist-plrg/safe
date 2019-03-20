@@ -14,4 +14,6 @@ package kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Continuations
-case class Cont(insts: List[Inst], env: Env)
+trait Cont
+case class LabelCont(insts: List[Inst]) extends Cont
+case class ScopeCont(id: Id, insts: List[Inst], env: Env) extends Cont

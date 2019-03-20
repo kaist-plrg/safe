@@ -35,14 +35,14 @@ trait BOpParser extends CoreParser {
       "*" ^^^ OMul |
       "/" ^^^ ODiv |
       "%" ^^^ OMod |
-      "<" ^^^ OLt |
       "==" ^^^ OEq |
       "&" ^^^ OBAnd |
       "|" ^^^ OBOr |
       "^" ^^^ OBXOr |
       "<<" ^^^ OLShift |
-      ">>" ^^^ OSRShift |
-      ">>>" ^^^ OURShift
+      "<" ^^^ OLt |
+      ">>>" ^^^ OURShift |
+      ">>" ^^^ OSRShift
 }
 object BOp extends BOpParser {
   def apply(str: String): BOp = parseAll(bop, str).get

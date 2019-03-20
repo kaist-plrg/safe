@@ -15,32 +15,33 @@ import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Environments
 case class Env(
-    ids: Map[Id, Value] = Map(),
-    labels: Map[Label, Cont] = Map(),
-    retLabel: Option[(Id, Cont)] = None,
-    excLabel: Option[(Id, Cont)] = None
+    globals: Map[Id, Value] = Map(),
+    locals: Map[Id, Value] = Map(),
+    labels: Map[Label, LabelCont] = Map(),
+    retLabel: Option[ScopeCont] = None,
+    excLabel: Option[ScopeCont] = None
 ) {
   // update identifiers
   def update(id: Id, value: Value): Env =
-    copy(ids = ids + (id -> value))
+    copy(locals = locals + (id -> value))
 
   // update labels
-  def update(label: Label, cont: Cont): Env =
+  def update(label: Label, cont: LabelCont): Env =
     copy(labels = labels + (label -> cont))
 
   // update return label
-  def updateRet(id: Id, cont: Cont): Env =
-    copy(retLabel = Some((id, cont)))
+  def updateRet(cont: ScopeCont): Env =
+    copy(retLabel = Some(cont))
 
   // update exception label
-  def updateExc(id: Id, cont: Cont): Env =
-    copy(excLabel = Some((id, cont)))
+  def updateExc(cont: ScopeCont): Env =
+    copy(excLabel = Some(cont))
 
   // lookup identifiers
   def apply(id: Id): Value =
-    ids.getOrElse(id, error(s"free identifier: $id"))
+    locals.getOrElse(id, globals.getOrElse(id, error(s"free identifier: $id")))
 
   // lookup labels
-  def apply(label: Label): Cont =
+  def apply(label: Label): LabelCont =
     labels.getOrElse(label, error(s"free label: $label"))
 }

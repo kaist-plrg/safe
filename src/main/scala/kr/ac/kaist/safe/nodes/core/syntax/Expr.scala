@@ -17,12 +17,12 @@ import kr.ac.kaist.safe.LINE_SEP
 abstract class Expr {
   def appendTo(sb: StringBuilder): StringBuilder = this match {
     case ENum(n) => sb.append(n)
-    case EINum(n) => sb.append(n)
+    case EINum(n) => sb.append("i").append(n)
     case EStr(str) => sb.append("\"").append(str).append("\"")
     case EBool(b) => sb.append(b)
     case EUndef => sb.append("undefined")
     case ENull => sb.append("null")
-    case EId(id) => sb.append(id)
+    case EId(id) => id.appendTo(sb)
     case EUOp(uop, expr) =>
       sb.append("(").append(uop).append(" ")
       expr.appendTo(sb).append(")")
@@ -31,8 +31,13 @@ abstract class Expr {
       left.appendTo(sb).append(" ").append(bop).append(" ")
       right.appendTo(sb).append(")")
     case EPropRead(obj, prop) =>
+      sb.append("(")
       obj.appendTo(sb).append("[")
-      prop.appendTo(sb).append("]")
+      prop.appendTo(sb).append("]").append(")")
+    case EPropIn(prop, obj) =>
+      sb.append("(")
+      prop.appendTo(sb).append(" in ")
+      obj.appendTo(sb).append(")")
   }
 }
 case class ENum(n: Double) extends Expr
@@ -45,24 +50,23 @@ case class EId(id: Id) extends Expr
 case class EUOp(uop: UOp, expr: Expr) extends Expr
 case class EBOp(bop: BOp, left: Expr, right: Expr) extends Expr
 case class EPropRead(obj: Expr, prop: Expr) extends Expr
+case class EPropIn(prop: Expr, obj: Expr) extends Expr
 
 // parser for expressions
 trait ExprParser extends IdParser with OpParser {
-  val num: PackratParser[Double] = floatingPointNumber ^^ { _.toDouble }
-  val inum: PackratParser[Long] = "i" ~> decimalNumber ^^ { _.toLong }
-  val str: PackratParser[String] = stringLiteral
-  val bool: PackratParser[Boolean] = "true" ^^^ true | "false" ^^^ false
   val expr: PackratParser[Expr] =
-    num ^^ { ENum(_) } |
-      inum ^^ { EINum(_) } |
-      str ^^ { EStr(_) } |
-      bool ^^ { EBool(_) } |
+    floatingPointNumber ^^ { case s => ENum(s.toDouble) } |
+      "i" ~> decimalNumber ^^ { case s => EINum(s.toLong) } |
+      stringLiteral ^^ { case s => EStr(s.substring(1, s.length - 1)) } |
+      "true" ^^^ EBool(true) |
+      "false" ^^^ EBool(false) |
       "undefined" ^^^ EUndef |
       "null" ^^^ ENull |
-      id ^^ { EId(_) } |
       "(" ~> (uop ~ expr) <~ ")" ^^ { case u ~ e => EUOp(u, e) } |
       "(" ~> (expr ~ bop ~ expr) <~ ")" ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
-      "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) }
+      "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) } |
+      "(" ~> (expr ~ ("in" ~> expr)) <~ ")" ^^ { case p ~ o => EPropIn(p, o) } |
+      id ^^ { EId(_) }
 }
 object Expr extends ExprParser {
   def apply(str: String): Expr = parseAll(expr, str).get

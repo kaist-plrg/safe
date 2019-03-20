@@ -31,7 +31,7 @@ trait ProgramParser extends InstParser {
 }
 object Program extends ProgramParser {
   // parse a string into a program
-  def apply(str: String): Program = parse(prog, str).get
+  def apply(str: String): Program = parseAll(prog, str).get
 
   // parse a file into sequence of instructions
   def fileToInsts(f: String): UTry[List[Inst]] = {

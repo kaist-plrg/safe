@@ -25,6 +25,6 @@ package object core {
 
   // parsers
   trait CoreParser extends JavaTokenParsers with PackratParsers {
-    val idstr: PackratParser[String] = ident
+    override protected val whiteSpace = """(\s|//.*)+""".r
   }
 }

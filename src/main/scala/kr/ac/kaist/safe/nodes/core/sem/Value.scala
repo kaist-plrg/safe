@@ -20,11 +20,11 @@ trait Value
 case class Addr(long: Long) extends Value
 
 // CORE Closures
-case class Clo(params: List[Id], body: List[Inst]) extends Value
+case class Clo(params: List[Id], body: Inst) extends Value
 
 // parser for closures
 trait CloParser extends InstParser {
-  val clo: PackratParser[Clo] = ("(" ~> repsep(id, ",") <~ ")" <~ "=>") ~ instSeq ^^ {
+  val clo: PackratParser[Clo] = ("(" ~> repsep(id, ",") <~ ")" <~ "=>") ~ inst ^^ {
     case ps ~ b => Clo(ps, b)
   }
 }
