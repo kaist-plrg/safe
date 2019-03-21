@@ -174,11 +174,13 @@ object Sem {
         case v => error(s"not a boolean: $v")
       }
       case ILabel(label, body) =>
-        val newEnv = env.setLabel(label, LabelCont(rest))
-        State(body :: rest, globals, newEnv, heap)
+        val newEnv = env.setLabel(label, LabelCont(rest, env.labels))
+        val breakInst = IBreak(label)
+        State(body :: breakInst :: rest, globals, newEnv, heap)
       case IBreak(label) =>
-        val LabelCont(newInsts) = env.getLabel(label)
-        State(newInsts, globals, env, heap)
+        val LabelCont(newInsts, labels) = env.getLabel(label)
+        val newEnv = env.setLabelMap(labels)
+        State(newInsts, globals, newEnv, heap)
       case ITry(tryInst, id) =>
         val newEnv = env.setExcLabel(ScopeCont(id, rest, env))
         State(tryInst :: rest, globals, newEnv, heap)

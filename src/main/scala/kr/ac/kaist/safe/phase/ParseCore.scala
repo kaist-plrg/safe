@@ -27,7 +27,7 @@ case object ParseCore extends PhaseObj[Unit, ParseCoreConfig, Program] {
     safeConfig: SafeConfig,
     config: ParseCoreConfig
   ): Try[Program] = safeConfig.fileNames match {
-    case Nil => Failure(NoFileError("parse"))
+    case Nil => Failure(NoFileError("core-parser"))
     case _ => Program.filesToCore(safeConfig.fileNames).map {
       case program => {
         // Pretty print to file.

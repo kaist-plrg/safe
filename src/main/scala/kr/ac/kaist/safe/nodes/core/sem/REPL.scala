@@ -23,7 +23,7 @@ import scala.util.{ Try, Success, Failure }
 
 // REPL
 object REPL {
-  def run(model: Model, detail: Boolean): Unit = {
+  def run(model: Model, insts: List[Inst], detail: Boolean): Unit = {
     val cyan = "\u001b[36m"
     val reset = "\u001b[0m"
     val builder: TerminalBuilder = TerminalBuilder.builder()
@@ -46,7 +46,7 @@ object REPL {
       .completer(completer)
       .build()
     val writer = terminal.writer()
-    var st = State(Nil, model.globals, Env(), model.heap)
+    var st = State(insts, model.globals, Env(), model.heap)
 
     def clear: Unit = {
       print("\u001b[2J\u001b[1;1H")

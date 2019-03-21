@@ -28,6 +28,10 @@ case class Env(
   def setLabel(label: Label, cont: LabelCont): Env =
     copy(labels = labels + (label -> cont))
 
+  // update label maps
+  def setLabelMap(labels: Map[Label, LabelCont]): Env =
+    copy(labels = labels)
+
   // update return label
   def setRetLabel(cont: ScopeCont): Env =
     copy(retLabel = Some(cont))
@@ -52,7 +56,11 @@ case class Env(
     sb.append(LINE_SEP)
 
     sb.append(indent).append("- labels:").append(LINE_SEP)
-    appendMap(sb, labels, newIndent, detail)
+    (sb /: labels) {
+      case (sb, (k, v)) =>
+        sb.append(newIndent).append(k).append(" -> ").append(LINE_SEP)
+        v.appendTo(sb, newIndent + TAB, false, detail)
+    }
     sb.append(LINE_SEP)
 
     sb.append(indent).append("- return: ")

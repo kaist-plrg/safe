@@ -30,9 +30,16 @@ trait Cont extends Appendable {
       }
     }
     this match {
-      case LabelCont(insts) =>
+      case LabelCont(insts, labels) =>
+        sb.append(indent).append("insts: ")
         if (detail) appendInsts(insts)
-        else sb.append("...")
+        else sb.append("...").append(LINE_SEP)
+        sb.append(indent).append("labels:").append(LINE_SEP)
+        (sb /: labels) {
+          case (sb, (k, v)) =>
+            sb.append(newIndent).append(k).append(" -> ").append(LINE_SEP)
+            v.appendTo(sb, newIndent + TAB, false, detail)
+        }
       case ScopeCont(id, insts, env) =>
         sb.append(indent).append("id: ").append(id).append(LINE_SEP)
         sb.append(indent).append("insts: ")
@@ -46,5 +53,5 @@ trait Cont extends Appendable {
     }
   }
 }
-case class LabelCont(insts: List[Inst]) extends Cont
+case class LabelCont(insts: List[Inst], labels: Map[Label, LabelCont]) extends Cont
 case class ScopeCont(id: Id, insts: List[Inst], env: Env) extends Cont
