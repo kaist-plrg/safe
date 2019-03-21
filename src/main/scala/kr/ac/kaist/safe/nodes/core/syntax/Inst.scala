@@ -18,9 +18,9 @@ abstract class Inst {
   def appendTo(
     sb: StringBuilder,
     indent: String = "",
-    body: Boolean = false
+    firstIndent: Boolean = true
   ): StringBuilder = {
-    if (!body) sb.append(indent)
+    if (firstIndent) sb.append(indent)
     this match {
       case IExpr(id, expr) =>
         sb.append(id).append(" = ")
@@ -38,7 +38,7 @@ abstract class Inst {
       case IFun(name, params, body) =>
         sb.append("function ").append(name).append(" (")
         sb.append(params.mkString(", ")).append(") ")
-        body.appendTo(sb, indent, true)
+        body.appendTo(sb, indent, false)
       case IApp(id, fun, args) =>
         sb.append(id).append(" = ")
         fun.appendTo(sb).append("(")
@@ -58,21 +58,21 @@ abstract class Inst {
       case IIf(cond, thenInst, elseInst) =>
         sb.append("if ")
         cond.appendTo(sb).append(" ")
-        thenInst.appendTo(sb, indent, true)
+        thenInst.appendTo(sb, indent, false)
         sb.append(" else ")
-        elseInst.appendTo(sb, indent, true)
+        elseInst.appendTo(sb, indent, false)
       case IWhile(cond, body) =>
         sb.append("while ")
         cond.appendTo(sb).append(" ")
-        body.appendTo(sb, indent, true)
+        body.appendTo(sb, indent, false)
       case ILabel(label, body) =>
         sb.append("label ").append(label).append(": ")
-        body.appendTo(sb, indent, true)
+        body.appendTo(sb, indent, false)
       case IBreak(label) =>
         sb.append("break ").append(label).append(";")
       case ITry(tryInst, id) =>
         sb.append(s"try ")
-        tryInst.appendTo(sb, indent, true)
+        tryInst.appendTo(sb, indent, false)
         sb.append(" catch(").append(id).append(") ")
       case IThrow(expr) =>
         sb.append("throw ")

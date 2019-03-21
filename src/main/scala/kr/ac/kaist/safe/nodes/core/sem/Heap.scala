@@ -30,6 +30,20 @@ case class Heap(
   // lookup addresses
   def apply(addr: Addr): Obj =
     map.getOrElse(addr, error(s"free address: $addr"))
+
+  def appendTo(
+    sb: StringBuilder,
+    indent: String = "",
+    firstIndent: Boolean = true,
+    detail: Boolean = true
+  ): StringBuilder = (sb /: map) {
+    case (sb, (StaAddr(name), obj)) if !detail => sb
+    case (sb, (addr, obj)) =>
+      sb.append(indent)
+      addr.appendTo(sb).append(" -> {").append(LINE_SEP)
+      obj.appendTo(sb, indent + TAB, firstIndent, detail)
+      sb.append(indent).append("}").append(LINE_SEP)
+  }
 }
 object Heap {
   def apply(seq: (Addr, Obj)*): Heap = Heap(Map(seq: _*))

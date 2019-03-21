@@ -27,6 +27,13 @@ case class Obj(map: Map[Id, Value] = Map()) {
 
   // check existence
   def contains(id: Id): Value = Bool(map contains id)
+
+  def appendTo(
+    sb: StringBuilder,
+    indent: String = "",
+    firstIndent: Boolean = true,
+    detail: Boolean = true
+  ): StringBuilder = appendMap(sb, map, indent, detail)
 }
 object Obj {
   def apply(seq: (Id, Value)*): Obj = Obj(Map(seq: _*))

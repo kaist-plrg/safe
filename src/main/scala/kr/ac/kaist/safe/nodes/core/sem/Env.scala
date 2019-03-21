@@ -15,7 +15,6 @@ import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Environments
 case class Env(
-    globals: Map[Id, Value] = Map(),
     locals: Map[Id, Value] = Map(),
     labels: Map[Label, LabelCont] = Map(),
     retLabel: Option[ScopeCont] = None,
@@ -37,11 +36,31 @@ case class Env(
   def setExcLabel(cont: ScopeCont): Env =
     copy(excLabel = Some(cont))
 
-  // lookup identifiers
-  def getId(id: Id): Value =
-    locals.getOrElse(id, globals.getOrElse(id, error(s"free identifier: $id")))
-
   // lookup labels
   def getLabel(label: Label): LabelCont =
     labels.getOrElse(label, error(s"free label: $label"))
+
+  def appendTo(
+    sb: StringBuilder,
+    indent: String = "",
+    firstIndent: Boolean = true,
+    detail: Boolean = true
+  ): StringBuilder = {
+    val newIndent = indent + TAB + TAB
+    sb.append(indent).append("- local identifiers:").append(LINE_SEP)
+    appendMap(sb, locals, newIndent, detail)
+    sb.append(LINE_SEP)
+
+    sb.append(indent).append("- labels:").append(LINE_SEP)
+    appendMap(sb, labels, newIndent, detail)
+    sb.append(LINE_SEP)
+
+    sb.append(indent).append("- return: ")
+    appendOpt(sb, retLabel, newIndent, detail)
+    sb.append(LINE_SEP)
+
+    sb.append(indent).append("- exception: ")
+    appendOpt(sb, excLabel, newIndent, detail)
+    sb.append(LINE_SEP)
+  }
 }

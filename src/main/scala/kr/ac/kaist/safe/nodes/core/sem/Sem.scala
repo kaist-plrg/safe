@@ -1,4 +1,3 @@
-
 /**
  * *****************************************************************************
  * Copyright (c) 2019, KAIST.
@@ -16,20 +15,20 @@ package kr.ac.kaist.safe.nodes.core
 object Sem {
   // interpreter for programs
   def interp(pgm: Program): Model => State = model => {
-    val initialSt = State(pgm.insts, Env(globals = model.globals), model.heap)
+    val initialSt = State(pgm.insts, model.globals, Env(), model.heap)
     fixpoint(initialSt)
   }
 
   // interpreter for expressions
   def interp(expr: Expr): State => Value = st => st match {
-    case State(_, env, heap) => expr match {
+    case State(_, _, env, heap) => expr match {
       case ENum(n) => Num(n)
       case EINum(n) => INum(n)
       case EStr(str) => Str(str)
       case EBool(b) => Bool(b)
       case EUndef => Undef
       case ENull => Null
-      case EId(id) => env.getId(id)
+      case EId(id) => st.getId(id)
       case EUOp(uop, expr) =>
         val v = interp(expr)(st)
         interp(uop)(v)
@@ -101,7 +100,7 @@ object Sem {
 
   // perform transition until instructions are empty
   def fixpoint(st: State): State = trans(st) match {
-    case st @ State(insts, _, _) => insts match {
+    case st @ State(insts, _, _, _) => insts match {
       case Nil => st
       case _ => fixpoint(st)
     }
@@ -109,21 +108,21 @@ object Sem {
 
   // state transition
   def trans(st: State): State = st match {
-    case State(insts @ (inst :: rest), env, heap) => inst match {
+    case State(insts @ (inst :: rest), globals, env, heap) => inst match {
       case IExpr(id, expr) =>
         val v = interp(expr)(st)
         val newEnv = env.setId(id, v)
-        State(rest, newEnv, heap)
+        State(rest, globals, newEnv, heap)
       case IAlloc(id) =>
         val (addr, newHeap) = heap.alloc
         val newEnv = env.setId(id, addr)
-        State(rest, newEnv, newHeap)
+        State(rest, globals, newEnv, newHeap)
       case IPropWrite(obj, prop, expr) => interp(obj)(st) match {
         case (addr: Addr) => interp(prop)(st) match {
           case Str(prop) =>
             val obj = heap(addr)
             val value = interp(expr)(st)
-            State(rest, env, heap.update(addr, obj.update(prop, value)))
+            State(rest, globals, env, heap.update(addr, obj.update(prop, value)))
           case v => error(s"not a string: $v")
         }
         case v => error(s"not an address: $v")
@@ -132,14 +131,14 @@ object Sem {
         case (addr: Addr) => interp(prop)(st) match {
           case Str(prop) =>
             val obj = heap(addr)
-            State(rest, env, heap.update(addr, obj.delete(prop)))
+            State(rest, globals, env, heap.update(addr, obj.delete(prop)))
           case v => error(s"not a string: $v")
         }
         case v => error(s"not an address: $v")
       }
       case IFun(name, params, body) =>
         val v = Clo(params, body)
-        State(rest, env.setId(name, v), heap)
+        State(rest, globals, env.setId(name, v), heap)
       case IApp(id, fun, args) => interp(fun)(st) match {
         case Clo(params, body) =>
           val vs = args.map(interp(_)(st))
@@ -153,7 +152,7 @@ object Sem {
             retLabel = Some(ScopeCont(id, rest, env))
           )
           val retInst = IReturn(EUndef)
-          State(List(body, retInst), newEnv, heap)
+          State(List(body, retInst), globals, newEnv, heap)
         case v => error(s"not a closure: $v")
       }
       case IReturn(expr) =>
@@ -161,45 +160,45 @@ object Sem {
         env.retLabel match {
           case Some(ScopeCont(id, newInsts, newEnv)) =>
             val assEnv = newEnv.setId(id, v)
-            State(newInsts, assEnv, heap)
+            State(newInsts, globals, assEnv, heap)
           case None => error(s"illegal return: $v")
         }
       case IIf(cond, thenInst, elseInst) => interp(cond)(st) match {
-        case Bool(true) => State(thenInst :: rest, env, heap)
-        case Bool(false) => State(elseInst :: rest, env, heap)
+        case Bool(true) => State(thenInst :: rest, globals, env, heap)
+        case Bool(false) => State(elseInst :: rest, globals, env, heap)
         case v => error(s"not a boolean: $v")
       }
       case w @ IWhile(cond, body) => interp(cond)(st) match {
-        case Bool(true) => State(body :: insts, env, heap)
-        case Bool(false) => State(rest, env, heap)
+        case Bool(true) => State(body :: insts, globals, env, heap)
+        case Bool(false) => State(rest, globals, env, heap)
         case v => error(s"not a boolean: $v")
       }
       case ILabel(label, body) =>
         val newEnv = env.setLabel(label, LabelCont(rest))
-        State(body :: rest, newEnv, heap)
+        State(body :: rest, globals, newEnv, heap)
       case IBreak(label) =>
         val LabelCont(newInsts) = env.getLabel(label)
-        State(newInsts, env, heap)
+        State(newInsts, globals, env, heap)
       case ITry(tryInst, id) =>
         val newEnv = env.setExcLabel(ScopeCont(id, rest, env))
-        State(tryInst :: rest, newEnv, heap)
+        State(tryInst :: rest, globals, newEnv, heap)
       case IThrow(expr) =>
         val v = interp(expr)(st)
         env.excLabel match {
           case Some(ScopeCont(id, newInsts, newEnv)) =>
             val assEnv = newEnv.setId(id, v)
-            State(newInsts, assEnv, heap)
+            State(newInsts, globals, assEnv, heap)
           case None => error(s"uncaught exception: $v")
         }
-      case ISeq(insts) => State(insts ++ rest, env, heap)
+      case ISeq(insts) => State(insts ++ rest, globals, env, heap)
       case IAssert(expr) => interp(expr)(st) match {
-        case Bool(true) => State(rest, env, heap)
+        case Bool(true) => State(rest, globals, env, heap)
         case Bool(false) => error(s"assertion failure: $expr")
         case v => error(s"not a boolean: $v")
       }
       case IPrint(expr) =>
         println(interp(expr)(st))
-        State(rest, env, heap)
+        State(rest, globals, env, heap)
     }
     case _ => error("no remaining instructions")
   }

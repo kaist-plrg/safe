@@ -163,3 +163,6 @@ case object CmdHelp extends CommandObj("help", CmdBase >> Help)
 
 // web
 case object CmdWeb extends CommandObj("web", CmdBase >> Web)
+
+// repl for core
+case object CmdREPLCore extends CommandObj("repl-core", CmdBase >> REPLCore)

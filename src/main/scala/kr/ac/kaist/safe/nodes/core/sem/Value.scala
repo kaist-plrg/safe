@@ -14,7 +14,25 @@ package kr.ac.kaist.safe.nodes.core
 import scala.util.parsing.combinator._
 
 // CORE Values
-trait Value
+trait Value extends Appendable {
+  def appendTo(
+    sb: StringBuilder,
+    indent: String = "",
+    firstIndent: Boolean = true,
+    detail: Boolean = true
+  ): StringBuilder = {
+    if (firstIndent) sb.append(indent)
+    this match {
+      case DynAddr(a) => sb.append("#").append(a)
+      case StaAddr(a) => sb.append("#").append(a)
+      case Clo(ps, b) =>
+        sb.append("(").append(ps.mkString(", ")).append(") => ")
+        if (detail) b.appendTo(sb, indent, false)
+        else sb.append("...")
+      case c: Const => sb.append(c)
+    }
+  }
+}
 
 // CORE Addresses
 trait Addr extends Value
@@ -35,11 +53,11 @@ object Clo extends CloParser {
 }
 
 // CORE Constants
-abstract class Const(str: String) extends Value {
+abstract class Const(val str: String) extends Value {
   override def toString: String = str
 }
 case class Num(n: Double) extends Const(n.toString)
-case class INum(n: Long) extends Const(n.toString)
+case class INum(n: Long) extends Const(s"i$n")
 case class Str(s: String) extends Const(s.toString)
 case class Bool(b: Boolean) extends Const(b.toString)
 case object Undef extends Const("undefined")

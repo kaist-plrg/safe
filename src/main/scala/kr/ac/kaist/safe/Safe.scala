@@ -81,7 +81,8 @@ object Safe {
     CmdAnalyze,
     CmdBugDetect,
     CmdHelp,
-    CmdWeb
+    CmdWeb,
+    CmdREPLCore
   )
   val cmdMap = commands.foldLeft[Map[String, Command]](Map()) {
     case (map, cmd) => map + (cmd.name -> cmd)
@@ -100,7 +101,8 @@ object Safe {
     Analyze,
     BugDetect,
     Help,
-    Web
+    Web,
+    REPLCore
   )
 
   // global options
