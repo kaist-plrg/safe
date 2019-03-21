@@ -54,7 +54,7 @@ p = "x";
 res = (obj[p]);
 assert(res == 1);
 
-// // property existences
-// obj = { x: 1, y: 2 };
-// assert("x" in obj);
-// assert(("z" in obj) == false);
+// property existences
+obj = { x: 1, y: 2 };
+assert("x" in obj);
+assert(("z" in obj) == false);

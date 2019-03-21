@@ -1,0 +1,8 @@
+function double(x) { return (x + x); }
+function call(f, x) {
+  result = f(x);
+  return result;
+}
+
+x = call(double, 3);
+assert(x == 6);

@@ -1,0 +1,3 @@
+obj = new;
+obj["a"] = 1;
+assert((obj["a"]) == 1);

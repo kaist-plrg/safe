@@ -1,0 +1,5 @@
+// object allocation
+x = new;
+y = new;
+assert(x == x);
+assert((x == y) == false);
