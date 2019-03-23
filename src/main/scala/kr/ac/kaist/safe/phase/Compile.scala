@@ -5,7 +5,7 @@
  *
  * Use is subject to license terms.
  *
- * This distribution may include materials developed by thcored parties.
+ * This distribution may include materials developed by third parties.
  * ****************************************************************************
  */
 
