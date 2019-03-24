@@ -4,6 +4,16 @@ lazy val checkCopyrights = taskKey[Unit]("Checks copyrights of source files")
 lazy val buildParsers = taskKey[Unit]("Builds parsers")
 lazy val deleteParserDir = taskKey[Unit]("Delete java parser directory")
 
+// short-cuts
+lazy val basicAnalyzeTest = taskKey[Unit]("Launch basic analyze tests")
+lazy val benchTest = taskKey[Unit]("Launch benchmarks tests")
+lazy val cfgBuildTest = taskKey[Unit]("Launch cfg build tests")
+lazy val coreTest = taskKey[Unit]("Launch core language interpreter tests")
+lazy val evalTest = taskKey[Unit]("Launch tests for JS interpreter based on core language")
+lazy val htmlTest = taskKey[Unit]("Launch html tests")
+lazy val shaTest = taskKey[Unit]("Launch symbolic heap abstraction tests")
+lazy val test262Test = taskKey[Unit]("Launch test262 tests")
+
 lazy val root = (project in file(".")).
   settings(
     name := "SAFE",
@@ -56,7 +66,15 @@ lazy val root = (project in file(".")).
     test <<= (testOnly in Test).toTask(
       " kr.ac.kaist.safe.CFGBuildTest" +
       " kr.ac.kaist.safe.BasicAnalyzeTest" +
-      " kr.ac.kaist.safe.HTMLAnalyzeTest") dependsOn compile
+      " kr.ac.kaist.safe.HTMLAnalyzeTest") dependsOn compile,
+    basicAnalyzeTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.BasicAnalyzeTest") dependsOn compile,
+    benchTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.BenchAnalyzeTest") dependsOn compile,
+    cfgBuildTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.CFGBuildTest") dependsOn compile,
+    coreTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.CoreTest") dependsOn compile,
+    evalTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.EvalTest") dependsOn compile,
+    htmlTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.HTMLAnalyzeTest") dependsOn compile,
+    shaTest <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.SHATest") dependsOn compile,
+    test262Test <<= (testOnly in Test).toTask(" kr.ac.kaist.safe.Test262AnalyzeTest") dependsOn compile
   )
 
 scalacOptions in ThisBuild ++= Seq("-deprecation", "-feature",
