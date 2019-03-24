@@ -71,7 +71,7 @@ abstract class AnalyzeTest extends SafeTest {
         heapBuildConfig.loopSensitivity,
       heapBuildConfig.symbolic
     )
-    Some(ModelParser.mergeJsModels(NodeUtil.jsModelsBase))
+    Some(Model.parseDir(NodeUtil.jsModelsBase))
   }
 
   // get CFG
