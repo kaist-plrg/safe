@@ -56,7 +56,7 @@ case class EPropIn(prop: Expr, obj: Expr) extends Expr
 trait ExprParser extends OpParser {
   val expr: PackratParser[Expr] =
     floatingPointNumber ^^ { case s => ENum(s.toDouble) } |
-      "i" ~> decimalNumber ^^ { case s => EINum(s.toLong) } |
+      "i" ~> wholeNumber ^^ { case s => EINum(s.toLong) } |
       stringLiteral ^^ { case s => EStr(s.substring(1, s.length - 1)) } |
       "true" ^^^ EBool(true) |
       "false" ^^^ EBool(false) |
