@@ -213,6 +213,8 @@ object Sem {
       case IPrint(expr) =>
         println(interp(expr)(st))
         State(rest, globals, env, heap)
+      case INotYetImpl =>
+        error("[NotYetImpl]")
     }
     case _ => error("no remaining instructions")
   }

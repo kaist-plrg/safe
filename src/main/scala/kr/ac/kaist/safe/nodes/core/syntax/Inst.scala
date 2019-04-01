@@ -91,6 +91,7 @@ abstract class Inst {
       case IPrint(expr) =>
         sb.append("print ")
         expr.appendTo(sb).append(";")
+      case INotYetImpl => sb.append("???")
     }
   }
 
@@ -123,6 +124,7 @@ case class IThrow(expr: Expr) extends Inst
 case class ISeq(insts: List[Inst]) extends Inst
 case class IAssert(expr: Expr) extends Inst
 case class IPrint(expr: Expr) extends Inst
+case object INotYetImpl extends Inst
 
 // parser for instructions
 trait InstParser extends ExprParser {
@@ -142,6 +144,7 @@ trait InstParser extends ExprParser {
       "{" ~> instSeq <~ "}" ^^ { case seq => ISeq(seq) } |
       "assert" ~> expr <~ ";" ^^ { case e => IAssert(e) } |
       "print" ~> expr <~ ";" ^^ { case e => IPrint(e) } |
+      "???" ^^^ { INotYetImpl } |
       expr ~ ("[" ~> expr <~ "]") ~ ("=" ~> expr) <~ ";" ^^ { case o ~ p ~ e => IPropWrite(o, p, e) } |
       (ident <~ "=" <~ "new") ~ (ident <~ ";") ^^ { case x ~ t => IAlloc(x, t) } |
       (ident <~ "=") ~ ident ~ (props <~ ";") ^^ {
