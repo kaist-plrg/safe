@@ -49,12 +49,22 @@ z = x;
 assert(z == 1);
 
 // property reads
-obj = { x: 1, y: 2 };
+obj = Object { x: 1, y: 2 };
 p = "x";
 res = (obj[p]);
 assert(res == 1);
 
 // property existences
-obj = { x: 1, y: 2 };
+obj = Object { x: 1, y: 2 };
 assert("x" in obj);
 assert(("z" in obj) == false);
+
+// typeof
+assert((typeof 1) == "Number");
+assert((typeof true) == "Boolean");
+assert((typeof undefined) == "Undefined");
+assert((typeof null) == "Null");
+obj = new Object;
+assert((typeof obj) == "Object");
+a = new A;
+assert((typeof a) == "A");

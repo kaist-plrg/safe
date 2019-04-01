@@ -54,6 +54,17 @@ object Sem {
         }
         case v => error(s"not a string: $v")
       }
+      case ETypeOf(expr) => interp(expr)(st) match {
+        case (addr: Addr) =>
+          val obj = heap(addr)
+          obj.typeAsStr
+        case Num(_) | INum(_) => Str("Number")
+        case Str(_) => Str("String")
+        case Bool(_) => Str("Boolean")
+        case Undef => Str("Undefined")
+        case Null => Str("Null")
+        case v => error(s"not an address: $v")
+      }
     }
   }
 
@@ -113,8 +124,8 @@ object Sem {
         val v = interp(expr)(st)
         val newEnv = env.setId(id, v)
         State(rest, globals, newEnv, heap)
-      case IAlloc(id) =>
-        val (addr, newHeap) = heap.alloc
+      case IAlloc(id, ty) =>
+        val (addr, newHeap) = heap.alloc(ty)
         val newEnv = env.setId(id, addr)
         State(rest, globals, newEnv, newHeap)
       case IPropWrite(obj, prop, expr) => interp(obj)(st) match {

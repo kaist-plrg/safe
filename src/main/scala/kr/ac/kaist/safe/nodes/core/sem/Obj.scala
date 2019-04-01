@@ -14,19 +14,22 @@ package kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.LINE_SEP
 
 // CORE Objects
-case class Obj(map: Map[Id, Value] = Map()) {
+case class Obj(ty: Ty, map: Map[Id, Value] = Map()) {
   // update properties
-  def update(id: Id, value: Value): Obj = Obj(map + (id -> value))
+  def update(id: Id, value: Value): Obj = copy(map = map + (id -> value))
 
   // lookup properties
   def apply(id: Id): Value =
     map.getOrElse(id, error(s"free property: $id"))
 
   // delete properties
-  def delete(id: Id): Obj = Obj(map - id)
+  def delete(id: Id): Obj = copy(map = map - id)
 
   // check existence
   def contains(id: Id): Value = Bool(map contains id)
+
+  // get type as string
+  def typeAsStr: Str = Str(ty)
 
   def appendTo(
     sb: StringBuilder,
@@ -34,7 +37,4 @@ case class Obj(map: Map[Id, Value] = Map()) {
     firstIndent: Boolean = true,
     detail: Boolean = true
   ): StringBuilder = appendMap(sb, map, indent, detail)
-}
-object Obj {
-  def apply(seq: (Id, Value)*): Obj = Obj(Map(seq: _*))
 }

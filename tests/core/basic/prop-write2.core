@@ -1,4 +1,4 @@
-obj = new;
+obj = new Object;
 prop = "b";
 obj[prop] = 2;
 assert((obj[prop]) == 2);

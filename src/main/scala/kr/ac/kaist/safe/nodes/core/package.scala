@@ -29,6 +29,9 @@ package object core {
     override protected val whiteSpace = """(\s|//.*)+""".r
   }
 
+  // types
+  type Ty = String
+
   // identifiers
   type Id = String
 

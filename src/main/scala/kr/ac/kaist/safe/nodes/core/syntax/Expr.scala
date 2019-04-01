@@ -38,6 +38,9 @@ abstract class Expr {
       sb.append("(")
       prop.appendTo(sb).append(" in ")
       obj.appendTo(sb).append(")")
+    case ETypeOf(expr) =>
+      sb.append("(typeof ")
+      expr.appendTo(sb).append(")")
   }
 }
 case class ENum(n: Double) extends Expr
@@ -51,6 +54,7 @@ case class EUOp(uop: UOp, expr: Expr) extends Expr
 case class EBOp(bop: BOp, left: Expr, right: Expr) extends Expr
 case class EPropRead(obj: Expr, prop: Expr) extends Expr
 case class EPropIn(prop: Expr, obj: Expr) extends Expr
+case class ETypeOf(expr: Expr) extends Expr
 
 // parser for expressions
 trait ExprParser extends OpParser {
@@ -66,6 +70,7 @@ trait ExprParser extends OpParser {
       "(" ~> (expr ~ bop ~ expr) <~ ")" ^^ { case l ~ b ~ r => EBOp(b, l, r) } |
       "(" ~> (expr ~ ("[" ~> expr <~ "]")) <~ ")" ^^ { case o ~ p => EPropRead(o, p) } |
       "(" ~> (expr ~ ("in" ~> expr)) <~ ")" ^^ { case p ~ o => EPropIn(p, o) } |
+      "(" ~> ("typeof" ~> expr) <~ ")" ^^ { case e => ETypeOf(e) } |
       ident ^^ { EId(_) }
 }
 object Expr extends ExprParser {

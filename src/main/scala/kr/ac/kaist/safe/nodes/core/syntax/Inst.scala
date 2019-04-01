@@ -25,8 +25,9 @@ abstract class Inst {
       case IExpr(id, expr) =>
         sb.append(id).append(" = ")
         expr.appendTo(sb).append(";")
-      case IAlloc(id) =>
-        sb.append(id).append(" = new").append(";")
+      case IAlloc(id, ty) =>
+        sb.append(id).append(" = new ")
+        sb.append(ty).append(";")
       case IPropWrite(obj, prop, expr) =>
         obj.appendTo(sb).append("[")
         prop.appendTo(sb).append("] = ")
@@ -107,7 +108,7 @@ abstract class Inst {
   }
 }
 case class IExpr(id: Id, expr: Expr) extends Inst
-case class IAlloc(id: Id) extends Inst
+case class IAlloc(id: Id, ty: Ty) extends Inst
 case class IPropWrite(obj: Expr, prop: Expr, expr: Expr) extends Inst
 case class IPropDelete(obj: Expr, prop: Expr) extends Inst
 case class IFun(name: Id, params: List[Id], body: Inst) extends Inst
@@ -142,9 +143,9 @@ trait InstParser extends ExprParser {
       "assert" ~> expr <~ ";" ^^ { case e => IAssert(e) } |
       "print" ~> expr <~ ";" ^^ { case e => IPrint(e) } |
       expr ~ ("[" ~> expr <~ "]") ~ ("=" ~> expr) <~ ";" ^^ { case o ~ p ~ e => IPropWrite(o, p, e) } |
-      ident <~ "=" <~ "new" <~ ";" ^^ { case x => IAlloc(x) } |
-      (ident <~ "=") ~ (props <~ ";") ^^ {
-        case x ~ props => ISeq(IAlloc(x) :: props.map {
+      (ident <~ "=" <~ "new") ~ (ident <~ ";") ^^ { case x ~ t => IAlloc(x, t) } |
+      (ident <~ "=") ~ ident ~ (props <~ ";") ^^ {
+        case x ~ t ~ props => ISeq(IAlloc(x, t) :: props.map {
           case p ~ e => IPropWrite(EId(x), EStr(p), e)
         })
       } |

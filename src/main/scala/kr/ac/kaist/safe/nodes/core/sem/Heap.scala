@@ -19,9 +19,9 @@ case class Heap(
     size: Int = 0
 ) {
   // new addresses
-  def alloc: (Addr, Heap) = {
+  def alloc(ty: Ty): (Addr, Heap) = {
     val addr = DynAddr(size)
-    (addr, Heap(map + (addr -> Obj()), size + 1))
+    (addr, Heap(map + (addr -> Obj(ty)), size + 1))
   }
 
   // update objects

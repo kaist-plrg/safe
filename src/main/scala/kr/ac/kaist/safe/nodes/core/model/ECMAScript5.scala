@@ -34,7 +34,7 @@ object ECMAScript5 extends Model {
     // 10.2.2.1 GetIdentifierReference (lex, name, strict)
     "GetIdentifierReference" -> Clo("""(lex, name, strict) => {
       if (lex == null) {
-        reference = {
+        reference = Reference {
           BaseValue: undefined,
           ReferencedName: name,
           StrictMode: strict
@@ -44,7 +44,7 @@ object ECMAScript5 extends Model {
       envRec = (lex["EnvironmentRecord"]);
       exists = HasBinding(envRec, name);
       if (exists == true) {
-        reference = {
+        reference = Reference {
           BaseValue: envRec,
           ReferencedName: name,
           StrictMode: strict
@@ -649,13 +649,13 @@ object ECMAScript5 extends Model {
 
   // heap
   val heap: Heap = Heap(
-    ExecutionContext -> Obj(
+    ExecutionContext -> Obj("ExecutionContext", Map(
       "VariableEnvironment" -> GlobalEnvironment,
       "LexicalEnvironment" -> GlobalEnvironment,
       "ThisBinding" -> GlobalObject
-    ),
-    GlobalEnvironment -> Obj(),
-    GlobalObject -> Obj()
+    )),
+    GlobalEnvironment -> Obj("LexicalEnvironment"),
+    GlobalObject -> Obj("Object")
   )
 
   // XXX test262 modeling
