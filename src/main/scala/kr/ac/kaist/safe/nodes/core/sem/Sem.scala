@@ -63,7 +63,7 @@ object Sem {
         case Bool(_) => Str("Boolean")
         case Undef => Str("Undefined")
         case Null => Str("Null")
-        case v => error(s"not an address: $v")
+        case Clo(_) => Str("Closure")
       }
     }
   }
