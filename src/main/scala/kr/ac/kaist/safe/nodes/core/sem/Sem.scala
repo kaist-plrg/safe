@@ -72,6 +72,7 @@ object Sem {
   def interp(uop: UOp): Value => Value = (uop, _) match {
     case (ONeg, Num(n)) => Num(-n)
     case (ONeg, INum(n)) => INum(-n)
+    case (ONot, Bool(b)) => Bool(!b)
     case (OBNot, INum(n)) => INum(~n)
     case (_, value) => error(s"wrong type of value for the operator $uop: $value")
   }

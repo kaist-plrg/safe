@@ -14,11 +14,13 @@ package kr.ac.kaist.safe.nodes.core
 // CORE Unary Operators
 abstract class UOp(val keyword: String) extends Op
 case object ONeg extends UOp("-")
+case object ONot extends UOp("!")
 case object OBNot extends UOp("~")
 
 // parser for unary operators
 trait UOpParser extends CoreParser {
-  val uop: PackratParser[UOp] = "-" ^^^ ONeg | "~" ^^^ OBNot
+  val uop: PackratParser[UOp] =
+    "-" ^^^ ONeg | "!" ^^^ ONot | "~" ^^^ OBNot
 }
 object UOp extends UOpParser {
   def apply(str: String): UOp = parseAll(uop, str).get
