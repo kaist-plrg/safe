@@ -63,7 +63,7 @@ object Sem {
         case Bool(_) => Str("Boolean")
         case Undef => Str("Undefined")
         case Null => Str("Null")
-        case Clo(_) => Str("Closure")
+        case Clo(_, _) => Str("Closure")
       }
     }
   }
