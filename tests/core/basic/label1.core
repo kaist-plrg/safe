@@ -1,7 +1,0 @@
-i = 1;
-label l: {
-  i = 2;
-  break l;
-  i = 3;
-}
-assert(i == 2);

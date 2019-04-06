@@ -93,7 +93,7 @@ case object CmdEval extends CommandObj("eval", CmdCompile >> EvalCore) {
 
 // parse-core
 case object CmdParseCore extends CommandObj("parse-core", CmdBase >> ParseCore) {
-  override def display(pgm: core.Program): Unit = println(pgm)
+  override def display(pgm: core.Program): Unit = println(core.beautify(pgm))
 }
 
 // eval-core

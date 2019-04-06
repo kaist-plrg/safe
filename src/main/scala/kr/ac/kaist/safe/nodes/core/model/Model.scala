@@ -18,4 +18,20 @@ abstract class Model {
 
   // heap
   val heap: Heap
+
+  // get initial state
+  def getInitial(pgm: Program): State = {
+    val (initialLocals, initialHeap) = heap.allocLocals()
+    val initialEnv: Env = Env(
+      locals = initialLocals,
+      retCont = None,
+      excCont = None
+    )
+    State(
+      insts = pgm.insts,
+      globals = globals,
+      env = initialEnv,
+      heap = initialHeap
+    )
+  }
 }

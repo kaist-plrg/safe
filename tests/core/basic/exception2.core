@@ -1,7 +1,4 @@
-function f() { throw "err"; }
+f = () => throw "err"
 
-x = "";
-try {
-  y = f();
-} catch (x)
-assert(x == "err");
+x = try y = f()
+assert (= x "err")

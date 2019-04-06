@@ -11,16 +11,4 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-// CORE Operators
-abstract class Op {
-  val keyword: String
-  override def toString: String = keyword
-}
-
-// parser for operators
-trait OpParser extends UOpParser with BOpParser {
-  val op: PackratParser[Op] = uop | bop
-}
-object Op extends OpParser {
-  def apply(str: String): Op = parseAll(op, str).get
-}
+trait CoreNode

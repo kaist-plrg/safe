@@ -1,7 +1,0 @@
-o = Object { x: 1 };
-label l: while true {
-  if ((o["x"]) == 3) break l;
-  else { }
-  o["x"] = ((o["x"]) + 1);
-}
-assert((o["x"]) == 3);

@@ -1,7 +1,7 @@
-function f(b) {
-  if b  return 1;
-  else    return "fail";
+f = (b) => {
+  if b return 1
+  else return "fail"
 }
 
-x = f(false);
-assert(x == "fail");
+x = f(false)
+assert (= x "fail")

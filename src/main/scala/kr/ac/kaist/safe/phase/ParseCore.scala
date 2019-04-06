@@ -11,7 +11,7 @@
 
 package kr.ac.kaist.safe.phase
 import kr.ac.kaist.safe.nodes.core._
-import scala.util.{ Try, Failure }
+import scala.util.{ Try, Success, Failure }
 import kr.ac.kaist.safe.{ LINE_SEP, SafeConfig }
 import kr.ac.kaist.safe.util._
 import kr.ac.kaist.safe.errors.error.NoFileError
@@ -28,21 +28,21 @@ case object ParseCore extends PhaseObj[Unit, ParseCoreConfig, Program] {
     config: ParseCoreConfig
   ): Try[Program] = safeConfig.fileNames match {
     case Nil => Failure(NoFileError("core-parser"))
-    case _ => Program.filesToCore(safeConfig.fileNames).map {
-      case program => {
-        // Pretty print to file.
-        config.outFile match {
-          case Some(out) => {
-            val (fw, writer) = Useful.fileNameToWriters(out)
-            writer.write(program.toString)
-            writer.close; fw.close
-            println("Dumped parsed Core code to " + out)
-          }
-          case None =>
-        }
+    case _ => {
+      val program = Parser.filesToProgram(safeConfig.fileNames)
 
-        program
+      // Pretty print to file.
+      config.outFile match {
+        case Some(out) => {
+          val (fw, writer) = Useful.fileNameToWriters(out)
+          writer.write(program.toString)
+          writer.close; fw.close
+          println("Dumped parsed Core code to " + out)
+        }
+        case None =>
       }
+
+      Success(program)
     }
   }
 

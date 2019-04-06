@@ -27,7 +27,7 @@ case object EvalCore extends PhaseObj[Program, EvalCoreConfig, State] {
     config: EvalCoreConfig
   ): Try[State] = {
     // Evaluate Core program
-    val st: State = Sem.interp(pgm)(ECMAScript5)
+    val st: State = Interp.interp(pgm)(ECMAScript5)
 
     // Pretty print to file.
     config.outFile match {

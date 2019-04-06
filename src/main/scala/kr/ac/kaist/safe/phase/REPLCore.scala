@@ -26,11 +26,9 @@ case object REPLCore extends PhaseObj[Unit, REPLCoreConfig, Unit] {
     safeConfig: SafeConfig,
     config: REPLCoreConfig
   ): Try[Unit] = {
-    Program.filesToCore(safeConfig.fileNames).map {
-      case Program(insts) => {
-        REPL.run(ECMAScript5, insts, config.detail)
-      }
-    }
+    val pgm = Parser.filesToProgram(safeConfig.fileNames)
+    REPL.run(ECMAScript5, pgm, config.detail)
+    Success(())
   }
 
   def defaultConfig: REPLCoreConfig = REPLCoreConfig()

@@ -1,2 +1,2 @@
-function f(x, y) { return (x + y); }
-assert(f == f);
+f = (x, y) => return (+ x y)
+assert (= f f)

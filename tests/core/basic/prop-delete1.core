@@ -1,3 +1,3 @@
-obj = Object { x: 1, y: 2 };
-delete obj["x"];
-assert(("x" in obj) == false);
+obj = Object { x: 1, y: 2 }
+delete obj["x"]
+assert (! (? obj["x"]))

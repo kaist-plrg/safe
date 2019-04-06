@@ -12,6 +12,8 @@
 package kr.ac.kaist.safe.nodes.core
 
 import kr.ac.kaist.safe.LINE_SEP
+import kr.ac.kaist.safe.nodes.core.Interp._
+import kr.ac.kaist.safe.nodes.core.Parser._
 import org.jline.builtins.Completers.TreeCompleter
 import org.jline.builtins.Completers.TreeCompleter._
 import org.jline.reader._
@@ -23,7 +25,7 @@ import scala.util.{ Try, Success, Failure }
 
 // REPL
 object REPL {
-  def run(model: Model, insts: List[Inst], detail: Boolean): Unit = {
+  def run(model: Model, pgm: Program, detail: Boolean): Unit = {
     val cyan = "\u001b[36m"
     val reset = "\u001b[0m"
     val builder: TerminalBuilder = TerminalBuilder.builder()
@@ -46,7 +48,7 @@ object REPL {
       .completer(completer)
       .build()
     val writer = terminal.writer()
-    var st = State(insts, model.globals, Env(), model.heap)
+    var st = model.getInitial(pgm)
 
     def clear: Unit = {
       print("\u001b[2J\u001b[1;1H")
@@ -56,34 +58,37 @@ object REPL {
       System.console().reader().read
     }
 
-    def fixpoint: Unit = {
-      val State(insts, _, _, _) = st
-      insts match {
-        case Nil =>
-        case _ =>
-          clear
-          stopMessage(fixMsg)
-          st = Sem.trans(st)
-          fixpoint
-      }
-    }
-
-    def pre: String = st.appendTo(sb = new StringBuilder, detail = detail).toString
+    def pre: String = "State: " + beautify(st, detail = detail)
     def prompt: String = pre + LINE_SEP + s"${cyan}core>${reset} "
     def fixMsg: String = pre + LINE_SEP + "Please press the enter key..."
+
+    def fixpoint: Unit = {
+      st.insts match {
+        case inst :: rest =>
+          clear
+          stopMessage(fixMsg)
+          st = interp(inst)(st.copy(insts = rest))
+          fixpoint
+        case Nil =>
+      }
+    }
 
     var keep: Boolean = true
     while (keep) {
       // clear screen
       terminal.puts(Capability.clear_screen)
+
+      // fixpoint
       fixpoint
+
+      // reader
       try {
         reader.readLine(prompt) match {
           case null =>
           case "exit" => keep = false
           case line =>
-            val inst = Inst(line)
-            st = Sem.trans(st.copy(insts = List(inst)))
+            val inst = parseInst(line)
+            st = interp(inst)(st)
             terminal.flush()
         }
       } catch {

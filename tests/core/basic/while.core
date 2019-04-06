@@ -1,13 +1,13 @@
 // while loops
-function sum(n) {
-  i = 0;
-  res = 0;
-  while (i < n) {
-    i = (i + 1);
-    res = (res + i);
+sum = (n) => {
+  i = 0
+  res = 0
+  while (< i n) {
+    i = (+ i 1)
+    res = (+ res i)
   }
-  return res;
+  return res
 }
 
-x = sum(10);
-assert(x == 55);
+x = sum(10)
+assert (= x 55)

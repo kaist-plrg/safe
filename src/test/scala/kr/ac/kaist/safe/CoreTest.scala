@@ -26,7 +26,7 @@ class CoreTest extends SafeTest {
   def parseCoreTest(pgm: Try[Program]): Unit = pgm match {
     case Failure(e) => fail(s"it throws an error: $e")
     case Success(pgm) =>
-      val newPgm = Program(pgm.appendTo(new StringBuilder).toString)
+      val newPgm = Parser.parseProgram(beautify(pgm))
       assert(pgm == newPgm)
   }
 

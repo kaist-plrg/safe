@@ -9,16 +9,7 @@
  * ****************************************************************************
  */
 
-package kr.ac.kaist.safe.nodes
+package kr.ac.kaist.safe.nodes.core
 
-package object core {
-  // throw an error
-  def error(msg: => String): Nothing = throw new Error(msg)
-
-  // beautify
-  def beautify(
-    node: CoreNode,
-    tab: String = "  ",
-    detail: Boolean = true
-  ): String = Beautifier.beautify(node, tab, detail)
-}
+// CORE Continuations
+case class Cont(base: Base, insts: List[Inst], env: Env) extends CoreNode

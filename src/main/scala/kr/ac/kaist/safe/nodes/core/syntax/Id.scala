@@ -9,16 +9,7 @@
  * ****************************************************************************
  */
 
-package kr.ac.kaist.safe.nodes
+package kr.ac.kaist.safe.nodes.core
 
-package object core {
-  // throw an error
-  def error(msg: => String): Nothing = throw new Error(msg)
-
-  // beautify
-  def beautify(
-    node: CoreNode,
-    tab: String = "  ",
-    detail: Boolean = true
-  ): String = Beautifier.beautify(node, tab, detail)
-}
+// CORE Identifiers
+case class Id(name: String) extends CoreNode
