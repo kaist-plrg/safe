@@ -1,4 +1,4 @@
-f = () => throw "err"
+let f = () => throw "err"
 
-x = try y = f()
+let x = try let y = f()
 assert (= x "err")

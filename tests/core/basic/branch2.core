@@ -1,7 +1,7 @@
-f = (b) => {
+let f = (b) => {
   if b return 1
   else return "fail"
 }
 
-x = f(false)
+let x = f(false)
 assert (= x "fail")

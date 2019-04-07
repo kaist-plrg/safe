@@ -13,32 +13,11 @@ package kr.ac.kaist.safe.nodes.core
 
 import java.io._
 import java.nio.charset.Charset
-import kr.ac.kaist.safe.errors.error.NotCoreFileError
 import scala.util.Either
 import scala.util.parsing.combinator.{ JavaTokenParsers, PackratParsers }
 
 // parsers
 object Parser extends JavaTokenParsers with PackratParsers {
-  // treat comments as white spaces
-  override protected val whiteSpace = """(\s|//.*)+""".r
-
-  // parse a file into a program
-  def fileToProgram(f: String): Program = {
-    var fileName = new File(f).getCanonicalPath
-    if (File.separatorChar == '\\') {
-      // convert path string to linux style for windows
-      fileName = fileName.charAt(0).toLower + fileName.replace('\\', '/').substring(1)
-    }
-    if (fileName.endsWith(".core")) {
-      val fs = new FileInputStream(new File(f))
-      val sr = new InputStreamReader(fs, Charset.forName("UTF-8"))
-      val in = new BufferedReader(sr)
-      val result = errHandle(parseAll(program, in))
-      in.close; sr.close; fs.close
-      result
-    } else throw NotCoreFileError(fileName)
-  }
-
   // parse files into a program
   def filesToProgram(fs: List[String]): Program = fs match {
     case files => (Program(Nil) /: files) {
@@ -48,21 +27,53 @@ object Parser extends JavaTokenParsers with PackratParsers {
     }
   }
 
-  // parse with error message
-  def errHandle[T <: CoreNode](result: ParseResult[T]): T = result match {
-    case Success(result, _) => result
-    case err => error(s"[CoreParser] $err")
-  }
+  // parse a file into a CoreNode
+  def fileToProgram(f: String): Program = fromFile(f, program)
+  def fileToInst(f: String): Inst = fromFile(f, inst)
+  def fileToExpr(f: String): Expr = fromFile(f, expr)
+  def fileToRef(f: String): Ref = fromFile(f, ref)
+  def fileToLhs(f: String): Lhs = fromFile(f, lhs)
+  def fileToTy(f: String): Ty = fromFile(f, ty)
+  def fileToUOp(f: String): UOp = fromFile(f, uop)
+  def fileToBOp(f: String): BOp = fromFile(f, bop)
+  def fileToValue(f: String): Value = fromFile(f, value)
+  def fileToFunc(f: String): Func = fromFile(f, func)
 
   // parse a String into a CoreNode
   def parseProgram(str: String): Program = errHandle(parseAll(program, str))
   def parseInst(str: String): Inst = errHandle(parseAll(inst, str))
   def parseExpr(str: String): Expr = errHandle(parseAll(expr, str))
   def parseRef(str: String): Ref = errHandle(parseAll(ref, str))
+  def parseLhs(str: String): Lhs = errHandle(parseAll(lhs, str))
   def parseTy(str: String): Ty = errHandle(parseAll(ty, str))
   def parseUOp(str: String): UOp = errHandle(parseAll(uop, str))
   def parseBOp(str: String): BOp = errHandle(parseAll(bop, str))
   def parseValue(str: String): Value = errHandle(parseAll(value, str))
+  def parseFunc(str: String): Func = errHandle(parseAll(func, str))
+
+  // treat comments as white spaces
+  override protected val whiteSpace = """(\s|//.*)+""".r
+
+  // parse from file
+  private def fromFile[T](f: String, parser: PackratParser[T]): T = {
+    var fileName = new File(f).getCanonicalPath
+    if (File.separatorChar == '\\') {
+      // convert path string to linux style for windows
+      fileName = fileName.charAt(0).toLower + fileName.replace('\\', '/').substring(1)
+    }
+    val fs = new FileInputStream(new File(f))
+    val sr = new InputStreamReader(fs, Charset.forName("UTF-8"))
+    val in = new BufferedReader(sr)
+    val result = errHandle(parseAll(parser, in))
+    in.close; sr.close; fs.close
+    result
+  }
+
+  // parse with error message
+  private def errHandle[T](result: ParseResult[T]): T = result match {
+    case Success(result, _) => result
+    case err => error(s"[CoreParser] $err")
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   // Syntax
@@ -86,16 +97,16 @@ object Parser extends JavaTokenParsers with PackratParsers {
       "assert" ~> expr ^^ { case e => IAssert(e) } |
       "print" ~> expr ^^ { case e => IPrint(e) } |
       "???" ^^^ { INotYetImpl } |
-      (ref <~ "=") ~ ("try" ~> inst) ^^ { case x ~ i => ITry(x, i) } |
-      (ref <~ "=" <~ "new") ~ (ty) ^^ { case x ~ t => IAlloc(x, t) } |
-      (ref <~ "=") ~ ty ~ (props) ^^ {
+      (lhs <~ "=") ~ ("try" ~> inst) ^^ { case x ~ i => ITry(x, i) } |
+      (lhs <~ "=" <~ "new") ~ (ty) ^^ { case x ~ t => IAlloc(x, t) } |
+      (lhs <~ "=") ~ ty ~ (props) ^^ {
         case x ~ t ~ props => ISeq(IAlloc(x, t) :: props.map {
-          case (Left(id), e) => IExpr(RefIdProp(x, id), e)
-          case (Right(str), e) => IExpr(RefStrProp(x, EStr(str.substring(1, str.length - 1))), e)
+          case (Left(id), e) => IExpr(LhsRef(RefIdProp(x.getRef, id)), e)
+          case (Right(str), e) => IExpr(LhsRef(RefStrProp(x.getRef, EStr(str.substring(1, str.length - 1)))), e)
         })
       } |
-      (ref <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) ^^ { case x ~ f ~ as => IApp(x, f, as) } |
-      (ref <~ "=") ~ (expr) ^^ { case x ~ e => IExpr(x, e) }
+      (lhs <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) ^^ { case x ~ f ~ as => IApp(x, f, as) } |
+      (lhs <~ "=") ~ (expr) ^^ { case x ~ e => IExpr(x, e) }
   }
 
   // expressions
@@ -122,6 +133,10 @@ object Parser extends JavaTokenParsers with PackratParsers {
       ref ~ ("[" ~> expr <~ "]") ^^ { case x ~ e => RefStrProp(x, e) } |
       id ^^ { RefId(_) }
   }
+
+  // left-hand-sides
+  lazy private val lhs: PackratParser[Lhs] =
+    "let" ~> id ^^ { LhsLet(_) } | ref ^^ { LhsRef(_) }
 
   // types
   lazy private val ty: PackratParser[Ty] = ident ^^ { Ty(_) }
@@ -156,7 +171,7 @@ object Parser extends JavaTokenParsers with PackratParsers {
   ////////////////////////////////////////////////////////////////////////////////
   // values
   lazy private val value: PackratParser[Value] = {
-    ("(" ~> repsep(id, ",") <~ ")") ~ ("=>" ~> inst) ^^ { case ps ~ b => Func(ps, b) } |
+    func |
       addr |
       floatingPointNumber ^^ { case n => Num(n.toDouble) } |
       "i" ~> wholeNumber ^^ { case n => INum(n.toLong) } |
@@ -166,6 +181,10 @@ object Parser extends JavaTokenParsers with PackratParsers {
       "undefined" ^^^ Undef |
       "null" ^^^ Null
   }
+
+  // functions
+  lazy private val func: PackratParser[Func] =
+    ("(" ~> repsep(id, ",") <~ ")") ~ ("=>" ~> inst) ^^ { case ps ~ b => Func(ps, b) }
 
   // addresses
   lazy private val addr: PackratParser[Addr] = {

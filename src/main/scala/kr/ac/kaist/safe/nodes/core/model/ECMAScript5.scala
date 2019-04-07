@@ -11,95 +11,17 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-import kr.ac.kaist.safe.nodes.core.Parser.parseValue
+import kr.ac.kaist.safe._
 
 // ECMASCript 5.1
 object ECMAScript5 extends Model {
-  lazy private val ExecutionContext = NamedAddr("ExecutionContext")
-  lazy private val GlobalEnvironment = NamedAddr("GlobalEnvironment")
-  lazy private val GlobalObject = NamedAddr("GlobalObject")
+  val ExecutionContext = NamedAddr("ExecutionContext")
+  val GlobalEnvironment = NamedAddr("GlobalEnvironment")
+  val GlobalObjectEnvironmentRecord = NamedAddr("GlobalObjectEnvironmentRecord")
+  val GlobalObject = NamedAddr("GlobalObject")
 
   // environment
-  lazy val globals: Map[Id, Value] = Map(
-    // 10.3 Execution Contexts
-    "ExecutionContext" -> ExecutionContext
-  // // 10.2.3 The Global Environment
-  // "GlobalEnvironment" -> GlobalEnvironment,
-  // // 15.1 The Global Object
-  // "GlobalObject" -> GlobalObject,
-  // // 10.3.1 Identifier Resolution
-  // "IdentifierResolution" -> parseValue("""(Identifier, strict) => {
-  //   env = ExecutionContext.LexicalEnvironment;
-  //   result = GetIdentifierReference(env, Identifier, strict);
-  //   return result;
-  // }"""),
-  // // 10.2.2.1 GetIdentifierReference (lex, name, strict)
-  // "GetIdentifierReference" -> parseValue("""(lex, name, strict) => {
-  //   if (= lex null) {
-  //     reference = Reference {
-  //       BaseValue: undefined,
-  //       ReferencedName: name,
-  //       StrictMode: strict
-  //     };
-  //     return reference;
-  //   }
-  //   envRec = lex.EnvironmentRecord;
-  //   exists = HasBinding(envRec, name);
-  //   if exists {
-  //     reference = Reference {
-  //       BaseValue: envRec,
-  //       ReferencedName: name,
-  //       StrictMode: strict
-  //     };
-  //     return reference;
-  //   } else {
-  //     outer = lex.Outer;
-  //     result = GetIdentifierReference(outer, name, strict);
-  //     return result;
-  //   }
-  // }"""),
-  // // 8.7.1 GetValue (V)
-  // "GetValue" -> parseValue("""(V) => {
-  //   if (! (= (typeof V) "Reference")) return V;
-  //   base = GetBase(V);
-  //   x = IsUnresolvableReference(V);
-  //   if x {
-  //     throw "ReferenceError";
-  //   }
-  //   x = IsPropertyReference(V);
-  //   if x {
-  //     x = HasPrimitiveBase(V);
-  //     if (! x) {
-  //       get = base.Get;
-  //     } else {
-  //       get = (base, P) => {
-  //         O = ToObject(base);
-  //         desc = O.GetProperty(P);
-  //         if (= desc undefined) return undefined;
-  //         x = IsDataDescriptor(desc);
-  //         if x return desc.Value;
-  //         else {
-  //           x = IsAccessorDescriptor(desc);
-  //           assert x;
-  //           getter = desc.Get;
-  //           if (= getter undefined) return undefined;
-  //           x = getter.Call(getter);
-  //           return x;
-  //         }
-  //       }
-  //     }
-  //     x1 = GetReferencedName(V);
-  //     x2 = IsStrictReference(V);
-  //     x = get(base, x1, x2);
-  //     return x;
-  //   } else {
-  //     x1 = GetReferencedName(V);
-  //     x2 = IsStrictReference(V);
-  //     x = GetBindingValue(x1, x2);
-  //     return x;
-  //   }
-  // }""")
-  ).map { case (k, v) => Id(k) -> v }
+  val globals: Map[Id, Value] = GlobalLoader(RESRC_DIR + SEP + "coreModels" + SEP + "ECMAScript5.1") + (Id("ExecutionContext") -> ExecutionContext)
 
   // create new object
   def newObj(typeName: String)(seq: (String, Value)*): Obj = Obj(
@@ -110,12 +32,14 @@ object ECMAScript5 extends Model {
 
   // heap
   val heap: Heap = Heap(Map(
-    ExecutionContext -> newObj("ExecutionContext")(
-      "VariableEnvironment" -> GlobalEnvironment,
-      "LexicalEnvironment" -> GlobalEnvironment,
-      "ThisBinding" -> GlobalObject
+    ExecutionContext -> newObj("ExecutionContext")(),
+    GlobalEnvironment -> newObj("LexicalEnvironment")(
+      "EnvironmentRecord" -> GlobalObjectEnvironmentRecord,
+      "OuterEnvironmentReference" -> Null
     ),
-    GlobalEnvironment -> newObj("LexicalEnvironment")(),
+    GlobalObjectEnvironmentRecord -> newObj("ObjectEnvironmentRecord")(
+      "BindingObject" -> GlobalObject
+    ),
     GlobalObject -> newObj("Object")()
   ), size = 0)
 

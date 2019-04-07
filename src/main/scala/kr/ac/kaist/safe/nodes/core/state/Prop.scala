@@ -11,5 +11,8 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-// CORE Continuations
-case class Cont(prop: Prop, insts: List[Inst], env: Env) extends CoreNode
+// CORE Properties
+sealed trait Prop extends CoreNode
+case class GlobalId(id: Id) extends Prop
+case class PropId(addr: Addr, id: Id) extends Prop
+case class PropStr(addr: Addr, str: String) extends Prop

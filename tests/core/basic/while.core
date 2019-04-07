@@ -1,7 +1,7 @@
 // while loops
-sum = (n) => {
-  i = 0
-  res = 0
+let sum = (n) => {
+  let i = 0
+  let res = 0
   while (< i n) {
     i = (+ i 1)
     res = (+ res i)
@@ -9,5 +9,5 @@ sum = (n) => {
   return res
 }
 
-x = sum(10)
+let x = sum(10)
 assert (= x 55)

@@ -29,7 +29,7 @@ trait UnitWalker {
     case obj: Obj => walk(obj)
     case v: Value => walk(v)
     case cont: Cont => walk(cont)
-    case base: Base => walk(base)
+    case prop: Prop => walk(prop)
   }
 
   // strings
@@ -63,22 +63,22 @@ trait UnitWalker {
 
   // instructions
   def walk(inst: Inst): Unit = inst match {
-    case IExpr(ref, expr) =>
-      walk(ref); walk(expr)
-    case IAlloc(ref, ty) =>
-      walk(ref); walk(ty)
+    case IExpr(lhs, expr) =>
+      walk(lhs); walk(expr)
+    case IAlloc(lhs, ty) =>
+      walk(lhs); walk(ty)
     case IDelete(ref) =>
       walk(ref)
-    case IApp(ref, fun, args) =>
-      walk(ref); walk(fun); walkList[Expr](args, walk)
+    case IApp(lhs, fun, args) =>
+      walk(lhs); walk(fun); walkList[Expr](args, walk)
     case IReturn(expr) =>
       walk(expr)
     case IIf(cond, thenInst, elseInst) =>
       walk(cond); walk(thenInst); walk(elseInst)
     case IWhile(cond, body) =>
       walk(cond); walk(body)
-    case ITry(ref, tryInst) =>
-      walk(ref); walk(tryInst)
+    case ITry(lhs, tryInst) =>
+      walk(lhs); walk(tryInst)
     case IThrow(expr) =>
       walk(expr)
     case ISeq(insts) =>
@@ -112,6 +112,12 @@ trait UnitWalker {
       walk(ref); walk(id)
     case RefStrProp(ref, expr) =>
       walk(ref); walk(expr)
+  }
+
+  // left-hand-sides
+  def walk(lhs: Lhs): Unit = lhs match {
+    case LhsRef(ref) => walk(ref)
+    case LhsLet(id) => walk(id)
   }
 
   // types
@@ -170,16 +176,15 @@ trait UnitWalker {
 
   // continuations
   def walk(cont: Cont): Unit = {
-    walk(cont.base)
+    walk(cont.prop)
     walkList[Inst](cont.insts, walk)
     walk(cont.env)
   }
 
-  // bases
-  def walk(base: Base): Unit = base match {
-    case BaseId(id) => walk(id)
-    case BaseIdProp(addr, id) =>
+  // properties
+  def walk(prop: Prop): Unit = prop match {
+    case PropId(addr, id) =>
       walk(addr); walk(id)
-    case BaseStrProp(addr, str) => walk(addr)
+    case PropStr(addr, str) => walk(addr)
   }
 }

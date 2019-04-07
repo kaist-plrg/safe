@@ -21,6 +21,9 @@ abstract class SafeTest extends FunSuite {
   // tests directory
   lazy val testDir = BASE_DIR + SEP + "tests" + SEP
 
+  // resources directory
+  lazy val resourceDir = BASE_DIR + SEP + "src" + SEP + "main" + SEP + "resources" + SEP
+
   // safe configuration
   lazy val safeConfig: SafeConfig = SafeConfig(CmdBase, Nil)
 
@@ -30,6 +33,7 @@ abstract class SafeTest extends FunSuite {
   // filename filters
   def extFilter(ext: String): String => Boolean = _.endsWith(s".$ext")
   lazy val coreFilter = extFilter("core")
+  lazy val funcFilter = extFilter("func")
   lazy val jsFilter = extFilter("js")
   lazy val htmlFilter = extFilter("html")
   lazy val errFilter = extFilter("err")

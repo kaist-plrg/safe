@@ -1,5 +1,5 @@
-y = try {
-  x = 1
+let y = try {
+  let x = 1
   throw 1
   x = 2
 }

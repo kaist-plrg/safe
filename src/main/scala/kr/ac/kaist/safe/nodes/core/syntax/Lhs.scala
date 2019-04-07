@@ -11,8 +11,12 @@
 
 package kr.ac.kaist.safe.nodes.core
 
-// CORE Bases
-sealed trait Base extends CoreNode
-case class BaseId(id: Id) extends Base
-case class BaseIdProp(addr: Addr, id: Id) extends Base
-case class BaseStrProp(addr: Addr, str: String) extends Base
+// CORE Left-Hand-Sides
+sealed trait Lhs extends CoreNode {
+  def getRef: Ref = this match {
+    case LhsRef(ref) => ref
+    case LhsLet(id) => RefId(id)
+  }
+}
+case class LhsRef(ref: Ref) extends Lhs
+case class LhsLet(id: Id) extends Lhs

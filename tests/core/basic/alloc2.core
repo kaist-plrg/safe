@@ -1,4 +1,4 @@
 // syntactic sugar
-obj = Object { "x": 1, "y": 2 }
+let obj = Object { "x": 1, "y": 2 }
 assert (= obj["x"] 1)
 assert (= obj["y"] 2)

@@ -1,2 +1,2 @@
-x = try throw 1
+let x = try throw 1
 assert (= x 1)

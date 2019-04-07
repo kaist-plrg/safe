@@ -106,14 +106,14 @@ object Beautifier {
 
     // instructions
     override def walk(inst: Inst): Unit = inst match {
-      case IExpr(ref, expr) =>
-        walk(ref); walk(" = "); walk(expr)
-      case IAlloc(ref, ty) =>
-        walk(ref); walk(" = new "); walk(ty)
+      case IExpr(lhs, expr) =>
+        walk(lhs); walk(" = "); walk(expr)
+      case IAlloc(lhs, ty) =>
+        walk(lhs); walk(" = new "); walk(ty)
       case IDelete(ref) =>
         walk("delete "); walk(ref)
-      case IApp(ref, fun, args) =>
-        walk(ref); walk(" = "); walk(fun)
+      case IApp(lhs, fun, args) =>
+        walk(lhs); walk(" = "); walk(fun)
         walk("("); walkListSep[Expr](args, ", ", walk); walk(")")
       case IReturn(expr) =>
         walk("return "); walk(expr)
@@ -122,8 +122,8 @@ object Beautifier {
         walk(" else "); walk(elseInst)
       case IWhile(cond, body) =>
         walk("while "); walk(cond); walk(" "); walk(body)
-      case ITry(ref, tryInst) =>
-        walk(ref); walk(" = try "); walk(tryInst)
+      case ITry(lhs, tryInst) =>
+        walk(lhs); walk(" = try "); walk(tryInst)
       case IThrow(expr) =>
         walk("throw "); walk(expr)
       case ISeq(insts) =>
@@ -165,6 +165,12 @@ object Beautifier {
         walk(ref); walk("."); walk(id)
       case RefStrProp(ref, expr) =>
         walk(ref); walk("["); walk(expr); walk("]")
+    }
+
+    // left-hand-sides
+    override def walk(lhs: Lhs): Unit = lhs match {
+      case LhsRef(ref) => walk(ref)
+      case LhsLet(id) => walk("let "); walk(id)
     }
 
     // types
@@ -259,8 +265,8 @@ object Beautifier {
 
     // continuations
     override def walk(cont: Cont): Unit = oneDepth({
-      val Cont(ref, insts, env) = cont
-      walk(indent); walk("Base: "); walk(ref)
+      val Cont(prop, insts, env) = cont
+      walk(indent); walk("Property: "); walk(prop)
       if (detail) {
         walk(indent); walk("Instructions: "); walkList[Inst](insts, walk)
         walk(indent); walk("Environment: "); walk(env)
@@ -271,12 +277,11 @@ object Beautifier {
       }
     })
 
-    // bases
-    override def walk(base: Base): Unit = base match {
-      case BaseId(id) => walk(id)
-      case BaseIdProp(addr, id) =>
+    // properties
+    override def walk(prop: Prop): Unit = prop match {
+      case PropId(addr, id) =>
         walk(addr); walk("."); walk(id)
-      case BaseStrProp(addr, str) =>
+      case PropStr(addr, str) =>
         walk(addr); walk("[\""); walk(str); walk("\"]")
     }
   }

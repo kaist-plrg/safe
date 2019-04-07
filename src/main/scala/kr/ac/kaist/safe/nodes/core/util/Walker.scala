@@ -29,7 +29,7 @@ trait Walker {
     case obj: Obj => walk(obj)
     case v: Value => walk(v)
     case cont: Cont => walk(cont)
-    case base: Base => walk(base)
+    case prop: Prop => walk(prop)
   }
 
   // strings
@@ -63,14 +63,14 @@ trait Walker {
 
   // instructions
   def walk(inst: Inst): Inst = inst match {
-    case IExpr(ref, expr) => IExpr(walk(ref), walk(expr))
-    case IAlloc(ref, ty) => IAlloc(walk(ref), walk(ty))
+    case IExpr(lhs, expr) => IExpr(walk(lhs), walk(expr))
+    case IAlloc(lhs, ty) => IAlloc(walk(lhs), walk(ty))
     case IDelete(ref) => IDelete(walk(ref))
-    case IApp(ref, fun, args) => IApp(walk(ref), walk(fun), walkList[Expr](args, walk))
+    case IApp(lhs, fun, args) => IApp(walk(lhs), walk(fun), walkList[Expr](args, walk))
     case IReturn(expr) => IReturn(walk(expr))
     case IIf(cond, thenInst, elseInst) => IIf(walk(cond), walk(thenInst), walk(elseInst))
     case IWhile(cond, body) => IWhile(walk(cond), walk(body))
-    case ITry(ref, tryInst) => ITry(walk(ref), walk(tryInst))
+    case ITry(lhs, tryInst) => ITry(walk(lhs), walk(tryInst))
     case IThrow(expr) => IThrow(walk(expr))
     case ISeq(insts) => ISeq(walkList[Inst](insts, walk))
     case IAssert(expr) => IAssert(walk(expr))
@@ -94,6 +94,12 @@ trait Walker {
     case RefId(id) => RefId(walk(id))
     case RefIdProp(ref, id) => RefIdProp(walk(ref), walk(id))
     case RefStrProp(ref, expr) => RefStrProp(walk(ref), walk(expr))
+  }
+
+  // left-hand-sides
+  def walk(lhs: Lhs): Lhs = lhs match {
+    case LhsRef(ref) => LhsRef(walk(ref))
+    case LhsLet(id) => LhsLet(walk(id))
   }
 
   // types
@@ -152,15 +158,14 @@ trait Walker {
 
   // continuations
   def walk(cont: Cont): Cont = Cont(
-    walk(cont.base),
+    walk(cont.prop),
     walkList[Inst](cont.insts, walk),
     walk(cont.env)
   )
 
-  // bases
-  def walk(base: Base): Base = base match {
-    case BaseId(id) => BaseId(walk(id))
-    case BaseIdProp(addr, id) => BaseIdProp(walk(addr), walk(id))
-    case BaseStrProp(addr, str) => BaseStrProp(walk(addr), str)
+  // properties
+  def walk(prop: Prop): Prop = prop match {
+    case PropId(addr, id) => PropId(walk(addr), walk(id))
+    case PropStr(addr, str) => PropStr(walk(addr), str)
   }
 }

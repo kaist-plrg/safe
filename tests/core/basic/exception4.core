@@ -1,5 +1,5 @@
-y = try {
-  x = try throw 1
+let y = try {
+  let x = try throw 1
 }
 assert (= x 1)
 assert (= y undefined)

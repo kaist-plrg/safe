@@ -30,6 +30,9 @@ package object safe {
   // Base project directory root
   val BASE_DIR = System.getenv("SAFE_HOME")
 
+  // Resource directory root
+  val RESRC_DIR = BASE_DIR + SEP + "src" + SEP + "main" + SEP + "resources"
+
   // Base project directory root
   val CUR_DIR = System.getProperty("user.dir")
 

@@ -1,6 +1,6 @@
 // floating points
-x = 1.2
-y = 2.0
+let x = 1.2
+let y = 2.0
 assert (= (- x) -1.2)
 assert (= (+ x y) 3.2)
 assert (= (- x y) -0.8)
@@ -45,17 +45,17 @@ assert (= null null)
 
 // identifiers
 x = 1
-z = x
+let z = x
 assert (= z 1)
 
 // property reads
-obj = Object { "x": 1, "y": 2 }
-p = "x"
-res = obj[p]
+let obj = Object { "x": 1, "y": 2 }
+let p = "x"
+let res = obj[p]
 assert (= res 1)
 
 // property existences
-obj = Object { "x": 1, "y": 2 }
+let obj = Object { "x": 1, "y": 2 }
 assert (? obj["x"])
 assert (= (? obj["z"]) false)
 
@@ -66,5 +66,5 @@ assert (= (typeof undefined) "Undefined")
 assert (= (typeof null) "Null")
 obj = new Object
 assert (= (typeof obj) "Object")
-a = new A
+let a = new A
 assert (= (typeof a) "A")

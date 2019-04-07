@@ -1,2 +1,2 @@
-f = (x, y) => return (+ x y)
+let f = (x, y) => return (+ x y)
 assert (= f f)

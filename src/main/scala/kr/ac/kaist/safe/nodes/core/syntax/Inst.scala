@@ -13,14 +13,14 @@ package kr.ac.kaist.safe.nodes.core
 
 // CORE Instructions
 sealed trait Inst extends CoreNode
-case class IExpr(ref: Ref, expr: Expr) extends Inst
-case class IAlloc(ref: Ref, ty: Ty) extends Inst
+case class IExpr(lhs: Lhs, expr: Expr) extends Inst
+case class IAlloc(lhs: Lhs, ty: Ty) extends Inst
 case class IDelete(ref: Ref) extends Inst
-case class IApp(ref: Ref, fexpr: Expr, args: List[Expr]) extends Inst
+case class IApp(lhs: Lhs, fexpr: Expr, args: List[Expr]) extends Inst
 case class IReturn(expr: Expr) extends Inst
 case class IIf(cond: Expr, thenInst: Inst, elseInst: Inst) extends Inst
 case class IWhile(cond: Expr, body: Inst) extends Inst
-case class ITry(ref: Ref, tryInst: Inst) extends Inst
+case class ITry(lhs: Lhs, tryInst: Inst) extends Inst
 case class IThrow(expr: Expr) extends Inst
 case class ISeq(insts: List[Inst]) extends Inst
 case class IAssert(expr: Expr) extends Inst

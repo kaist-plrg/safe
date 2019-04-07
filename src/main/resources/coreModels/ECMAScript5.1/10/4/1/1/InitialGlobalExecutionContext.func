@@ -1,0 +1,8 @@
+() => {
+  // 1. Set the VariableEnvironment to the Global Environment.
+  ExecutionContext.VariableEnvironment = GlobalEnvironment
+  // 2. Set the LexicalEnvironment to the Global Environment.
+  ExecutionContext.LexicalEnvironment = GlobalEnvironment
+  // 3. Set the ThisBinding to the global object.
+  ExecutionContext.ThisBinding = GlobalObject
+}

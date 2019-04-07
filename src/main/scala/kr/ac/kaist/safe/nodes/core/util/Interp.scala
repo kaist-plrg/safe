@@ -30,19 +30,19 @@ object Interp {
   // instructions
   def interp(inst: Inst): State => State = st => {
     inst match {
-      case IExpr(ref, expr) =>
-        val base = interp(ref)(st)
+      case IExpr(lhs, expr) =>
+        val prop = interp(lhs)(st)
         val value = interp(expr)(st)
-        st.updated(base, value)
-      case IAlloc(ref, ty) =>
-        val base = interp(ref)(st)
+        st.updated(prop, value)
+      case IAlloc(lhs, ty) =>
+        val prop = interp(lhs)(st)
         val (newAddr, newSt) = st.alloc(ty)
-        newSt.updated(base, newAddr)
+        newSt.updated(prop, newAddr)
       case IDelete(ref) =>
-        val base = interp(ref)(st)
-        st.deleted(base)
-      case IApp(ref, fun, args) =>
-        val base = interp(ref)(st)
+        val prop = interp(ref)(st)
+        st.deleted(prop)
+      case IApp(lhs, fun, args) =>
+        val prop = interp(lhs)(st)
         interp(fun)(st) match {
           case Func(params, body) =>
             val (idMap, _) = ((Map[Id, Value](), args) /: params) {
@@ -54,7 +54,7 @@ object Interp {
             val (locals, newSt) = st.allocLocals(idMap)
             val newEnv = st.env.copy(
               locals = locals,
-              retCont = Some(Cont(base, st.insts, st.env))
+              retCont = Some(Cont(prop, st.insts, st.env))
             )
             val retInst = IReturn(EUndef)
             newSt.copy(insts = List(body, retInst), env = newEnv)
@@ -76,9 +76,9 @@ object Interp {
         case Bool(false) => st
         case v => error(s"not a boolean: $v")
       }
-      case ITry(ref, tryInst) =>
-        val base = interp(ref)(st)
-        val newEnv = st.env.copy(excCont = Some(Cont(base, st.insts, st.env)))
+      case ITry(lhs, tryInst) =>
+        val prop = interp(lhs)(st)
+        val newEnv = st.env.copy(excCont = Some(Cont(prop, st.insts, st.env)))
         val excInst = IThrow(EUndef)
         st.copy(insts = List(tryInst, excInst), env = newEnv)
       case IThrow(expr) =>
@@ -110,8 +110,8 @@ object Interp {
       case EUndef => Undef
       case ENull => Null
       case ERef(ref) =>
-        val base = interp(ref)(st)
-        st(base)
+        val prop = interp(ref)(st)
+        st(prop)
       case EFunc(params, body) =>
         Func(params, body)
       case EUOp(uop, expr) =>
@@ -122,8 +122,8 @@ object Interp {
         val rv = interp(right)(st)
         interp(bop)(lv, rv)
       case EExist(ref) =>
-        val base = interp(ref)(st)
-        Bool(st.contains(base))
+        val prop = interp(ref)(st)
+        Bool(st.contains(prop))
       case ETypeOf(expr) => interp(expr)(st) match {
         case addr: Addr => Str(heap.map.getOrElse(addr, error(s"unknown address: $addr")).ty.name)
         case Num(_) | INum(_) => Str("Number")
@@ -137,23 +137,34 @@ object Interp {
   }
 
   // references
-  def interp(ref: Ref): State => Base = st => ref match {
-    case RefId(id) => BaseId(id)
+  def interp(ref: Ref): State => Prop = st => ref match {
+    case RefId(id) =>
+      val localId = PropId(st.env.locals, id)
+      val globalId = GlobalId(id)
+      if (st.contains(localId)) localId
+      else if (st.contains(globalId)) globalId
+      else error(s"free identifier: $id")
     case RefIdProp(ref, id) =>
-      val base = interp(ref)(st)
-      st(base) match {
-        case addr: Addr => BaseIdProp(addr, id)
+      val prop = interp(ref)(st)
+      st(prop) match {
+        case addr: Addr => PropId(addr, id)
         case v => error(s"not an address: $v")
       }
     case RefStrProp(ref, expr) =>
-      val base = interp(ref)(st)
-      st(base) match {
+      val prop = interp(ref)(st)
+      st(prop) match {
         case addr: Addr => interp(expr)(st) match {
-          case Str(str) => BaseStrProp(addr, str)
+          case Str(str) => PropStr(addr, str)
           case v => error(s"not a string: $v")
         }
         case v => error(s"not an address: $v")
       }
+  }
+
+  // left-hand-sides
+  def interp(lhs: Lhs): State => Prop = st => lhs match {
+    case LhsRef(ref) => interp(ref)(st)
+    case LhsLet(id) => PropId(st.env.locals, id)
   }
 
   // unary operators
