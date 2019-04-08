@@ -183,6 +183,7 @@ trait UnitWalker {
 
   // properties
   def walk(prop: Prop): Unit = prop match {
+    case GlobalId(id) => walk(id)
     case PropId(addr, id) =>
       walk(addr); walk(id)
     case PropStr(addr, str) => walk(addr)

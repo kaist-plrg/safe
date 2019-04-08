@@ -81,14 +81,14 @@ case object CmdTranslate extends CommandObj("translate", CmdASTRewrite >> Transl
   override def display(ir: IRRoot): Unit = println(ir.toString(0))
 }
 
-// compile
-case object CmdCompile extends CommandObj("compile", CmdParse >> Compile) {
-  override def display(pgm: core.Program): Unit = println(pgm)
+// load
+case object CmdLoad extends CommandObj("load", CmdParse >> LoadJS) {
+  override def display(st: core.State): Unit = println(core.beautify(st))
 }
 
 // eval
-case object CmdEval extends CommandObj("eval", CmdCompile >> EvalCore) {
-  override def display(st: core.State): Unit = println(st)
+case object CmdEval extends CommandObj("eval", CmdLoad >> EvalCore) {
+  override def display(st: core.State): Unit = println(core.beautify(st))
 }
 
 // parse-core
@@ -96,9 +96,14 @@ case object CmdParseCore extends CommandObj("parse-core", CmdBase >> ParseCore) 
   override def display(pgm: core.Program): Unit = println(core.beautify(pgm))
 }
 
+// load-core
+case object CmdLoadCore extends CommandObj("load-core", CmdParseCore >> LoadCore) {
+  override def display(st: core.State): Unit = println(core.beautify(st))
+}
+
 // eval-core
-case object CmdEvalCore extends CommandObj("eval-core", CmdParseCore >> EvalCore) {
-  override def display(st: core.State): Unit = println(st)
+case object CmdEvalCore extends CommandObj("eval-core", CmdLoadCore >> EvalCore) {
+  override def display(st: core.State): Unit = println(core.beautify(st))
 }
 
 // cfgBuild

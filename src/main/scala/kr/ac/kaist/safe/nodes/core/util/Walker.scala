@@ -165,6 +165,7 @@ trait Walker {
 
   // properties
   def walk(prop: Prop): Prop = prop match {
+    case GlobalId(id) => GlobalId(walk(id))
     case PropId(addr, id) => PropId(walk(addr), walk(id))
     case PropStr(addr, str) => PropStr(walk(addr), str)
   }

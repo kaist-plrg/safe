@@ -1,0 +1,4 @@
+(this) => {
+  let _ = InitialGlobalExecutionContext()
+  let _ = DeclarationBindingInstantiation(this)
+}

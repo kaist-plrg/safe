@@ -1,6 +1,0 @@
-() => {
-  // 1. Initialise the execution context using the global code as described in 10.4.1.1.
-  let x1 = InitialGlobalExecutionContext()
-  // 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code.
-  let x2 = DeclarationBindingInstantiation(undefined)
-}

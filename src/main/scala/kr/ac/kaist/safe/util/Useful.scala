@@ -60,4 +60,33 @@ object Useful {
   }
 
   def path(dirs: String*): String = BASE_DIR + SEP + dirs.mkString(SEP)
+
+  def treeString(any: Any): String = {
+    def indent(s: String) = s.lines.toStream match {
+      case h +: t =>
+        (("- " + h) +: t.map { "| " + _ }) mkString "\n"
+      case _ => "- "
+    }
+    def treeString(any: Any): String = any match {
+      case x: Traversable[_] =>
+        x.stringPrefix + ": {\n" +
+          x.view
+          .map { treeString(_) }
+          .map { indent }
+          .mkString("\n") + "\n}"
+      case x: Product if x.productArity == 0 =>
+        x.productPrefix
+      case x: Product =>
+        x.productPrefix + ": {\n" +
+          x.productIterator
+          .map { treeString(_) }
+          .map { indent }
+          .mkString("\n") + "\n}"
+      case null =>
+        "null"
+      case _ =>
+        any.toString
+    }
+    treeString(any)
+  }
 }

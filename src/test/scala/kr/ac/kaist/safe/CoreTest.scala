@@ -49,7 +49,7 @@ class CoreTest extends SafeTest {
       lazy val pgm = ParseCore((), config)
       test(s"[ParseCore] $filename") { parseCoreTest(pgm) }
 
-      lazy val st = pgm.flatMap(EvalCore(_, config))
+      lazy val st = pgm.flatMap(LoadCore(_, config)).flatMap(EvalCore(_, config))
       test(s"[EvalCore] $filename") { evalCoreTest(st) }
     }
   }

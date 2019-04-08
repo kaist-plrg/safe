@@ -98,13 +98,13 @@ object Parser extends JavaTokenParsers with PackratParsers {
       "print" ~> expr ^^ { case e => IPrint(e) } |
       "???" ^^^ { INotYetImpl } |
       (lhs <~ "=") ~ ("try" ~> inst) ^^ { case x ~ i => ITry(x, i) } |
-      (lhs <~ "=" <~ "new") ~ (ty) ^^ { case x ~ t => IAlloc(x, t) } |
-      (lhs <~ "=") ~ ty ~ (props) ^^ {
+      (lhs <~ "=" <~ "new") ~ ty ~ (props) ^^ {
         case x ~ t ~ props => ISeq(IAlloc(x, t) :: props.map {
           case (Left(id), e) => IExpr(LhsRef(RefIdProp(x.getRef, id)), e)
           case (Right(str), e) => IExpr(LhsRef(RefStrProp(x.getRef, EStr(str.substring(1, str.length - 1)))), e)
         })
       } |
+      (lhs <~ "=" <~ "new") ~ ty ^^ { case x ~ t => IAlloc(x, t) } |
       (lhs <~ "=") ~ expr ~ ("(" ~> (repsep(expr, ",") <~ ")")) ^^ { case x ~ f ~ as => IApp(x, f, as) } |
       (lhs <~ "=") ~ (expr) ^^ { case x ~ e => IExpr(x, e) }
   }

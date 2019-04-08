@@ -5,54 +5,54 @@
  *
  * Use is subject to license terms.
  *
- * This distribution may include materials developed by thcored parties.
+ * This distribution may include materials developed by third parties.
  * ****************************************************************************
  */
 
 package kr.ac.kaist.safe.phase
 
+import scala.util.{ Try, Success }
 import kr.ac.kaist.safe.SafeConfig
 import kr.ac.kaist.safe.nodes.core._
 import kr.ac.kaist.safe.util._
-import scala.util.{ Try, Success }
 
-// EvalCore phase
-case object EvalCore extends PhaseObj[State, EvalCoreConfig, State] {
-  val name: String = "core-interpreter"
-  val help: String = "evaluates JavaScript source files to Core."
+// LoadCore phase
+case object LoadCore extends PhaseObj[Program, LoadCoreConfig, State] {
+  val name: String = "load-core"
+  val help: String = "Load Core program into Core State"
 
   def apply(
-    initialSt: State,
+    pgm: Program,
     safeConfig: SafeConfig,
-    config: EvalCoreConfig
+    config: LoadCoreConfig
   ): Try[State] = {
     // Evaluate Core program
-    val st: State = Interp.fixpoint(initialSt)
+    val st: State = ECMAScript5.getInitial(pgm)
 
     // Pretty print to file.
     config.outFile match {
       case Some(out) => {
         val ((fw, writer)) = Useful.fileNameToWriters(out)
-        writer.write(st.toString)
+        writer.write(beautify(st))
         writer.close; fw.close
-        println("Dumped the result to " + out)
+        println("Dumped core to " + out)
       }
       case None =>
     }
     Success(st)
   }
 
-  def defaultConfig: EvalCoreConfig = EvalCoreConfig()
-  val options: List[PhaseOption[EvalCoreConfig]] = List(
+  def defaultConfig: LoadCoreConfig = LoadCoreConfig()
+  val options: List[PhaseOption[LoadCoreConfig]] = List(
     ("silent", BoolOption(c => c.silent = true),
-      "messages during evaluation are muted."),
+      "messages during compilation are muted."),
     ("out", StrOption((c, s) => c.outFile = Some(s)),
-      "the result of evaluation will be written to the outfile.")
+      "the resulting Core will be written to the outfile.")
   )
 }
 
-// EvalCore phase config
-case class EvalCoreConfig(
+// LoadCore phase config
+case class LoadCoreConfig(
   var silent: Boolean = false,
   var outFile: Option[String] = None
 ) extends Config

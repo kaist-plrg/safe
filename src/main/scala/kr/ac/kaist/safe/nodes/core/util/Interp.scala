@@ -24,9 +24,6 @@ object Interp {
   // Syntax
   ////////////////////////////////////////////////////////////////////////////////
 
-  // programs
-  def interp(pgm: Program): Model => State = model => fixpoint(model.getInitial(pgm))
-
   // instructions
   def interp(inst: Inst): State => State = st => {
     inst match {

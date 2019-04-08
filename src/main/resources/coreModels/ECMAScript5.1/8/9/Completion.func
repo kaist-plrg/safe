@@ -1,8 +1,0 @@
-(type, value, target) => {
-  let obj = Completion {
-    type: type,
-    value: value,
-    target: target
-  }
-  return obj
-}

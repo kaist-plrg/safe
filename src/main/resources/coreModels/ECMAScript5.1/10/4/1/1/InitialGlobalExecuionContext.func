@@ -1,0 +1,5 @@
+(this) => {
+  ExecutionContext.VariableEnvironment = GlobalEnvironment
+  ExecutionContext.LexicalEnvironment = GlobalEnvironment
+  ExecutionContext.ThisBinding = GlobalObject
+}
