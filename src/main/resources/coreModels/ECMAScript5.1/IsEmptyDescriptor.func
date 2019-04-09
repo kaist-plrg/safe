@@ -1,0 +1,9 @@
+(Desc) => {
+  if (? Desc.Value) return false
+  if (? Desc.Get) return false
+  if (? Desc.Set) return false
+  if (? Desc.Writable) return false
+  if (? Desc.Enumerable) return false
+  if (? Desc.Configurable) return false
+  return true
+}

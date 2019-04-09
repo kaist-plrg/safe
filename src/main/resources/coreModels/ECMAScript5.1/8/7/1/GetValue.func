@@ -1,0 +1,28 @@
+(V) => {
+  // 1. If Type(V) is not Reference, return V.
+  if (! (= (typeof V) "Reference")) return V
+  // 2. Let base be the result of calling GetBase(V).
+  let base = GetBase(V)
+  // 3. If IsUnresolvableReference(V), throw a ReferenceError exception.
+  let x = IsUnresolvableReference(V)
+  if x throw "ReferenceError"
+  // 4. If IsPropertyReference(V), then
+  let x = IsPropertyReference(V)
+  if x {
+    // a. If HasPrimitiveBase(V) is false, then let get be the [[Get]] internal method of base, otherwise let get be the special [[Get]] internal method defined below.
+    let x = HasPrimitiveBase(V)
+    if (= x false) let get = base.Get else ??? "8.7.1"
+    // b. Return the result of calling the get internal method using base as its this value, and passing GetReferencedName(V) for the argument.
+    let x1 = GetReferencedName(V)
+    let x = get(base, x1)
+    return x2
+  }
+  // 5. Else, base must be an environment record.
+  else {
+    // a. Return the result of calling the GetBindingValue (see 10.2.1) concrete method of base passing GetReferencedName(V) and IsStrictReference(V) as arguments.
+    let x1 = GetReferencedName(V)
+    let x2 = IsStrictReference(V)
+    let x = base.GetBindingValue(base, x1, x2)
+    return x
+  }
+}

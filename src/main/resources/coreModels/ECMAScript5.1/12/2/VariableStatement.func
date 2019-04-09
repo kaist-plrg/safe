@@ -1,3 +1,14 @@
 (this) => {
-  ???
+  VariableDeclarationList = this.VariableDeclarationList
+  let i = i0
+  while (< i VariableDeclarationList.length) {
+    let _ = VariableDeclarationList[i].eval(VariableDeclarationList[i])
+    i = (+ i i1)
+  }
+  let x = new Completion {
+    type: "normal",
+    value: "empty",
+    target: "empty"
+  }
+  return x
 }

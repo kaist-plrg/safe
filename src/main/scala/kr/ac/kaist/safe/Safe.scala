@@ -73,16 +73,17 @@ object Safe {
     CmdASTRewrite,
     CmdTranslate,
     CmdLoad,
-    CmdLoadCore,
-    CmdParseCore,
-    CmdEvalCore,
     CmdEval,
+    CmdREPL,
     CmdCFGBuild,
     CmdHeapBuild,
     CmdAnalyze,
     CmdBugDetect,
     CmdHelp,
     CmdWeb,
+    CmdLoadCore,
+    CmdParseCore,
+    CmdEvalCore,
     CmdREPLCore
   )
   val cmdMap = commands.foldLeft[Map[String, Command]](Map()) {

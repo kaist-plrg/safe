@@ -1,0 +1,8 @@
+(Desc) => {
+  // 1. If Desc is undefined, then return false.
+  if (= Desc undefined) return false
+  // 2. If both Desc.[[Value]] and Desc.[[Writable]] are absent, then return false.
+  if (&& (! (? Desc.Value)) (! (? Desc.Writable))) return false
+  // 3. Return true.
+  return true
+}

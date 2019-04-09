@@ -40,7 +40,7 @@ class JSLoader(program: Program, model: core.Model) {
   // Private Mutable Variables
   ////////////////////////////////////////////////////////////////
   private var st: core.State = null
-  private var last: core.Addr = null
+  private var last: core.Value = null
   private var decls: Decls = new Decls(Nil, Nil)
 
   class Decls(var fds: List[core.Addr], var vds: List[core.Addr])
@@ -49,9 +49,13 @@ class JSLoader(program: Program, model: core.Model) {
   // Translations
   ////////////////////////////////////////////////////////////////
   private val evalId = core.Id("eval")
+  private val lengthId = core.Id("length")
   private val typeId = core.Id("type")
   private val fdsId = core.Id("fds")
   private val vdsId = core.Id("vds")
+  private val listId = core.Id("list")
+  private val valueId = core.Id("value")
+  private val strictModeId = core.Id("strictMode")
   private val ProgramId = core.Id("Program")
   private val SourceElementsId = core.Id("SourceElements")
   private val SourceElementId = core.Id("SourceElement")
@@ -61,6 +65,8 @@ class JSLoader(program: Program, model: core.Model) {
   private val VariableStatementId = core.Id("VariableStatement")
   private val VariableDeclarationListId = core.Id("VariableDeclarationList")
   private val VariableDeclarationId = core.Id("VariableDeclaration")
+  private val VariableDeclaration1Id = core.Id("VariableDeclaration1")
+  private val VariableDeclaration2Id = core.Id("VariableDeclaration2")
   private val InitialiserId = core.Id("Initialiser")
   private val AssignmentExpressionId = core.Id("AssignmentExpression")
   private val ConditionalExpressionId = core.Id("ConditionalExpression")
@@ -81,39 +87,110 @@ class JSLoader(program: Program, model: core.Model) {
   private val MemberExpressionId = core.Id("MemberExpression")
   private val PrimaryExpressionId = core.Id("PrimaryExpression")
   private val LiteralId = core.Id("Literal")
-  private val NumericLiteral = core.Id("NumericLiteral")
+  private val NumericLiteralId = core.Id("NumericLiteral")
 
   private object Walker extends ASTUnitWalker {
     override def walk(node: Program): Unit = node match {
       case Program(_, TopLevel(_, _, _, stmts)) =>
         val addr = create("Program")
 
-        stmts.foreach(walk(_))
-        st = st.updated(addr, SourceElementsId, last)
+        // XXX Assume there is unique Stmts
+        val Stmts(_, stmtList, strict) = stmts(0)
 
-        createList(decls.fds)
+        // SourceElements
+        val elemsAddr = create("SourceElements")
+        var ss = List[core.Value]()
+        stmtList.foreach(stmt => {
+          last = null
+          walk(stmt)
+          if (last != null) ss ::= last
+        })
+        createList(ss.reverse)
+        st = st.updated(elemsAddr, listId, last)
+        st = st.updated(elemsAddr, evalId, st.globals(SourceElementsId))
+        st = st.updated(addr, SourceElementsId, elemsAddr)
+
+        // fds
+        createList(decls.fds.reverse)
         st = st.updated(addr, fdsId, last)
 
-        createList(decls.vds)
+        // vds
+        createList(decls.vds.reverse)
         st = st.updated(addr, vdsId, last)
 
+        // type
+        st = st.updated(addr, typeId, core.Str("global"))
+
+        // strictMode
+        st = st.updated(addr, strictModeId, core.Bool(strict))
+
+        // eval
         st = st.updated(addr, evalId, st.globals(ProgramId))
 
         last = addr
     }
 
     override def walk(node: FunDecl): Unit = node match {
-      case fd @ FunDecl(_, ftn, isStrict) =>
+      case fd @ FunDecl(_, Functional(_, _, _, stmts, name, params, _), isStrict) =>
         val addr = create("FunctionDeclaration")
 
         val oldDecls = decls
         decls = new Decls(Nil, Nil)
 
-        createList(decls.fds)
+        // TODO
+
+        createList(decls.fds.reverse)
         st = st.updated(addr, fdsId, last)
 
-        createList(decls.vds)
+        createList(decls.vds.reverse)
         st = st.updated(addr, vdsId, last)
+
+        decls = oldDecls
+        decls.fds ::= addr
+        last = addr
+    }
+
+    override def walk(node: Stmt): Unit = node match {
+      case VarStmt(_, vds) =>
+        val addr = create("VariableStatement")
+        var list = List[core.Value]()
+        vds.foreach(vd => {
+          walk(vd)
+          list ::= last
+        })
+        createList(list.reverse)
+        st = st.updated(addr, VariableDeclarationListId, last)
+        st = st.updated(addr, evalId, st.globals(VariableStatementId))
+        last = addr
+      case _ => super.walk(node)
+    }
+
+    override def walk(node: VarDecl): Unit = node match {
+      case vd @ VarDecl(_, name, expr, _) =>
+        val addr = create("VariableDeclaration")
+
+        st = st.updated(addr, IdentifierId, core.Str(name.text))
+
+        expr match {
+          case None =>
+            st = st.updated(addr, evalId, st.globals(VariableDeclaration1Id))
+          case Some(expr) =>
+            walk(expr)
+            st = st.updated(addr, InitialiserId, last)
+            st = st.updated(addr, evalId, st.globals(VariableDeclaration2Id))
+        }
+
+        decls.vds ::= addr
+        last = addr
+    }
+
+    override def walk(node: NumberLiteral): Unit = node match {
+      case IntLiteral(_, intVal, _) =>
+        val addr = create("NumericLiteral")
+        st = st.updated(addr, valueId, core.Num(intVal.doubleValue))
+        st = st.updated(addr, evalId, st.globals(NumericLiteralId))
+        last = addr
+      case _ => ???
     }
 
     def create(tyName: String): core.Addr = {
@@ -123,7 +200,13 @@ class JSLoader(program: Program, model: core.Model) {
     }
 
     def createList(vs: List[core.Value]): Unit = {
-      ???
+      val addr = create("List")
+      st = st.updated(addr, lengthId, core.INum(vs.length))
+      vs.zipWithIndex.foreach {
+        case (v, i) =>
+          st = st.updated(addr, s"$i", v)
+      }
+      last = addr
     }
   }
 

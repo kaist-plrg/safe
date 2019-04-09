@@ -96,7 +96,7 @@ object Parser extends JavaTokenParsers with PackratParsers {
       "{" ~> rep(inst) <~ "}" ^^ { case seq => ISeq(seq) } |
       "assert" ~> expr ^^ { case e => IAssert(e) } |
       "print" ~> expr ^^ { case e => IPrint(e) } |
-      "???" ^^^ { INotYetImpl } |
+      "???" ~> stringLiteral ^^ { INotYetImpl(_) } |
       (lhs <~ "=") ~ ("try" ~> inst) ^^ { case x ~ i => ITry(x, i) } |
       (lhs <~ "=" <~ "new") ~ ty ~ (props) ^^ {
         case x ~ t ~ props => ISeq(IAlloc(x, t) :: props.map {
@@ -112,6 +112,10 @@ object Parser extends JavaTokenParsers with PackratParsers {
   // expressions
   lazy private val expr: PackratParser[Expr] = {
     floatingPointNumber ^^ { case s => ENum(s.toDouble) } |
+      "Infinity" ^^ { case s => ENum(Double.PositiveInfinity) } |
+      "+Infinity" ^^ { case s => ENum(Double.PositiveInfinity) } |
+      "-Infinity" ^^ { case s => ENum(Double.NegativeInfinity) } |
+      "NaN" ^^ { case s => ENum(Double.NaN) } |
       "i(0|-?[1-9]\\d*)".r ^^ { case s => EINum(s.substring(1, s.length).toLong) } |
       stringLiteral ^^ { case s => EStr(s.substring(1, s.length - 1)) } |
       "true" ^^^ EBool(true) |
@@ -157,6 +161,8 @@ object Parser extends JavaTokenParsers with PackratParsers {
       "/" ^^^ ODiv |
       "%" ^^^ OMod |
       "=" ^^^ OEq |
+      "&&" ^^^ OAnd |
+      "||" ^^^ OOr |
       "&" ^^^ OBAnd |
       "|" ^^^ OBOr |
       "^" ^^^ OBXOr |

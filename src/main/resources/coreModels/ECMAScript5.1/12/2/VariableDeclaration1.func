@@ -1,0 +1,5 @@
+(this) => {
+  let Identifier = this.Identifier
+  // Return a String value containing the same sequence of characters as in the Identifier.
+  return Identifier
+}

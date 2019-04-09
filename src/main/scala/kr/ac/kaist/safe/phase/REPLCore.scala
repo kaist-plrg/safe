@@ -17,17 +17,16 @@ import kr.ac.kaist.safe.{ LINE_SEP, SafeConfig }
 import scala.util.{ Try, Success }
 
 // REPLCore phase
-case object REPLCore extends PhaseObj[Unit, REPLCoreConfig, Unit] {
+case object REPLCore extends PhaseObj[State, REPLCoreConfig, Unit] {
   val name = "core-repl"
   val help = "REPL for Core syntax."
 
   def apply(
-    unit: Unit,
+    st: State,
     safeConfig: SafeConfig,
     config: REPLCoreConfig
   ): Try[Unit] = {
-    val pgm = Parser.filesToProgram(safeConfig.fileNames)
-    REPL.run(ECMAScript5, pgm, config.detail)
+    REPL.run(st, config.detail)
     Success(())
   }
 

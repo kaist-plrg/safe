@@ -91,6 +91,9 @@ case object CmdEval extends CommandObj("eval", CmdLoad >> EvalCore) {
   override def display(st: core.State): Unit = println(core.beautify(st))
 }
 
+// repl
+case object CmdREPL extends CommandObj("repl", CmdLoad >> REPLCore)
+
 // parse-core
 case object CmdParseCore extends CommandObj("parse-core", CmdBase >> ParseCore) {
   override def display(pgm: core.Program): Unit = println(core.beautify(pgm))
@@ -170,4 +173,4 @@ case object CmdHelp extends CommandObj("help", CmdBase >> Help)
 case object CmdWeb extends CommandObj("web", CmdBase >> Web)
 
 // repl for core
-case object CmdREPLCore extends CommandObj("repl-core", CmdBase >> REPLCore)
+case object CmdREPLCore extends CommandObj("repl-core", CmdLoadCore >> REPLCore)

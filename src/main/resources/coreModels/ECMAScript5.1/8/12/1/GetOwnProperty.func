@@ -1,0 +1,28 @@
+(O, P) => {
+  // 1. If O doesn’t have an own property with name P, return undefined.
+  if (! (? O[P])) return undefined
+  // 2. Let D be a newly created Property Descriptor with no fields.
+  let D = new PropertyDescriptor
+  // 3. Let X be O’s own property named P.
+  let X = O[P]
+  // 4. If X is a data property, then
+  if (? X.Value) {
+    // a. Set D.[[Value]] to the value of X’s [[Value]] attribute.
+    D.Value = X.Value
+    // b. Set D.[[Writable]] to the value of X’s [[Writable]] attribute
+    D.Writable = X.Writable
+  }
+  // 5. Else X is an accessor property, so
+  else {
+    // a. Set D.[[Get]] to the value of X’s [[Get]] attribute.
+    D.Get = X.Get
+    // b. Set D.[[Set]] to the value of X’s [[Set]] attribute.
+    D.Set = X.Get
+  }
+  // 6. Set D.[[Enumerable]] to the value of X’s [[Enumerable]] attribute.
+  D.Enumerable = X.Enumerable
+  // 7. Set D.[[Configurable]] to the value of X’s [[Configurable]] attribute.
+  D.Configurable = X.Configurable
+  // 8. Return D.
+  return D
+}

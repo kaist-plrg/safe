@@ -1,0 +1,28 @@
+(x, y) => {
+  // 1. If Type(x) is different from Type(y), return false.
+  if (! (= (typeof x) (typeof y))) return false
+  // 2. If Type(x) is Undefined, return true.
+  if (= (typeof x) "Undefined") return true
+  // 3. If Type(x) is Null, return true.
+  if (= (typeof x) "Null") return true
+  // 4. If Type(x) is Number, then.
+  if (= (typeof x) "Number") {
+    // a. If x is NaN and y is NaN, return true.
+    if (& (= x NaN) (= y NaN)) return true
+    // b. If x is +0 and y is -0, return false.
+    if (& (= x 0) (= y -0)) return false
+    // c. If x is -0 and y is +0, return false.
+    if (& (= x -0) (= y 0)) return false
+    // d. If x is the same Number value as y, return true.
+    if (= x y) return true
+    // e. Return false.
+    return false
+  }
+  // 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters (same length and same characters in corresponding positions); otherwise, return false.
+  if (= (typeof x) "String") return (= x y)
+  // 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false.
+  if (= (typeof x) "Boolean") return (= x y)
+  // 7. Return true if x and y refer to the same object. Otherwise, return false.
+  if (= x y) return true
+  else return false
+}

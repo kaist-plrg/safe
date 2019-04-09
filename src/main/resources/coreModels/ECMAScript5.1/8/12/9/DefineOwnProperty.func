@@ -1,0 +1,116 @@
+(O, P, Desc, Throw) => {
+  // 1. Let current be the result of calling the [[GetOwnProperty]] internal method of O with property name P.
+  let current = O.GetOwnProperty(O, P)
+  // 2. Let extensible be the value of the [[Extensible]] internal property of O.
+  let extensible = O.Extensible
+  // 3. If current is undefined and extensible is false, then Reject.
+  if (&& (= current undefined) (= extensible false)) {
+    let x = Reject(Throw)
+    return x
+  }
+  // 4. If current is undefined and extensible is true, then
+  if (&& (= current undefined) (= extensible true)) {
+    // a. If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then
+    let x1 = IsGenericDescriptor(Desc)
+    let x2 = IsDataDescriptor(Desc)
+    if (|| (= x1 true) (= x2 true)) {
+      // i. Create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value.
+      let property = new DataProperty {
+        Value: undefined,
+        Writable: false,
+        Enumerable: false,
+        Configurable: false
+      }
+      if (? Desc.Value) property.Value = Desc.Value
+      if (? Desc.Writable) property.Writable = Desc.Writable
+      if (? Desc.Enumerable) property.Enumerable = Desc.Enumerable
+      if (? Desc.Configurable) property.Configurable = Desc.Configurable
+      O[P] = property
+    }
+    // b. Else, Desc must be an accessor Property Descriptor so,
+    else {
+      ??? "8.12.9"
+      // i. Create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value.
+    }
+    // c. Return true.
+    return true
+  }
+  // 5. Return true, if every field in Desc is absent.
+  let x = IsEmptyDescriptor(Desc)
+  if (= x true) return true
+  // 6. Return true, if every field in Desc also occurs in current and the value of every field in Desc is the same value as the corresponding field in current when compared using the SameValue algorithm (9.12).
+  let x = IsSubsetDescriptor(Desc, current)
+  if (= x true) return true
+  // 7. If the [[Configurable]] field of current is false then
+  if (= current.Configurable false) {
+    // a. Reject, if the [[Configurable]] field of Desc is true.
+    if (? Desc.Configurable) if (= Desc.Configurable true) let _ = Reject(Throw)
+    // b. Reject, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other.
+    if (? Desc.Enumerable) if (= (! Desc.Enumerable) current.Enumerable) let _ = Reject(Throw)
+  }
+  // 8. If IsGenericDescriptor(Desc) is true, then no further validation is required.
+  let x = IsGenericDescriptor(Desc)
+  if x ??? "8.12.9"
+  // 9. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then
+  else {
+    let x1 = IsDataDescriptor(current)
+    let x2 = IsDataDescriptor(Desc)
+    if (! (= x1 x2)) {
+      // a. Reject, if the [[Configurable]] field of current is false.
+      if (= current.Configurable false) let _ = Reject(Throw)
+      // b. If IsDataDescriptor(current) is true, then
+      let x = IsDataDescriptor(current)
+      if x {
+        // i. Convert the property named P of object O from a data property to an accessor property. Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values.
+        ??? "8.12.9"
+      }
+      // c. Else,
+      else {
+        // i. Convert the property named P of object O from an accessor property to a data property. Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values.
+        ??? "8.12.9"
+      }
+    }
+    // 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then
+    else {
+      let x1 = IsDataDescriptor(current)
+      let x2 = IsDataDescriptor(Desc)
+      if x1 if x2 {
+        // a. If the [[Configurable]] field of current is false, then
+        if (= current.Configurable false) {
+          // i. Reject, if the [[Writable]] field of current is false and the [[Writable]] field of Desc is true.
+          if (= current.Writable false) if (? Desc.Writable) if (= Desc.Writable true) let _ = Reject(Throw)
+          // ii. If the [[Writable]] field of current is false, then
+          if (= current.Writable false) {
+            // 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false.
+            if (? Desc.Value) {
+              let x = SameValue(Desc.Value, current.Value)
+              if (= x false) let _ = Reject(Throw)
+            }
+          }
+        }
+        // b. else, the [[Configurable]] field of current is true, so any change is acceptable.
+        else {}
+      }
+      // 11. Else, IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true so,
+      else {
+        let x1 = IsAccessorDescriptor(current)
+        let x2 = IsAccessorDescriptor(Desc)
+        if x1 if x2 {
+          ??? "8.12.9"
+          // a. If the [[Configurable]] field of current is false, then
+          // i. Reject, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false.
+          // ii. Reject, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false.
+        }
+      }
+      // 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the property named P of object O to the value of the field.
+      if (? Desc.Value) O[P].Value = Desc.Value
+      if (? Desc.Set) O[P].Set = Desc.Set
+      if (? Desc.Get) O[P].Get = Desc.Get
+      if (? Desc.Writable) O[P].Writable = Desc.Writable
+      if (? Desc.Enumerable) O[P].Enumerable = Desc.Enumerable
+      if (? Desc.Configurable) O[P].Configurable = Desc.Configurable
+      // 13. Return true.
+      return true
+    }
+  }
+}

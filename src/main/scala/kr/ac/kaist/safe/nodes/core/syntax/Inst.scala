@@ -25,4 +25,4 @@ case class IThrow(expr: Expr) extends Inst
 case class ISeq(insts: List[Inst]) extends Inst
 case class IAssert(expr: Expr) extends Inst
 case class IPrint(expr: Expr) extends Inst
-case object INotYetImpl extends Inst
+case class INotYetImpl(msg: String) extends Inst

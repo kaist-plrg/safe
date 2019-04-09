@@ -20,6 +20,8 @@ case object ODiv extends BOp
 case object OMod extends BOp
 case object OLt extends BOp
 case object OEq extends BOp
+case object OAnd extends BOp
+case object OOr extends BOp
 case object OBAnd extends BOp
 case object OBOr extends BOp
 case object OBXOr extends BOp

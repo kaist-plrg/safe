@@ -1,0 +1,4 @@
+(Throw) => {
+  if (= Throw true) throw "TypeError"
+  else return false
+}

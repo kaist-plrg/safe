@@ -1,0 +1,19 @@
+(envRec, N, D) => {
+  // 1. Let envRec be the object environment record for which the method was invoked.
+
+  // 2. Let bindings be the binding object for envRec.
+  let bindings = envRec.BindingObject
+  // 3. Assert: The result of calling the [[HasProperty]] internal method of bindings, passing N as the property name, is false.
+  let x = bindings.HasProperty(bindings, N)
+  assert (= x false)
+  // 4. If D is true then let configValue be true otherwise let configValue be false.
+  if (= D true) let configValue = true else let configValue = false
+  // 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue}, and true as arguments.
+  let desc = new PropertyDescriptor {
+    Value: undefined,
+    Writable: true,
+    Enumerable: true,
+    Configurable: configValue
+  }
+  let _ = bindings.DefineOwnProperty(bindings, N, desc, true)
+}

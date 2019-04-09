@@ -1,0 +1,4 @@
+(V) => {
+  if (= V.BaseValue undefined) return true
+  else return false
+}

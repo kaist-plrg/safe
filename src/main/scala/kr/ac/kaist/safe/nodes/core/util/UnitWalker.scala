@@ -87,7 +87,7 @@ trait UnitWalker {
       walk(expr)
     case IPrint(expr) =>
       walk(expr)
-    case INotYetImpl =>
+    case INotYetImpl(msg) =>
   }
 
   // expressions

@@ -91,9 +91,12 @@ object Interp {
         case v => error(s"not a boolean: $v")
       }
       case IPrint(expr) =>
-        println(interp(expr)(st))
+        interp(expr)(st) match {
+          case addr: Addr => println(beautify(st.heap(addr)))
+          case v => println(beautify(v))
+        }
         st
-      case INotYetImpl => error("[NotYetImpl]")
+      case INotYetImpl(msg) => error(s"[NotYetImpl] $msg")
     }
   }
 
@@ -152,6 +155,7 @@ object Interp {
       st(prop) match {
         case addr: Addr => interp(expr)(st) match {
           case Str(str) => PropStr(addr, str)
+          case INum(long) => PropStr(addr, long.toString)
           case v => error(s"not a string: $v")
         }
         case v => error(s"not an address: $v")
@@ -200,6 +204,10 @@ object Interp {
     case (OLShift, INum(l), INum(r)) => INum(l << r)
     case (OSRShift, INum(l), INum(r)) => INum(l >> r)
     case (OURShift, INum(l), INum(r)) => INum(l >>> r)
+
+    // logical operations
+    case (OAnd, Bool(l), Bool(r)) => Bool(l && r)
+    case (OOr, Bool(l), Bool(r)) => Bool(l || r)
 
     // equality operations
     case (OEq, l, r) => Bool(l == r)

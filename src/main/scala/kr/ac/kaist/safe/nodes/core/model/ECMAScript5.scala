@@ -21,7 +21,11 @@ object ECMAScript5 extends Model {
   val GlobalObject = NamedAddr("GlobalObject")
 
   // environment
-  val globals: Map[Id, Value] = GlobalLoader(RESRC_DIR + SEP + "coreModels" + SEP + "ECMAScript5.1") + (Id("ExecutionContext") -> ExecutionContext)
+  lazy val globals: Map[Id, Value] = GlobalLoader(RESRC_DIR + SEP + "coreModels" + SEP + "ECMAScript5.1") + (
+    Id("ExecutionContext") -> ExecutionContext,
+    Id("GlobalEnvironment") -> GlobalEnvironment,
+    Id("GlobalObject") -> GlobalObject
+  )
 
   // create new object
   def newObj(typeName: String)(seq: (String, Value)*): Obj = Obj(
@@ -31,16 +35,28 @@ object ECMAScript5 extends Model {
   )
 
   // heap
-  val heap: Heap = Heap(Map(
+  lazy val heap: Heap = Heap(Map(
     ExecutionContext -> newObj("ExecutionContext")(),
     GlobalEnvironment -> newObj("LexicalEnvironment")(
       "EnvironmentRecord" -> GlobalObjectEnvironmentRecord,
       "OuterEnvironmentReference" -> Null
     ),
     GlobalObjectEnvironmentRecord -> newObj("ObjectEnvironmentRecord")(
-      "BindingObject" -> GlobalObject
+      "BindingObject" -> GlobalObject,
+      "HasBinding" -> globals(Id("ObjectEnvironmentRecordHasBinding")),
+      "CreateMutableBinding" -> globals(Id("ObjectEnvironmentRecordCreateMutableBinding")),
+      "SetMutableBinding" -> globals(Id("ObjectEnvironmentRecordSetMutableBinding"))
     ),
-    GlobalObject -> newObj("Object")()
+    GlobalObject -> newObj("Object")(
+      "Put" -> globals(Id("Put")),
+      "CanPut" -> globals(Id("CanPut")),
+      "HasProperty" -> globals(Id("HasProperty")),
+      "GetProperty" -> globals(Id("GetProperty")),
+      "GetOwnProperty" -> globals(Id("GetOwnProperty")),
+      "DefineOwnProperty" -> globals(Id("DefineOwnProperty")),
+      "Extensible" -> Bool(true),
+      "Prototype" -> Null
+    )
   ), size = 0)
 
   // XXX test262 modeling

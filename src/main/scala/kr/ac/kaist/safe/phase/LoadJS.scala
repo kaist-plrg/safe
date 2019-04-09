@@ -13,7 +13,7 @@ package kr.ac.kaist.safe.phase
 
 import scala.util.{ Try, Success }
 import kr.ac.kaist.safe.SafeConfig
-import kr.ac.kaist.safe.compiler.{ JSLoader, DeclCollector }
+import kr.ac.kaist.safe.compiler.JSLoader
 import kr.ac.kaist.safe.nodes.ast
 import kr.ac.kaist.safe.nodes.core
 import kr.ac.kaist.safe.util._
@@ -24,13 +24,10 @@ case object LoadJS extends PhaseObj[ast.Program, LoadJSConfig, core.State] {
   val help: String = "Load JavaScript program into Core State"
 
   def apply(
-    pgm: ast.Program,
+    program: ast.Program,
     safeConfig: SafeConfig,
     config: LoadJSConfig
   ): Try[core.State] = {
-    // Collect declarations
-    val program = (new DeclCollector).walk(pgm)
-
     // AST -> State.
     val loader = new JSLoader(program, core.ECMAScript5)
     val st = loader.result

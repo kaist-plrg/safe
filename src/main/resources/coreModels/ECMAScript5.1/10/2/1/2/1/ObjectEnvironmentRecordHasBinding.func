@@ -1,0 +1,9 @@
+(envRec, N) => {
+  // 1. Let envRec be the object environment record for which the method was invoked.
+
+  // 2. Let bindings be the binding object for envRec.
+  let bindings = envRec.BindingObject
+  // 3. Return the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name.
+  let x = bindings.HasProperty(bindings, N)
+  return x
+}

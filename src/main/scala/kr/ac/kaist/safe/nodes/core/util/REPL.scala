@@ -25,7 +25,7 @@ import scala.util.{ Try, Success, Failure }
 
 // REPL
 object REPL {
-  def run(model: Model, pgm: Program, detail: Boolean): Unit = {
+  def run(initial: State, detail: Boolean): Unit = {
     val cyan = "\u001b[36m"
     val reset = "\u001b[0m"
     val builder: TerminalBuilder = TerminalBuilder.builder()
@@ -48,7 +48,6 @@ object REPL {
       .completer(completer)
       .build()
     val writer = terminal.writer()
-    var st = model.getInitial(pgm)
 
     def clear: Unit = {
       print("\u001b[2J\u001b[1;1H")
@@ -58,15 +57,16 @@ object REPL {
       System.console().reader().read
     }
 
-    def pre: String = "State: " + beautify(st, detail = detail)
+    var st: State = initial
+    def pre: String = "Instruction: " + st.insts.map(inst => LINE_SEP + "  " + beautify(inst, detail = detail)).mkString
     def prompt: String = pre + LINE_SEP + s"${cyan}core>${reset} "
     def fixMsg: String = pre + LINE_SEP + "Please press the enter key..."
 
     def fixpoint: Unit = {
       st.insts match {
         case inst :: rest =>
-          clear
-          stopMessage(fixMsg)
+          // clear
+          // stopMessage(fixMsg)
           st = interp(inst)(st.copy(insts = rest))
           fixpoint
         case Nil =>
@@ -76,7 +76,7 @@ object REPL {
     var keep: Boolean = true
     while (keep) {
       // clear screen
-      terminal.puts(Capability.clear_screen)
+      // terminal.puts(Capability.clear_screen)
 
       // fixpoint
       fixpoint

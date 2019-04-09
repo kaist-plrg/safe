@@ -1,0 +1,5 @@
+(V) => {
+  if (= (typeof V.BaseValue) "Boolean") return true
+  if (= (typeof V.BaseValue) "String") return true
+  if (= (typeof V.BaseValue) "Number") return true
+}

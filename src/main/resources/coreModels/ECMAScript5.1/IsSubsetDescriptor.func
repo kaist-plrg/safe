@@ -1,0 +1,33 @@
+(left, right) => {
+  if (? left.Value) {
+    if (! (? right.Value)) return false
+    let x = SameValue(left.Value, right.Value)
+    if (= x false) return false
+  }
+  if (? left.Set) {
+    if (! (? right.Set)) return false
+    let x = SameSet(left.Set, right.Set)
+    if (= x false) return false
+  }
+  if (? left.Get) {
+    if (! (? right.Get)) return false
+    let x = SameGet(left.Get, right.Get)
+    if (= x false) return false
+  }
+  if (? left.Writable) {
+    if (! (? right.Writable)) return false
+    let x = SameWritable(left.Writable, right.Writable)
+    if (= x false) return false
+  }
+  if (? left.Enumerable) {
+    if (! (? right.Enumerable)) return false
+    let x = SameEnumerable(left.Enumerable, right.Enumerable)
+    if (= x false) return false
+  }
+  if (? left.Configurable) {
+    if (! (? right.Configurable)) return false
+    let x = SameConfigurable(left.Configurable, right.Configurable)
+    if (= x false) return false
+  }
+  return true
+}

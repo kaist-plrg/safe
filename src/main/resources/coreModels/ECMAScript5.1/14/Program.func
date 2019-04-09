@@ -1,3 +1,18 @@
 (this) => {
-  ???
+  let SourceElements = this.SourceElements
+  // The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code. Otherwise SourceElements is evaluated in the following steps as non-strict mode code.
+
+  // 2. If SourceElements is not present, return (normal, empty, empty).
+  if (= SourceElements.list.length 0) {
+    let x = Completion("normal", "empty", "empty")
+    return x
+  }
+  // 3. Let progCxt be a new execution context for global code as described in 10.4.1.
+  let progCxt = EnteringGlobalCode(this)
+  // 4. Let result be the result of evaluating SourceElements.
+  let result = SourceElements.eval(SourceElements)
+  // 5. Exit the execution context progCxt.
+
+  // 6. Return result.
+  return result
 }

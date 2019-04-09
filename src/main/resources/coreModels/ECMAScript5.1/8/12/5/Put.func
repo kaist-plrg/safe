@@ -1,0 +1,33 @@
+(O, P, V, Throw) => {
+  // 1. If the result of calling the [[CanPut]] internal method of O with argument P is false, then
+  let x = O.CanPut(O, P)
+  if (= x false) {
+    // a. If Throw is true, then throw a TypeError exception.
+    if (= Throw true) throw "TypeError"
+    // b. Else return.
+    else return undefined
+  }
+  // 2. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P.
+  let ownDesc = O.GetOwnProperty(O, P)
+  // 3. If IsDataDescriptor(ownDesc) is true, then
+  let x = IsDataDescriptor(ownDesc)
+  if (= x true) {
+    // a. Let valueDesc be the Property Descriptor {[[Value]]: V}.
+    let valueDesc = new PropertyDescriptor {
+      Value: V
+    }
+    // b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments.
+    let _ = O.DefineOwnProperty(O, P, valueDesc, Throw)
+    // c. Return.
+    return undefined
+  }
+  ??? "8.12.5"
+  // 4. Let desc be the result of calling the [[GetProperty]] internal method of O with argument P. This may be either an own or inherited accessor property descriptor or an inherited data property descriptor.
+  // 5. If IsAccessorDescriptor(desc) is true, then
+  // a. Let setter be desc.[[Set]] which cannot be undefined.
+  // b. Call the [[Call]] internal method of setter providing O as the this value and providing V as the sole argument.
+  // 6. Else, create a named data property named P on object O as follows
+  // a. Let newDesc be the Property Descriptor {[[Value]]: V, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}.
+  // b. Call the [[DefineOwnProperty]] internal method of O passing P, newDesc, and Throw as arguments.
+  // 7. Return.
+}

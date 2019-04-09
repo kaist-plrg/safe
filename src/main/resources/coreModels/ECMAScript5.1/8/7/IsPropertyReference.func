@@ -1,0 +1,5 @@
+(V) => {
+  let x = HasPrimitiveBase(V)
+  if (|| (= (typeof V.BaseValue) "Object") (= x true)) return true
+  else return false
+}

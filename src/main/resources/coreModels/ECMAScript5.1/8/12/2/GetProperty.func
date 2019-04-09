@@ -1,0 +1,13 @@
+(O, P) => {
+  // 1. Let prop be the result of calling the [[GetOwnProperty]] internal method of O with property name P.
+  let prop = O.GetOwnProperty(O, P)
+  // 2. If prop is not undefined, return prop.
+  if (= prop undefined) return prop
+  // 3. Let proto be the value of the [[Prototype]] internal property of O.
+  let proto = O.Prototype
+  // 4. If proto is null, return undefined.
+  if (= proto null) return undefined
+  // 5. Return the result of calling the [[GetProperty]] internal method of proto with argument P.
+  let x = proto.GetProperty(proto, P)
+  return x
+}

@@ -45,10 +45,12 @@ case class State(
     case PropId(addr, id) =>
       updated(addr, id, value)
     case PropStr(addr, str) =>
-      copy(heap = heap.updated(addr, str, value))
+      updated(addr, str, value)
   }
   def updated(addr: Addr, id: Id, value: Value): State =
     copy(heap = heap.updated(addr, id, value))
+  def updated(addr: Addr, str: String, value: Value): State =
+    copy(heap = heap.updated(addr, str, value))
 
   // deletes
   def deleted(prop: Prop): State = prop match {

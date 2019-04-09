@@ -1,0 +1,27 @@
+(O, P) => {
+  // 1. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with argument P.
+  let desc = O.GetOwnProperty(O, P)
+  // 2. If desc is not undefined, then
+  if (! (= desc undefined)) {
+    // a. If IsAccessorDescriptor(desc) is true, then
+    let x = IsAccessorDescriptor(desc)
+    if (= x true) {
+      ??? "8.12.4"
+      // i. If desc.[[Set]] is undefined, then return false.
+      // ii. Else return true.
+    }
+    // b. Else, desc must be a DataDescriptor so return the value of desc.[[Writable]].
+    else return desc.Writable
+  }
+  ??? "8.12.4"
+  // 3. Let proto be the [[Prototype]] internal property of O.
+  // 4. If proto is null, then return the value of the [[Extensible]] internal property of O.
+  // 5. Let inherited be the result of calling the [[GetProperty]] internal method of proto with property name P.
+  // 6. If inherited is undefined, return the value of the [[Extensible]] internal property of O.
+  // 7. If IsAccessorDescriptor(inherited) is true, then
+  // a. If inherited.[[Set]] is undefined, then return false.
+  // b. Else return true.
+  // 8. Else, inherited must be a DataDescriptor
+  // a. If the [[Extensible]] internal property of O is false, return false.
+  // b. Else return the value of inherited.[[Writable]].
+}

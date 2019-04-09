@@ -132,7 +132,8 @@ object Beautifier {
         walk("assert "); walk(expr)
       case IPrint(expr) =>
         walk("print "); walk(expr)
-      case INotYetImpl => walk("???")
+      case INotYetImpl(msg) =>
+        walk("??? "); walk(msg)
     }
 
     // expressions
@@ -194,6 +195,8 @@ object Beautifier {
       case ODiv => "/"
       case OMod => "%"
       case OEq => "="
+      case OAnd => "&&"
+      case OOr => "||"
       case OBAnd => "&"
       case OBOr => "|"
       case OBXOr => "^"

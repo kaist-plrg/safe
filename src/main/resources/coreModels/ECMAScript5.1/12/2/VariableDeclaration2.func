@@ -1,0 +1,14 @@
+(this) => {
+  let Identifier = this.Identifier
+  let Initialiser = this.Initialiser
+  // 1. Let lhs be the result of evaluating Identifier as described in 11.1.2.
+  let lhs = IdentifierReference(Identifier)
+  // 2. Let rhs be the result of evaluating Initialiser.
+  let rhs = Initialiser.eval(Initialiser)
+  // 3. Let value be GetValue(rhs).
+  let value = GetValue(rhs)
+  // 4. Call PutValue(lhs, value).
+  let _ = PutValue(lhs, value)
+  // 5. Return a String value containing the same sequence of characters as in the Identifier.
+  return Identifier
+}

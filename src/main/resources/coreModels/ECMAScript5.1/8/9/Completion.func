@@ -1,0 +1,8 @@
+(type, value, target) => {
+  let node = new Completion {
+    type: type,
+    value: value,
+    target: target
+  }
+  return node
+}

@@ -1,0 +1,10 @@
+(Desc) => {
+  // 1. If Desc is undefined, then return false.
+  if (= Desc undefined) return false
+  // 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true.
+  let x1 = IsAccessorDescriptor(Desc)
+  let x2 = IsDataDescriptor(Desc)
+  if (&& (= x1 false) (= x2 false)) return true
+  // 3. Return false.
+  return false
+}

@@ -1,0 +1,8 @@
+(envRec, N, V, S) => {
+  // 1. Let envRec be the object environment record for which the method was invoked.
+
+  // 2. Let bindings be the binding object for envRec.
+  let bindings = envRec.BindingObject
+  // 3. Call the [[Put]] internal method of bindings with arguments N, V, and S.
+  let _ = bindings.Put(bindings, N, V, S)
+}

@@ -1,0 +1,10 @@
+(Identifier) => {
+  // 1. Let env be the running execution context’s LexicalEnvironment.
+  let env = ExecutionContext.LexicalEnvironment
+  // 2. If the syntactic production that is being evaluated is contained in a strict mode code, then let strict be true, else let strict be false.
+  // TODO strict를 global하게 들고 다닌는 방법 생각해보기
+  let strict = false
+  // 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
+  let x = GetIdentifierReference(env, Identifier, strict)
+  return x
+}

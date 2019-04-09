@@ -1,0 +1,33 @@
+(lex, name, strict) => {
+  // 1. If lex is the value null, then
+  if (= lex null) {
+    // a. Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict mode flag is strict.
+    let x = new Reference {
+      BaseValue: undefined,
+      ReferencedName: name,
+      StrictReference: strict
+    }
+    return x
+  }
+  // 2. Let envRec be lex’s environment record.
+  let envRec = lex.EnvironmentRecord
+  // 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N.
+  let exists = envRec.HasBinding(envRec, name)
+  // 4. If exists is true, then
+  if (= exists true) {
+    // a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict.
+    let x = new Reference {
+      BaseValue: envRec,
+      ReferencedName: name,
+      StrictModeFlag: strict
+    }
+  }
+  // 5. Else
+  else {
+    // a. Let outer be the value of lex’s outer environment reference.
+    let outer = lex.OuterEnvironmentReference
+    // b. Return the result of calling GetIdentifierReference passing outer, name, and strict as arguments.
+    let x = GetIdentifierReference(outer, name, strict)
+    return x
+  }
+}

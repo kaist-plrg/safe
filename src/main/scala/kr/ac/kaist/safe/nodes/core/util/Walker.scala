@@ -75,7 +75,7 @@ trait Walker {
     case ISeq(insts) => ISeq(walkList[Inst](insts, walk))
     case IAssert(expr) => IAssert(walk(expr))
     case IPrint(expr) => IPrint(walk(expr))
-    case INotYetImpl => INotYetImpl
+    case INotYetImpl(msg) => INotYetImpl(msg)
   }
 
   // expressions

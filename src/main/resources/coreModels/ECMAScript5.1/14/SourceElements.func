@@ -1,3 +1,25 @@
 (this) => {
-  ???
+  let list = this.list
+  let i = i1
+  let result = list[i0].eval(list[i0])
+  while (< i list.length) {
+    // 1. Let headResult be the result of evaluating SourceElements.
+    let headResult = result
+    // 2. If headResult is an abrupt completion, return headResult.
+    if (! (= headResult.type "normal")) result = headResult
+    else {
+      // 3. Let tailResult be result of evaluating SourceElement.
+      let tailResult = list[i].eval(list[i])
+      // 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value.
+      if (= tailResult.value "empty") let V = headResult.value else let V = tailResult.value
+      // 5. Return (tailResult.type, V, tailResult.target)
+      result = new Completion {
+        type: tailResult.type,
+        value: V,
+        target: tailResult.target
+      }
+    }
+    i = (+ i i1)
+  }
+  return result
 }

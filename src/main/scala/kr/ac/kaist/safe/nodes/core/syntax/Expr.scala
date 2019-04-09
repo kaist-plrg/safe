@@ -13,7 +13,12 @@ package kr.ac.kaist.safe.nodes.core
 
 // CORE Expressions
 sealed trait Expr extends CoreNode
-case class ENum(n: Double) extends Expr
+case class ENum(n: Double) extends Expr {
+  override def equals(that: Any): Boolean = that match {
+    case that: ENum => doubleEquals(this.n, that.n)
+    case _ => false
+  }
+}
 case class EINum(n: Long) extends Expr
 case class EStr(str: String) extends Expr
 case class EBool(b: Boolean) extends Expr

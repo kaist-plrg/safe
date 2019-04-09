@@ -1,0 +1,8 @@
+(Desc) => {
+  // 1. If Desc is undefined, then return false.
+  if (= Desc undefined) return false
+  // 2. If both Desc.[[Get]] and Desc.[[Set]] are absent, then return false.
+  if (&& (! (? Desc.Get)) (! (? Desc.Set))) return false
+  // 3. Return true.
+  return true
+}

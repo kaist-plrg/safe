@@ -1,0 +1,41 @@
+(V, W) => {
+  // 1. If Type(V) is not Reference, throw a ReferenceError exception.
+  if (! (= (typeof V) "Reference")) throw "ReferenceError"
+  // 2. Let base be the result of calling GetBase(V).
+  let base = GetBase(V)
+  // 3. If IsUnresolvableReference(V), then
+  let x = IsUnresolvableReference(V)
+  if x {
+    // a. If IsStrictReference(V) is true, then
+    let x = IsStrictReference(V)
+    if x {
+      // i. Throw ReferenceError exception.
+      throw "ReferenceError"
+    }
+    // b. Call the [[Put]] internal method of the global object, passing GetReferencedName(V) for the property name, W for the value, and false for the Throw flag.
+    let x1 = GetReferencedName(V)
+    let _ = GlobalObject.Put(GlobalObject, x1, W, false)
+  }
+  // 4. Else if IsPropertyReference(V), then
+  else {
+    let x = IsPropertyReference(V) // XXX 이름 때문에 순서가 이상해졌음
+    if x {
+      // a. If HasPrimitiveBase(V) is false, then let put be the [[Put]] internal method of base, otherwise let put be the special [[Put]] internal method defined below.
+      let x = HasPrimitiveBase(V)
+      if (= x false) let put = base.Put else ??? "8.7.2"
+      // b. Call the put internal method using base as its this value, and passing GetReferencedName(V) for the property name, W for the value, and IsStrictReference(V) for the Throw flag.
+      let x1 = GetReferencedName(V)
+      let x2 = IsStrictReference(V)
+      let _ = put(base, x1, W, x2)
+    }
+    // 5. Else base must be a reference whose base is an environment record. So,
+    else {
+      // a. Call the SetMutableBinding (10.2.1) concrete method of base, passing GetReferencedName(V), W, and IsStrictReference(V) as arguments.
+      let x1 = GetReferencedName(V)
+      let x2 = IsStrictReference(V)
+      let _ = base.SetMutableBinding(base, x1, W, x2)
+    }
+  }
+  // 6. Return.
+  return undefined
+}

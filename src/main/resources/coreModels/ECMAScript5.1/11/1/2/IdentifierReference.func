@@ -1,0 +1,4 @@
+(Identifier) => {
+  let x = IdentifierResolution(Identifier)
+  return x
+}
