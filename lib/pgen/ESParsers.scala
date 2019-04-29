@@ -105,13 +105,13 @@ trait ESParsers extends RegexParsers {
 
   case class NodeParser[+T](parser: FirstTerms => Parser[T], first: FirstTerms) {
     def ~[U](that: => NodeParser[U]): NodeParser[~[T, U]] =
-      NodeParser(first => this.parser(that.first ~ first) ~ that.parser(first), (if (this eq MATCH) that else this).first)
+      NodeParser(first => this.parser(that.first ~ first) ~ that.parser(first), this.first ~ that.first)
 
     def ~>[U](that: => NodeParser[U]): NodeParser[U] =
-      NodeParser(first => this.parser(that.first ~ first) ~> that.parser(first), (if (this eq MATCH) that else this).first)
+      NodeParser(first => this.parser(that.first ~ first) ~> that.parser(first), this.first ~ that.first)
 
     def <~[U](that: => NodeParser[U]): NodeParser[T] =
-      NodeParser(first => this.parser(that.first ~ first) <~ that.parser(first), (if (this eq MATCH) that else this).first)
+      NodeParser(first => this.parser(that.first ~ first) <~ that.parser(first), this.first ~ that.first)
 
     def |[U >: T](that: NodeParser[U]): NodeParser[U] =
       if (that eq MISMATCH) this
@@ -185,5 +185,22 @@ trait ESParsers extends RegexParsers {
   private def stop(msg: String): String = {
     println(msg)
     scala.io.StdIn.readLine
+  }
+
+  type P0[T] = NodeParser[T]
+  type P1[T] = (Boolean) => NodeParser[T]
+  type P2[T] = ((Boolean, Boolean)) => NodeParser[T]
+  type P3[T] = ((Boolean, Boolean, Boolean)) => NodeParser[T]
+  type R0[T] = NodeParser[T => T] 
+  type R1[T] = (Boolean) => NodeParser[T => T]
+  type R2[T] = ((Boolean, Boolean)) => NodeParser[T => T]
+  type R3[T] = ((Boolean, Boolean, Boolean)) => NodeParser[T => T]
+  protected def memo[K, V](f: K => V): K => V = {
+    val cache = collection.mutable.Map.empty[K, V]
+    k => cache.getOrElse(k, {
+      val v = f(k)
+      cache.update(k, v)
+      v
+    })
   }
 }
