@@ -21,6 +21,7 @@ import kr.ac.kaist.safe.nodes.cfg._
 import kr.ac.kaist.safe.util.{ NodeUtil, EJSNumber, EJSString, EJSBool, EJSNull, EJSUndef, AllocSite, Recency, Recent, Old }
 import kr.ac.kaist.safe.LINE_SEP
 import scala.collection.mutable.{ Map => MMap }
+import spray.json._
 
 case class Semantics(
     cfg: CFG,
@@ -770,6 +771,22 @@ case class Semantics(
         val newExcSt = st.raiseException(excSet1 ++ excSet2)
         (st1, excSt ⊔ newExcSt)
       }
+      case (NodeUtil.INTERNAL_IS_NATIVE, List(expr), None) => {
+        val (v, excSet) = V(expr, st)
+        val obj = st.heap.get(v.locset)
+        val fidset = obj(ICall).fidset
+
+        val abool = AbsBool(fidset.foldLeft(Set[Boolean]()) {
+          case (set, fid) => set + (fid < 0)
+        })
+
+        val st1 =
+          if (!v.isBottom) st.varStore(lhs, AbsValue(abool))
+          else AbsState.Bot
+
+        val newExcSt = st.raiseException(excSet)
+        (st1, excSt ⊔ newExcSt)
+      }
       case (NodeUtil.INTERNAL_GET_OWN_PROP_NAMES, List(expr), Some(aNew)) => {
         val h = st.heap
         val arrASite = aNew
@@ -1154,7 +1171,7 @@ case class Semantics(
             val obj = st.heap.get(loc)
             (obj("source").value.getSingle, obj("flags").value.getSingle) match {
               case (ConOne(Str(source)), ConOne(Str(flags))) =>
-                AbsBool(true == engine.eval(s"/$source/$flags.test('$arg');"))
+                AbsBool(true == engine.eval(s"/$source/$flags.test(${JsString(arg).toString});"))
               case _ => AbsBool.Top
             }
           case _ => AbsBool.Top

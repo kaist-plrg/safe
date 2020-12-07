@@ -338,7 +338,11 @@ Heap: {
     "Infinity": <Infinity, F, F, F>,
     "SyntaxError": <#SyntaxError, T, F, T>,
     "<>Global<>true": <true, F, F, F>,
-    "undefined": <undefined, F, F, F>
+    "undefined": <undefined, F, F, F>,
+    "__print__": <#Global.__print__, F, F, F>,
+    "__num_top__": <number, F, F, F>,
+    "__str_top__": <string, F, F, F>,
+    "__bool_top__": <bool, F, F, F>
   },
   #Math.min: {
     [[Class]]: "Function",
@@ -887,6 +891,14 @@ Heap: {
     [[Call]]: fun(4),
     "length": <1.0, F, F, F>
   },
+  #Global.__print__: {
+    [[Class]]: "Function",
+    [[Extensible]]: true,
+    [[Prototype]]: #Function.prototype,
+    [[Scope]]: null,
+    [[Call]]: fun(143),
+    "length": <1.0, F, F, F>
+  },
   #RegExp.prototype.toString: {
     [[Class]]: "Function",
     [[Extensible]]: true,
@@ -1288,7 +1300,8 @@ Function: {
   }
   \\],
   2: [\\
-  function () {
+  function parseInt () {
+    return @NumTop;
   }
   \\],
   3: [\\
@@ -1650,7 +1663,8 @@ Function: {
   32: [\\
   function toString() {
     if (typeof this !== 'function') throw new TypeError();
-    return @StrTop;
+    if (@IsNative(this)) return 'function () { [native code] }';
+    else return @StrTop;
   }
   \\],
   33: [\\
@@ -5107,6 +5121,11 @@ Function: {
   142: [\\
   function ToNumber (v) {
     return @ToNumber(@getLoc('ToPrimitive')(v, 'number'));
+  }
+  \\],
+  143: [\\
+  function __print__ (v) {
+    return @Print(v);
   }
   \\]
 }

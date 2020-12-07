@@ -61,6 +61,7 @@ object NodeUtil {
   val INTERNAL_PRINT = internalAPIName("Print")
   val INTERNAL_NOT_YET_IMPLEMENTED = internalAPIName("NotYetImplemented")
   val INTERNAL_CHAR_CODE = internalAPIName("CharCode")
+  val INTERNAL_IS_NATIVE = internalAPIName("IsNative")
   // 8.6.2 Object Internal Properties and Methods
   val INTERNAL_CLASS = internalAPIName("Class")
   val INTERNAL_PRIM_VAL = internalAPIName("PrimitiveValue")
@@ -172,6 +173,7 @@ object NodeUtil {
     INTERNAL_PRINT,
     INTERNAL_NOT_YET_IMPLEMENTED,
     INTERNAL_CHAR_CODE,
+    INTERNAL_IS_NATIVE,
     INTERNAL_CLASS,
     INTERNAL_PRIM_VAL,
     INTERNAL_PROTO,

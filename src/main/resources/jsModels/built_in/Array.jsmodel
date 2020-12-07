@@ -590,24 +590,14 @@ Function: {
     // modeled using bubble sort (http://en.wikipedia.org/wiki/Bubble_sort)
     var a = @ToObject(this);
     var n = a.length;
-    if (@SameValue(comparefn,undefined)) {
-      comparefn = function (left,right) {
-        if (left < right) {
-          return -1;
-        }else if (left == right) {
-          return 0;
-        }else if (left > right) {
-          return 1;
-        }
-      }
-    }
     do {
       var newn = 0;
       for (var i = 1; i< n; i++) {
-        var result = comparefn(a[i-1],a[i]);
-        // a[i-1] > a[i]
-        if (result === 1) {
-          var temp = a[-1];
+        var check = false;
+        if (@SameValue(comparefn,undefined)) check = a[i-1] > a[i];
+        else check = comparefn(a[i],a[i-1]) < 0;
+        if (check) {
+          var temp = a[i-1];
           a[i-1] = a[i];
           a[i] = temp;
           newn = i;
@@ -657,7 +647,7 @@ Function: {
       k += 1;
     }
     // 10. Let items be an internal List whose elements are, in left to right order, the portion of    the actual argument list starting with item1. The list will be empty if no such items are present.
-    items = new Array();
+    var items = new Array();
     for (var i = 0;i < arguments.length - 2;i++) {
       items[i] = arguments[i+2];
     }
