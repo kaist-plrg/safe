@@ -32,8 +32,7 @@ class ArgParser(cmd: Command, safeConfig: SafeConfig) extends RegexParsers {
   def addRule[PhaseConfig <: Config](
     config: PhaseConfig,
     prefix: String,
-    options: List[PhaseOption[PhaseConfig]]
-  ): Try[Unit] = {
+    options: List[PhaseOption[PhaseConfig]]): Try[Unit] = {
     options.foldRight[Try[Unit]](success) {
       case ((opt, kind, _), res) => res.flatMap {
         case _ => {
@@ -111,8 +110,7 @@ class ArgParser(cmd: Command, safeConfig: SafeConfig) extends RegexParsers {
 
     // Generate a parser.
     val parser: Parser[Try[Unit]] = phrase(json) | ruleList.foldRight(
-      phrase(optError) | phrase(simpleOptError) | phrase(fileName)
-    ) { case (rule, prev) => phrase(rule) | prev }
+      phrase(optError) | phrase(simpleOptError) | phrase(fileName)) { case (rule, prev) => phrase(rule) | prev }
 
     var result = success
 

@@ -44,8 +44,7 @@ object Safe {
   def apply[Result](
     command: CommandObj[Result],
     runner: SafeConfig => Try[Result],
-    config: SafeConfig
-  ): Try[Result] = {
+    config: SafeConfig): Try[Result] = {
     // set the start time.
     val startTime = System.currentTimeMillis
 
@@ -78,8 +77,7 @@ object Safe {
     CmdAnalyze,
     CmdBugDetect,
     CmdHelp,
-    CmdWeb
-  )
+    CmdWeb)
   val cmdMap = commands.foldLeft[Map[String, Command]](Map()) {
     case (map, cmd) => map + (cmd.name -> cmd)
   }
@@ -94,8 +92,7 @@ object Safe {
     Analyze,
     BugDetect,
     Help,
-    Web
-  )
+    Web)
 
   // global options
   val options: List[PhaseOption[SafeConfig]] = List(
@@ -104,8 +101,7 @@ object Safe {
     ("silent", BoolOption(c => c.silent = true),
       "all messages are muted."),
     ("testMode", BoolOption(c => c.testMode = true),
-      "switch on the test mode.")
-  )
+      "switch on the test mode."))
 
   // indentation
   private val INDENT = 15
