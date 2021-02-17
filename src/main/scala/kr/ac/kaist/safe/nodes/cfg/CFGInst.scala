@@ -229,7 +229,7 @@ case class CFGInternalCall(
 // ) extends CFGNormalInst{
 //   override def toString: String = s"[]$model.$fun($arguments)"
 // }
-// 
+//
 // case class CFGAsyncCall(
 //   ir: IRNode,
 //   block: NormalBlock,

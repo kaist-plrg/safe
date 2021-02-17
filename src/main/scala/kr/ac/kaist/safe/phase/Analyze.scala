@@ -91,11 +91,11 @@ case object Analyze extends PhaseObj[(CFG, Semantics, TracePartition, HeapBuildC
 
 // Analyze phase config
 case class AnalyzeConfig(
-  var silent: Boolean = false,
-  var console: Boolean = false,
-  var time: Boolean = false,
-  var timeLog: Boolean = false,
-  var exitDump: Boolean = false,
-  var outFile: Option[String] = None,
-  var htmlName: Option[String] = None
+    var silent: Boolean = false,
+    var console: Boolean = false,
+    var time: Boolean = false,
+    var timeLog: Boolean = false,
+    var exitDump: Boolean = false,
+    var outFile: Option[String] = None,
+    var htmlName: Option[String] = None
 ) extends Config

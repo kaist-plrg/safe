@@ -164,8 +164,8 @@ case class CallSiteSensitivity(depth: Int) extends Sensitivity {
 // loop sensitivity (unrolling)
 ////////////////////////////////////////////////////////////////////////////////
 case class LoopIter(
-  head: LoopHead,
-  iter: Int
+    head: LoopHead,
+    iter: Int
 )
 
 case class LoopContext(

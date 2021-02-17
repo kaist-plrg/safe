@@ -62,6 +62,6 @@ case object CFGBuild extends PhaseObj[IRRoot, CFGBuildConfig, CFG] {
 
 // CFGBuild phase config
 case class CFGBuildConfig(
-  var silent: Boolean = false,
-  var outFile: Option[String] = None
+    var silent: Boolean = false,
+    var outFile: Option[String] = None
 ) extends Config

@@ -13,8 +13,8 @@ package kr.ac.kaist.safe.analyzer.domain
 
 // concrete descriptor type
 case class Desc(
-  value: Option[Value],
-  writable: Option[Bool],
-  enumerable: Option[Bool],
-  configurable: Option[Bool]
+    value: Option[Value],
+    writable: Option[Bool],
+    enumerable: Option[Bool],
+    configurable: Option[Bool]
 )

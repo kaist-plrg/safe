@@ -17,12 +17,12 @@ import kr.ac.kaist.safe.util._
 
 // Expression
 abstract class IRExpr(
-  override val ast: ASTNode
+    override val ast: ASTNode
 ) extends IRNode(ast)
 
 // Side-effect free expressions
 abstract class IROpApp(
-  override val ast: ASTNode
+    override val ast: ASTNode
 ) extends IRExpr(ast)
 
 // Binary expression
@@ -108,11 +108,11 @@ abstract class IRId(
 // Variable
 // Expr ::= x
 case class IRUserId(
-  override val ast: ASTNode,
-  override val originalName: String,
-  override val uniqueName: String,
-  override val global: Boolean,
-  isWith: Boolean
+    override val ast: ASTNode,
+    override val originalName: String,
+    override val uniqueName: String,
+    override val global: Boolean,
+    isWith: Boolean
 ) extends IRId(ast, originalName, uniqueName, global)
 
 // Internally generated identifiers by Translator
