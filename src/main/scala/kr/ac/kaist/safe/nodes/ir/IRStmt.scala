@@ -18,13 +18,13 @@ import kr.ac.kaist.safe.util.NodeUtil
 
 // Statement
 abstract class IRStmt(
-    override val ast: ASTNode
+  override val ast: ASTNode
 ) extends IRNode(ast)
 
 // Assignment
 abstract class IRAssign(
-    override val ast: ASTNode,
-    val lhs: IRId
+  override val ast: ASTNode,
+  val lhs: IRId
 ) extends IRStmt(ast)
 
 // Expression

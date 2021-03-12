@@ -63,5 +63,5 @@ case object Parse extends PhaseObj[Unit, ParseConfig, Program] {
 
 // Parse phase config
 case class ParseConfig(
-    var outFile: Option[String] = None
+  var outFile: Option[String] = None
 ) extends Config

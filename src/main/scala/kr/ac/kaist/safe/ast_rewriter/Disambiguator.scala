@@ -61,10 +61,10 @@ class Disambiguator(program: Program) {
 
   // label environment
   private case class LabEnv(
-      encIter: Env, // encIter  : enclosing IterationStatement
-      encSwitch: Env, // encSwitch: enclosing SwitchStatement
-      encStmt: Env, // encStmt  : enclosing statement
-      curStmt: Env // curStmt  : current statement
+    encIter: Env, // encIter  : enclosing IterationStatement
+    encSwitch: Env, // encSwitch: enclosing SwitchStatement
+    encStmt: Env, // encStmt  : enclosing statement
+    curStmt: Env // curStmt  : current statement
   )
   private val EMPTY_LAB_ENV = LabEnv(List(), List(), List(), List())
   private var labEnv: LabEnv = EMPTY_LAB_ENV

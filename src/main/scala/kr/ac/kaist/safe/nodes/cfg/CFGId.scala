@@ -14,8 +14,8 @@ package kr.ac.kaist.safe.nodes.cfg
 import kr.ac.kaist.safe.util.NodeUtil
 
 sealed abstract class CFGId(
-    val text: String,
-    val kind: VarKind
+  val text: String,
+  val kind: VarKind
 )
 
 case class CFGUserId(

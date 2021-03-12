@@ -23,11 +23,11 @@ object DefaultContext extends ContextDomain {
   case object Bot extends Elem
   case object Top extends Elem
   case class CtxMap(
-      // TODO val varEnv: LexEnv // VariableEnvironment
-      val map: Map[Loc, AbsLexEnv],
-      val merged: LocSet,
-      val changed: LocSet,
-      override val thisBinding: AbsValue // ThisBinding
+    // TODO val varEnv: LexEnv // VariableEnvironment
+    val map: Map[Loc, AbsLexEnv],
+    val merged: LocSet,
+    val changed: LocSet,
+    override val thisBinding: AbsValue // ThisBinding
   ) extends Elem
   lazy val Empty: Elem =
     CtxMap(EmptyMap, LocSet.Bot, LocSet.Bot, LocSet(GLOBAL_LOC))

@@ -129,5 +129,5 @@ case object BugDetect extends PhaseObj[(CFG, Int, TracePartition, Semantics), Bu
 
 // BugDetect phase config
 case class BugDetectConfig(
-    var silent: Boolean = false
+  var silent: Boolean = false
 ) extends Config

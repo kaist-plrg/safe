@@ -36,9 +36,9 @@ class WithRewriter(program: Program, forTest: Boolean) {
   private sealed abstract class Env
   private case object EmptyEnv extends Env
   private case class ConsEnv(
-      withs: List[Id],
-      names: List[List[String]],
-      isNested: Boolean
+    withs: List[Id],
+    names: List[List[String]],
+    isNested: Boolean
   ) extends Env
 
   // default values

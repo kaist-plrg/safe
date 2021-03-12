@@ -15,7 +15,7 @@ import kr.ac.kaist.safe.nodes.ast.{ ASTNode, PropStr }
 
 // Member
 abstract class IRMember(
-    override val ast: ASTNode
+  override val ast: ASTNode
 ) extends IRNode(ast)
 
 // Member ::= x : e

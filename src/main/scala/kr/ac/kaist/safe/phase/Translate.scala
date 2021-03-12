@@ -63,6 +63,6 @@ case object Translate extends PhaseObj[Program, TranslateConfig, IRRoot] {
 
 // Translate phase config
 case class TranslateConfig(
-    var silent: Boolean = false,
-    var outFile: Option[String] = None
+  var silent: Boolean = false,
+  var outFile: Option[String] = None
 ) extends Config

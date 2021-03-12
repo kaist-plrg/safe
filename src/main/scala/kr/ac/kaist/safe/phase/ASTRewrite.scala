@@ -81,6 +81,6 @@ case object ASTRewrite extends PhaseObj[Program, ASTRewriteConfig, Program] {
 
 // ASTRewrite phase config
 case class ASTRewriteConfig(
-    var silent: Boolean = false,
-    var outFile: Option[String] = None
+  var silent: Boolean = false,
+  var outFile: Option[String] = None
 ) extends Config

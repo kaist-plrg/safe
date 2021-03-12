@@ -89,15 +89,15 @@ case object HeapBuild extends PhaseObj[CFG, HeapBuildConfig, (CFG, Semantics, Tr
 
 // HeapBuild phase config
 case class HeapBuildConfig(
-    var silent: Boolean = false,
-    var AbsUndef: UndefDomain = DefaultUndef,
-    var AbsNull: NullDomain = DefaultNull,
-    var AbsBool: BoolDomain = DefaultBool,
-    var AbsNum: NumDomain = DefaultNumber,
-    var AbsStr: StrDomain = StringSet(0),
-    var callsiteSensitivity: CallSiteSensitivity = CallSiteSensitivity(0),
-    var loopSensitivity: LoopSensitivity = LoopSensitivity(0, 0),
-    var snapshot: Option[String] = None,
-    var recencyMode: Boolean = false,
-    var heapClone: Boolean = false
+  var silent: Boolean = false,
+  var AbsUndef: UndefDomain = DefaultUndef,
+  var AbsNull: NullDomain = DefaultNull,
+  var AbsBool: BoolDomain = DefaultBool,
+  var AbsNum: NumDomain = DefaultNumber,
+  var AbsStr: StrDomain = StringSet(0),
+  var callsiteSensitivity: CallSiteSensitivity = CallSiteSensitivity(0),
+  var loopSensitivity: LoopSensitivity = LoopSensitivity(0, 0),
+  var snapshot: Option[String] = None,
+  var recencyMode: Boolean = false,
+  var heapClone: Boolean = false
 ) extends Config
